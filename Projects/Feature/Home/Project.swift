@@ -8,6 +8,7 @@ let project = Project(
       destinations: .iOS,
       product: .staticFramework,
       bundleId: "io.tuist.FeatureHome",
+      sources: ["Sources/**"],
       dependencies: [
         
       ]
