@@ -12,7 +12,9 @@ let project = Project.make(
       sources: ["Sources/**"],
       resources: ["Resources/**"],
       dependencies: [
-        .project(target: "Feature", path: "../Feature")
+        .project(target: .core, projectPath: .core),
+        .project(target: .designSystem, projectPath: .designSystem),
+        .project(target: .feature, projectPath: .feature)
       ],
       settings: .settings(
         base: ["SWIFT_VERSION": "6.0"]
@@ -26,7 +28,9 @@ let project = Project.make(
       sources: ["Sources/**"],
       resources: ["Resources/**"],
       dependencies: [
-        .project(target: "Feature", path: "../Feature")
+        .project(target: .core, projectPath: .core),
+        .project(target: .designSystem, projectPath: .designSystem),
+        .project(target: .feature, projectPath: .feature)
       ],
       settings: .settings(
         base: ["SWIFT_VERSION": "6.0"]

@@ -2,16 +2,13 @@ import ProjectDescription
 import ProjectDescriptionHelpers
 
 let project = Project.make(
-  name: "FeatureHome",
+  name: "Core",
   targets: [
     .make(
-      name: "FeatureHome",
+      name: "Core",
       product: .framework,
-      bundleId: "com.azhy.julook.feature.home",
-      sources: ["Sources/**"],
-      dependencies: [
-        .external(name: "ComposableArchitecture")
-      ],
+      bundleId: "com.azhy.julook.core",
+      dependencies: [ ],
       settings: .settings(
         base: ["SWIFT_VERSION": "6.0"]
       )
