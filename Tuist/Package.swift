@@ -13,7 +13,7 @@ let packageSettings = PackageSettings(
 #endif
 
 let package = Package(
-  name: "julook",
+  name: "Julook",
   dependencies: [
     .package(url: "https://github.com/pointfreeco/swift-composable-architecture.git", from: "1.18.0")
     // Add your own dependencies here:
