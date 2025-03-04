@@ -9,7 +9,7 @@ let project = Project.make(
       product: .framework,
       bundleId: "com.azhy.julook.feature",
       dependencies: [
-        .target(name: "FeatureHome")
+        .target(name: .home)
       ],
       settings: .settings(
         base: ["SWIFT_VERSION": "6.0"]

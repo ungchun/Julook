@@ -17,7 +17,10 @@ let project = Project.make(
         .project(target: .feature, projectPath: .feature)
       ],
       settings: .settings(
-        base: ["SWIFT_VERSION": "6.0"]
+        base: ["SWIFT_VERSION": "6.0"],
+        configurations: [
+          .release(name: .release)
+        ]
       )
     ),
     .make(
@@ -33,7 +36,10 @@ let project = Project.make(
         .project(target: .feature, projectPath: .feature)
       ],
       settings: .settings(
-        base: ["SWIFT_VERSION": "6.0"]
+        base: ["SWIFT_VERSION": "6.0"],
+        configurations: [
+          .debug(name: .debug)
+        ]
       )
     ),
   ]
