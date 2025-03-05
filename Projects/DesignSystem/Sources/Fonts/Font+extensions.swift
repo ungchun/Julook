@@ -35,6 +35,18 @@ extension Font {
       return .system(size: 15, weight: .regular)
     }
   }
+  
+  public static var SFTitle: Font { style(.SFTitle) }
+  public static var SF24B: Font { style(.SF24B) }
+  public static var SF20B: Font { style(.SF20B) }
+  public static var SF17R: Font { style(.SF17R) }
+  public static var SF14R: Font { style(.SF14R) }
+  public static var SF12B: Font { style(.SF12B) }
+  public static var SF12R: Font { style(.SF12R) }
+  public static var SF10B: Font { style(.SF10B) }
+  public static var SF10R: Font { style(.SF10R) }
+  public static var SF16R: Font { style(.SF16R) }
+  public static var SF15R: Font { style(.SF15R) }
 }
 
 public enum JulookFont {
