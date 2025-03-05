@@ -1,19 +1,25 @@
-import SwiftUI
+//
+//  JulookApp.swift
+//  App
+//
+//  Created by Kim SungHun on 3/5/25.
+//  Copyright © 2025 com.azhy.julook. All rights reserved.
+//
 
-import FeatureHome
+import SwiftUI
 
 import ComposableArchitecture
 
 @main
 struct JulookApp: App {
-  static let store = Store(initialState: CounterFeature.State()) {
-    CounterFeature()
-      ._printChanges()
-  }
-  
   var body: some Scene {
     WindowGroup {
-      ContentView(store: JulookApp.store)
+      RootView(
+        store: Store(
+          initialState: RootCore.State(),
+          reducer: RootCore.init
+        )
+      )
     }
   }
 }
