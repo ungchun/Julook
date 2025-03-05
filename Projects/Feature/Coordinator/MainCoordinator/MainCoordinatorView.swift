@@ -8,7 +8,7 @@
 
 import SwiftUI
 
-import FeatureHome
+import FeatureTabs
 
 import ComposableArchitecture
 import TCACoordinators
@@ -24,8 +24,8 @@ public struct MainCoordinatorView: View {
     TCARouter(store.scope(state: \.routes, action: \.router)) { screen in
       Group {
         switch screen.case {
-        case let .home(store):
-          ContentView(store: store)
+        case let .tabs(store):
+          TabsView(store: store)
         }
       }
       .toolbar(.hidden)

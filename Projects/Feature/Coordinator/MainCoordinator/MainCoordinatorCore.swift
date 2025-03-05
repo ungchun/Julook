@@ -29,8 +29,8 @@ public struct MainCoordinatorCore {
   public var body: some Reducer<State, Action> {
     Reduce { state, action in
       switch action {
-      case .router(.routeAction(id: _, action: .home)):
-        state.routes.push(.home(.init()))
+      case .router(.routeAction(id: _, action: .tabs)):
+        state.routes.push(.tabs(.init()))
         
       default:
         break

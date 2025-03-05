@@ -8,7 +8,7 @@
 
 import MainCoordinator
 
-import FeatureHome
+import FeatureTabs
 
 import ComposableArchitecture
 
@@ -51,7 +51,7 @@ public struct RootCore {
       case .onAppear:
         state.destination = .mainCoordinator(
           MainCoordinatorCore.State(
-            routes: [.root(.home(HomeCore.State()),
+            routes: [.root(.tabs(TabCore.State()),
                            embedInNavigationView: true)]
           )
         )

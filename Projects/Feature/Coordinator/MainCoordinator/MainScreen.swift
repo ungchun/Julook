@@ -6,12 +6,12 @@
 //  Copyright © 2025 com.azhy.julook. All rights reserved.
 //
 
-import FeatureHome
+import FeatureTabs
 
 import ComposableArchitecture
 import TCACoordinators
 
 @Reducer(state: .equatable)
 public enum MainScreen {
-  case home(HomeCore)
+  case tabs(TabCore)
 }

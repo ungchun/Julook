@@ -10,7 +10,7 @@ let project = Project.make(
       bundleId: "com.azhy.julook.mainCoordinator",
       sources: ["MainCoordinator/**"],
       dependencies: [
-        .project(target: .home, projectPath: .scene),
+        .project(target: .tabs, projectPath: .scene),
         .external(externalDependency: .composableArchitecture),
         .external(externalDependency: .tcaCoordinators)
       ],

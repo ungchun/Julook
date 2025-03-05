@@ -21,7 +21,6 @@ extension TargetDependency {
 public enum ProjectPath: String {
   case core = "Projects/Core"
   case designSystem = "Projects/DesignSystem"
-  // case feature = "Projects/Feature"
   case scene = "Projects/Feature/Scene"
   case coordinator = "Projects/Feature/Coordinator"
 }
@@ -29,8 +28,9 @@ public enum ProjectPath: String {
 public enum TargetName: String {
   case core = "Core"
   case designSystem = "DesignSystem"
-  // case feature = "Feature"
+  case tabs = "FeatureTabs"
   case home = "FeatureHome"
+  case search = "FeatureSearch"
   case mainCoordinator = "MainCoordinator"
 }
 
