@@ -21,16 +21,20 @@ extension TargetDependency {
 public enum ProjectPath: String {
   case core = "Projects/Core"
   case designSystem = "Projects/DesignSystem"
-  case feature = "Projects/Feature"
+  // case feature = "Projects/Feature"
+  case scene = "Projects/Feature/Scene"
+  case coordinator = "Projects/Feature/Coordinator"
 }
 
 public enum TargetName: String {
   case core = "Core"
   case designSystem = "DesignSystem"
-  case feature = "Feature"
+  // case feature = "Feature"
   case home = "FeatureHome"
+  case mainCoordinator = "MainCoordinator"
 }
 
 public enum ExternalDependency: String {
   case composableArchitecture = "ComposableArchitecture"
+  case tcaCoordinators = "TCACoordinators"
 }

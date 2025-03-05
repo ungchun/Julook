@@ -1,5 +1,5 @@
 {
-  "originHash" : "07ed209a3492c9bf7825ba41da5852b26ad4f36f7303aa4986633d75ef66b084",
+  "originHash" : "47047f15b633ce4faf6e22c918edcfa38a92612ead5c8bf0364872e9e12dc767",
   "pins" : [
     {
       "identity" : "combine-schedulers",
@@ -8,6 +8,15 @@
       "state" : {
         "revision" : "5928286acce13def418ec36d05a001a9641086f2",
         "version" : "1.0.3"
+      }
+    },
+    {
+      "identity" : "flowstacks",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/johnpatrickmorgan/FlowStacks",
+      "state" : {
+        "revision" : "a2b974b81612e1e8ee3ecd757d936a2919527356",
+        "version" : "0.4.1"
       }
     },
     {
@@ -116,6 +125,15 @@
       "state" : {
         "revision" : "0687f71944021d616d34d922343dcef086855920",
         "version" : "600.0.1"
+      }
+    },
+    {
+      "identity" : "tcacoordinators",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/johnpatrickmorgan/TCACoordinators",
+      "state" : {
+        "revision" : "dbd41678b1d53849dca7582534671ccc19287a87",
+        "version" : "0.11.0"
       }
     },
     {

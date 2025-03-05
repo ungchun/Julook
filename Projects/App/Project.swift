@@ -14,7 +14,7 @@ let project = Project.make(
       dependencies: [
         .project(target: .core, projectPath: .core),
         .project(target: .designSystem, projectPath: .designSystem),
-        .project(target: .feature, projectPath: .feature)
+        .project(target: .mainCoordinator, projectPath: .coordinator)
       ],
       settings: .settings(
         base: ["SWIFT_VERSION": "6.0"],
@@ -33,7 +33,7 @@ let project = Project.make(
       dependencies: [
         .project(target: .core, projectPath: .core),
         .project(target: .designSystem, projectPath: .designSystem),
-        .project(target: .feature, projectPath: .feature)
+        .project(target: .mainCoordinator, projectPath: .coordinator)
       ],
       settings: .settings(
         base: ["SWIFT_VERSION": "6.0"],

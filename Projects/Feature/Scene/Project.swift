@@ -2,23 +2,12 @@ import ProjectDescription
 import ProjectDescriptionHelpers
 
 let project = Project.make(
-  name: "Feature",
+  name: "Scene",
   targets: [
-    .make(
-      name: "Feature",
-      product: .framework,
-      bundleId: "com.azhy.julook.feature",
-      dependencies: [
-        .target(name: .home)
-      ],
-      settings: .settings(
-        base: ["SWIFT_VERSION": "6.0"]
-      )
-    ),
     .make(
       name: "FeatureHome",
       product: .framework,
-      bundleId: "com.azhy.julook.feature.home",
+      bundleId: "com.azhy.julook.home",
       sources: ["Home/Sources/**"],
       dependencies: [
         .project(target: .core, projectPath: .core),
