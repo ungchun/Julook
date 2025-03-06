@@ -37,4 +37,5 @@ public enum TargetName: String {
 public enum ExternalDependency: String {
   case composableArchitecture = "ComposableArchitecture"
   case tcaCoordinators = "TCACoordinators"
+  case supabase = "Supabase"
 }

@@ -16,7 +16,8 @@ let package = Package(
   name: "Julook",
   dependencies: [
     .package(url: "https://github.com/pointfreeco/swift-composable-architecture.git", from: "1.18.0"),
-    .package(url: "https://github.com/johnpatrickmorgan/TCACoordinators", from: "0.11.0")
+    .package(url: "https://github.com/johnpatrickmorgan/TCACoordinators", from: "0.11.0"),
+    .package(url: "https://github.com/supabase/supabase-swift", from: "2.25.0")
     // Add your own dependencies here:
     // .package(url: "https://github.com/Alamofire/Alamofire", from: "5.0.0"),
     // You can read more about dependencies here: https://docs.tuist.io/documentation/tuist/dependencies
