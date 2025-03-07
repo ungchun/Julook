@@ -11,7 +11,7 @@ import TCACoordinators
 
 @Reducer
 public struct MainCoordinatorCore {
-  public init() {}
+  public init() { }
   
   @ObservableState
   public struct State: Equatable {
