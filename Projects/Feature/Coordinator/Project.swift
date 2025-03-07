@@ -11,7 +11,6 @@ let project = Project.make(
       sources: ["MainCoordinator/**"],
       dependencies: [
         .project(target: .tabs, projectPath: .scene),
-        .external(externalDependency: .composableArchitecture),
         .external(externalDependency: .tcaCoordinators)
       ],
       settings: .settings(
