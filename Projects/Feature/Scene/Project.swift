@@ -28,7 +28,8 @@ let project = Project.make(
       dependencies: [
         .project(target: .core, projectPath: .core),
         .project(target: .designSystem, projectPath: .designSystem),
-        .external(externalDependency: .composableArchitecture)
+        .external(externalDependency: .composableArchitecture),
+        .external(externalDependency: .supabase)
       ],
       settings: .settings(
         base: ["SWIFT_VERSION": "6.0"]

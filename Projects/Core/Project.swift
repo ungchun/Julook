@@ -8,7 +8,10 @@ let project = Project.make(
       name: "Core",
       product: .framework,
       bundleId: "com.azhy.julook.core",
-      dependencies: [ ],
+      sources: ["Sources/**"],
+      dependencies: [
+        .external(externalDependency: .supabase)
+      ],
       settings: .settings(
         base: ["SWIFT_VERSION": "6.0"]
       )

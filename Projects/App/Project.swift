@@ -14,12 +14,13 @@ let project = Project.make(
       dependencies: [
         .project(target: .core, projectPath: .core),
         .project(target: .designSystem, projectPath: .designSystem),
-        .project(target: .mainCoordinator, projectPath: .coordinator)
+        .project(target: .mainCoordinator, projectPath: .coordinator),
+        .external(externalDependency: .supabase)
       ],
       settings: .settings(
         base: ["SWIFT_VERSION": "6.0"],
         configurations: [
-          .release(name: .release)
+          .release(name: .release, xcconfig: "./Resources/Secrets.xcconfig")
         ]
       )
     ),
@@ -33,12 +34,13 @@ let project = Project.make(
       dependencies: [
         .project(target: .core, projectPath: .core),
         .project(target: .designSystem, projectPath: .designSystem),
-        .project(target: .mainCoordinator, projectPath: .coordinator)
+        .project(target: .mainCoordinator, projectPath: .coordinator),
+        .external(externalDependency: .supabase)
       ],
       settings: .settings(
         base: ["SWIFT_VERSION": "6.0"],
         configurations: [
-          .debug(name: .debug)
+          .debug(name: .debug, xcconfig: "./Resources/Secrets.xcconfig"),
         ]
       )
     ),
