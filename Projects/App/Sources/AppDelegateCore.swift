@@ -14,10 +14,9 @@ import ComposableArchitecture
 import Supabase
 
 @Reducer
-struct AppDelegateCore {  
+struct AppDelegateCore {
   @ObservableState
   struct State: Equatable {
-    var supabaseInitialized: Bool = false
   }
   
   enum Action {
@@ -25,7 +24,6 @@ struct AppDelegateCore {
     
     // supabase
     case setupSupabase
-    case supabaseInitialized(Bool)
     
     case logError(AppDelegateCoreError)
   }
@@ -40,35 +38,15 @@ struct AppDelegateCore {
         
       case .setupSupabase:
         guard let supabaseKey = Bundle.main.infoDictionary?["SUPABASE_KEY"] as? String else {
-          return .send(.supabaseInitialized(false))
+          // TODO: ERROR
+          return .none
         }
         let trimmedKey = supabaseKey.trimmingCharacters(in: CharacterSet(charactersIn: "\""))
         guard let supabaseURL = URL(string: "https://avfwwfpwpdpsoegwehry.supabase.co") else {
-          return .send(.supabaseInitialized(false))
+          // TODO: ERROR
+          return .none
         }
         SupabaseManager.shared.initialize(supabaseURL: supabaseURL, supabaseKey: trimmedKey)
-        return .send(.supabaseInitialized(true))
-        
-      case let .supabaseInitialized(success):
-        state.supabaseInitialized = success
-        if success {
-          return .run { send in
-            do {
-              let client = SupabaseManager.shared.client
-              if let client = client {
-                let session = try await client.auth.session
-                Log.debug("supabase active \(session.user.id)")
-              }
-            } catch {
-              await send(.logError(AppDelegateCoreError(
-                code: .failToSupabaseInitialized,
-                underlying: error
-              )))
-            }
-          }
-        } else {
-          // fail supabase init
-        }
         return .none
         
       case let .logError(error):
