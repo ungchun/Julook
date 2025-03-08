@@ -82,3 +82,16 @@ public extension Color {
     DesignSystemAsset.Colors.warmred.swiftUIColor
   }
 }
+
+public extension LinearGradient {
+  static var warmNeutral: LinearGradient {
+    LinearGradient(
+      gradient: Gradient(colors: [
+        Color(hex: 0xDBC2C2),
+        Color(hex: 0xA38787)
+      ]),
+      startPoint: .top,
+      endPoint: .bottom
+    )
+  }
+}
