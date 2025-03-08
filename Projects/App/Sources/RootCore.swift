@@ -31,10 +31,10 @@ public struct RootCore {
   }
   
   public enum Action: BindableAction {
+    case onAppear
+    
     case binding(BindingAction<State>)
     case destination(PresentationAction<Destination.Action>)
-    
-    case onAppear
   }
   
   public var body: some Reducer<State, Action> {
@@ -58,5 +58,6 @@ public struct RootCore {
         return .none
       }
     }
+    .ifLet(\.$destination, action: \.destination)
   }
 }

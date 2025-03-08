@@ -6,8 +6,15 @@
 //  Copyright © 2025 com.azhy.julook. All rights reserved.
 //
 
+import FeatureTabs
+
 import ComposableArchitecture
 import TCACoordinators
+
+@Reducer(state: .equatable)
+public enum MainScreen {
+  case tabs(TabCore)
+}
 
 @Reducer
 public struct MainCoordinatorCore {
@@ -26,17 +33,15 @@ public struct MainCoordinatorCore {
     case router(IndexedRouterActionOf<MainScreen>)
   }
   
-  public var body: some Reducer<State, Action> {
+  public var body: some ReducerOf<Self> {
     Reduce { state, action in
       switch action {
       case .router(.routeAction(id: _, action: .tabs)):
-        state.routes.push(.tabs(.init()))
+        return .none
         
       default:
-        break
+        return .none
       }
-      
-      return .none
     }
     .forEachRoute(\.routes, action: \.router)
   }

@@ -1,6 +1,5 @@
 import SwiftUI
 
-import FeatureHome
 import MainCoordinator
 
 import ComposableArchitecture

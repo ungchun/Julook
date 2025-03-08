@@ -10,24 +10,26 @@ import SwiftUI
 
 import FeatureHome
 import FeatureSearch
+import DesignSystem
 
 import ComposableArchitecture
 
 public struct TabsView: View {
-  @Bindable var store: StoreOf<TabCore>
+  let store: StoreOf<TabCore>
   
   public init(store: StoreOf<TabCore>) {
     self.store = store
   }
   
   public var body: some View {
-    TabView(selection: $store.selectedTab.sending(\.tabSeoected)) {
+    TabView {
       HomeView(store: store.scope(
         state: \.homeTab,
         action: \.homeTab))
       .tabItem {
-        Image(systemName: "house")
-        Text("Home")
+        DesignSystemAsset.Images.homeTab.swiftUIImage
+        Text("모아보기")
+          .font(.style(.SF10B))
       }
       .tag(Tab.home)
       
@@ -35,10 +37,12 @@ public struct TabsView: View {
         state: \.searchTab,
         action: \.searchTab))
       .tabItem {
-        Image(systemName: "gear")
-        Text("Search")
+        DesignSystemAsset.Images.searchTab.swiftUIImage
+        Text("검색")
+          .font(.style(.SF10B))
       }
       .tag(Tab.search)
     }
+    .accentColor(DesignSystemAsset.Colors.primary.swiftUIColor)
   }
 }
