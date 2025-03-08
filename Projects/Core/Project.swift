@@ -10,6 +10,7 @@ let project = Project.make(
       bundleId: "com.azhy.julook.core",
       sources: ["Sources/**"],
       dependencies: [
+        .external(externalDependency: .composableArchitecture),
         .external(externalDependency: .supabase)
       ],
       settings: .settings(
