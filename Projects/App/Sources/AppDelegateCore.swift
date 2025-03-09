@@ -28,6 +28,8 @@ struct AppDelegateCore {
     case logError(AppDelegateCoreError)
   }
   
+  @Dependency(\.supabaseClient) var supabaseClient
+  
   var body: some Reducer<State, Action> {
     Reduce { state, action in
       switch action {
@@ -37,17 +39,9 @@ struct AppDelegateCore {
         }
         
       case .setupSupabase:
-        guard let supabaseKey = Bundle.main.infoDictionary?["SUPABASE_KEY"] as? String else {
-          // TODO: ERROR
-          return .none
+        return .run { send in
+          await supabaseClient.initialize()
         }
-        let trimmedKey = supabaseKey.trimmingCharacters(in: CharacterSet(charactersIn: "\""))
-        guard let supabaseURL = URL(string: "https://avfwwfpwpdpsoegwehry.supabase.co") else {
-          // TODO: ERROR
-          return .none
-        }
-        SupabaseManager.shared.initialize(supabaseURL: supabaseURL, supabaseKey: trimmedKey)
-        return .none
         
       case let .logError(error):
         return .run { _ in
