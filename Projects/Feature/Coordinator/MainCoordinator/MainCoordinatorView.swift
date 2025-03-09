@@ -9,6 +9,7 @@
 import SwiftUI
 
 import FeatureTabs
+import FeatureHome
 
 import ComposableArchitecture
 import TCACoordinators
@@ -26,9 +27,10 @@ public struct MainCoordinatorView: View {
         switch screen.case {
         case let .tabs(store):
           TabsView(store: store)
+        case let .filter(store):
+          FilterView(store: store)
         }
       }
-      .toolbar(.hidden)
     }
   }
 }

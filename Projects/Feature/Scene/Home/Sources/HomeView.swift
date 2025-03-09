@@ -28,7 +28,7 @@ public struct HomeView: View {
         VStack(spacing: 20) {
           HeaderView()
           
-          MakgeolliFilterView()
+          MakgeolliFilterView(store: store)
           
           NewReleasesView(store: store)
           
@@ -38,10 +38,11 @@ public struct HomeView: View {
       .padding(.vertical, 20)
     }
     .onAppear {
+      // TODO: onMounted
       // TODO: 스플래시 뷰 추가하고, supabase init 하고 홈으로 넘어가는 로직 추가하면 sleep 삭제
       Task {
         try await Task.sleep(for: .seconds(1))
-        store.send(.onAppear)
+        // store.send(.onAppear)
       }
     }
   }
@@ -88,7 +89,10 @@ private struct HeaderView: View {
 }
 
 private struct MakgeolliFilterView: View {
-  fileprivate init() {
+  let store: StoreOf<HomeCore>
+  
+  fileprivate init(store: StoreOf<HomeCore>) {
+    self.store = store
   }
   
   fileprivate var body: some View {
@@ -106,6 +110,9 @@ private struct MakgeolliFilterView: View {
         
         Spacer()
       }
+      .onTapGesture {
+        store.send(.filterButtonTapped)
+      }
       .padding(.horizontal, 16)
       
       ScrollView(.horizontal, showsIndicators: false) {
@@ -122,6 +129,10 @@ private struct MakgeolliFilterView: View {
               Text(filterType.description)
                 .foregroundColor(.w85)
                 .font(.SF12B)
+            }
+            .onTapGesture {
+              // 필터 아이템 클릭 시 해당 필터를 선택한 상태로 FilterView로 이동
+              store.send(.filterItemTapped(filterType.description))
             }
           }
         }

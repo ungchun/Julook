@@ -31,20 +31,24 @@ public struct HomeCore {
   
   public enum Action {
     case onAppear
+    case filterButtonTapped
+    case filterItemTapped(String)
     
     case fetchNewReleases
     case newReleasesResponse(TaskResult<[Makgeolli]>)
-    
     case fetchNewReleasesImage(Makgeolli)
     case newReleasesImageResponse(id: UUID, TaskResult<URL>)
-    
     case fetchAwards
     case awardsResponse(TaskResult<[Award]>)
+    
+    case moveToFilter
+    case moveToFilterWithSelection(String)
     
     case logError(HomeCoreError)
   }
   
   private enum Constants {
+    // TODO: change string -> static
     static let storageBucket = "makgeolli_image"
   }
   
@@ -58,6 +62,12 @@ public struct HomeCore {
           .send(.fetchNewReleases),
           .send(.fetchAwards)
         )
+        
+      case .filterButtonTapped:
+        return .send(.moveToFilter)
+        
+      case let .filterItemTapped(filterName):
+        return .send(.moveToFilterWithSelection(filterName))
         
       case .fetchNewReleases:
         state.isLoadingNewReleases = true
@@ -137,6 +147,12 @@ public struct HomeCore {
           code: .failToFetchAwards,
           underlying: error
         )))
+        
+      case .moveToFilter:
+        return .none
+        
+      case .moveToFilterWithSelection:
+        return .none
         
       case let .logError(error):
         return .run { _ in

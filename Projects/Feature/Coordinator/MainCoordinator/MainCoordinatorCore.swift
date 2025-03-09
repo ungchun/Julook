@@ -7,6 +7,7 @@
 //
 
 import FeatureTabs
+import FeatureHome
 
 import ComposableArchitecture
 import TCACoordinators
@@ -14,6 +15,7 @@ import TCACoordinators
 @Reducer(state: .equatable)
 public enum MainScreen {
   case tabs(TabCore)
+  case filter(FilterCore)
 }
 
 @Reducer
@@ -36,12 +38,19 @@ public struct MainCoordinatorCore {
   public var body: some ReducerOf<Self> {
     Reduce { state, action in
       switch action {
-      case .router(.routeAction(id: _, action: .tabs)):
+      case .router(.routeAction(id: _, action: .tabs(.homeTab(.moveToFilter)))):
+        state.routes.push(.filter(.init()))
+        
+      case let .router(.routeAction(
+        id: _, action: .tabs(.homeTab(.moveToFilterWithSelection(filterName))))):
+        state.routes.push(.filter(.init(initSelectedFilters: filterName)))
         return .none
         
       default:
-        return .none
+        break
       }
+      
+      return .none
     }
     .forEachRoute(\.routes, action: \.router)
   }
