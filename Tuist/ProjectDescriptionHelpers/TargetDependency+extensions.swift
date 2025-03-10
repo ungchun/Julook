@@ -31,6 +31,7 @@ public enum TargetName: String {
   case tabs = "FeatureTabs"
   case home = "FeatureHome"
   case search = "FeatureSearch"
+  case splash = "FeatureSplash"
   case mainCoordinator = "MainCoordinator"
 }
 

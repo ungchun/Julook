@@ -1,6 +1,7 @@
 import SwiftUI
 
 import MainCoordinator
+import FeatureSplash
 
 import ComposableArchitecture
 
@@ -15,6 +16,13 @@ struct RootView: View {
     Group {
       switch store.destination {
       default:
+        if let store = store.scope(
+          state: \.destination?.splash,
+          action: \.destination.splash
+        ) {
+          SplashView(store: store)
+        }
+        
         if let store = store.scope(
           state: \.destination?.mainCoordinator,
           action: \.destination.mainCoordinator

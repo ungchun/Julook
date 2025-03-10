@@ -47,6 +47,20 @@ let project = Project.make(
       settings: .settings(
         base: ["SWIFT_VERSION": "6.0"]
       )
+    ),
+    .make(
+      name: "FeatureSplash",
+      product: .framework,
+      bundleId: "com.azhy.julook.splash",
+      sources: ["Splash/Sources/**"],
+      dependencies: [
+        .project(target: .core, projectPath: .core),
+        .project(target: .designSystem, projectPath: .designSystem),
+        .external(externalDependency: .composableArchitecture)
+      ],
+      settings: .settings(
+        base: ["SWIFT_VERSION": "6.0"]
+      )
     )
   ]
 )

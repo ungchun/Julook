@@ -9,6 +9,7 @@
 import MainCoordinator
 
 import FeatureTabs
+import FeatureSplash
 
 import ComposableArchitecture
 
@@ -16,6 +17,7 @@ import ComposableArchitecture
 public struct RootCore {
   @Reducer
   public enum Destination {
+    case splash(SplashCore)
     case mainCoordinator(MainCoordinatorCore)
   }
   
@@ -32,6 +34,7 @@ public struct RootCore {
   
   public enum Action: BindableAction {
     case onAppear
+    case splashCompleted
     
     case binding(BindingAction<State>)
     case destination(PresentationAction<Destination.Action>)
@@ -49,6 +52,13 @@ public struct RootCore {
         return .none
         
       case .onAppear:
+        state.destination = .splash(SplashCore.State())
+        return .run { send in
+          try await Task.sleep(for: .seconds(3))
+          await send(.splashCompleted)
+        }
+        
+      case .splashCompleted:
         state.destination = .mainCoordinator(
           MainCoordinatorCore.State(
             routes: [.root(.tabs(TabCore.State()),

@@ -14,6 +14,7 @@ let project = Project.make(
       dependencies: [
         .project(target: .core, projectPath: .core),
         .project(target: .designSystem, projectPath: .designSystem),
+        .project(target: .splash, projectPath: .scene),
         .project(target: .mainCoordinator, projectPath: .coordinator)
       ],
       settings: .settings(
@@ -33,6 +34,7 @@ let project = Project.make(
       dependencies: [
         .project(target: .core, projectPath: .core),
         .project(target: .designSystem, projectPath: .designSystem),
+        .project(target: .splash, projectPath: .scene),
         .project(target: .mainCoordinator, projectPath: .coordinator)
       ],
       settings: .settings(
