@@ -37,14 +37,7 @@ public struct HomeView: View {
       }
       .padding(.vertical, 20)
     }
-    .onAppear {
-      // TODO: onMounted
-      // TODO: 스플래시 뷰 추가하고, supabase init 하고 홈으로 넘어가는 로직 추가하면 sleep 삭제
-      Task {
-        try await Task.sleep(for: .seconds(1))
-        // store.send(.onAppear)
-      }
-    }
+    .onAppear { store.send(.onAppear) }
   }
 }
 
@@ -132,7 +125,7 @@ private struct MakgeolliFilterView: View {
             }
             .onTapGesture {
               // 필터 아이템 클릭 시 해당 필터를 선택한 상태로 FilterView로 이동
-              store.send(.filterItemTapped(filterType.description))
+              store.send(.filterItemTapped(filterType))
             }
           }
         }
@@ -140,36 +133,6 @@ private struct MakgeolliFilterView: View {
       }
     }
     .padding(.bottom, 20)
-  }
-  
-  private enum FilterType: String, CaseIterable, Identifiable {
-    case thick
-    case sweet
-    case sour
-    case carbonation
-    case aspartame
-    
-    var id: String { self.rawValue }
-    
-    var image: Image {
-      switch self {
-      case .thick: return DesignSystemAsset.Images.thick.swiftUIImage
-      case .sweet: return DesignSystemAsset.Images.sweet.swiftUIImage
-      case .sour: return DesignSystemAsset.Images.sour.swiftUIImage
-      case .carbonation: return DesignSystemAsset.Images.carbonation.swiftUIImage
-      case .aspartame: return DesignSystemAsset.Images.aspartame.swiftUIImage
-      }
-    }
-    
-    var description: String {
-      switch self {
-      case .thick: return "걸쭉한"
-      case .sweet: return "달달한"
-      case .sour: return "시큼한"
-      case .carbonation: return "탄산감 많은"
-      case .aspartame: return "아스파탐 없는"
-      }
-    }
   }
 }
 

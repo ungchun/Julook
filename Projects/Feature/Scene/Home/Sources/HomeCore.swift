@@ -32,7 +32,7 @@ public struct HomeCore {
   public enum Action {
     case onAppear
     case filterButtonTapped
-    case filterItemTapped(String)
+    case filterItemTapped(FilterType)
     
     case fetchNewReleases
     case newReleasesResponse(TaskResult<[Makgeolli]>)
@@ -42,14 +42,9 @@ public struct HomeCore {
     case awardsResponse(TaskResult<[Award]>)
     
     case moveToFilter
-    case moveToFilterWithSelection(String)
+    case moveToFilterWithSelection(FilterType)
     
     case logError(HomeCoreError)
-  }
-  
-  private enum Constants {
-    // TODO: change string -> static
-    static let storageBucket = "makgeolli_image"
   }
   
   @Dependency(\.supabaseClient) var supabaseClient
@@ -58,10 +53,14 @@ public struct HomeCore {
     Reduce { state, action in
       switch action {
       case .onAppear:
-        return .merge(
-          .send(.fetchNewReleases),
-          .send(.fetchAwards)
-        )
+        if !state.isLoadingNewReleases && !state.isLoadingAwards {
+          return .merge(
+            .send(.fetchNewReleases),
+            .send(.fetchAwards)
+          )
+        } else {
+          return .none
+        }
         
       case .filterButtonTapped:
         return .send(.moveToFilter)
@@ -106,7 +105,7 @@ public struct HomeCore {
         return .run { send in
           do {
             let fileName = imageName.hasSuffix(".png") ? imageName : "\(imageName).png"
-            let publicURL = try await supabaseClient.getPublicURL(Constants.storageBucket, fileName)
+            let publicURL = try await supabaseClient.getPublicURL(Bucket.MAKGEOLLIIMAGE, fileName)
             await send(.newReleasesImageResponse(id: makgeolli.id, .success(publicURL)))
           } catch {
             await send(.newReleasesImageResponse(id: makgeolli.id, .failure(error)))

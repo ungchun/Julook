@@ -8,6 +8,8 @@
 
 import Foundation
 
+import Core
+
 import ComposableArchitecture
 import Supabase
 
@@ -17,16 +19,13 @@ public struct FilterCore {
   
   @ObservableState
   public struct State: Equatable {
-    public var selectedFilters: Set<String> = []
-    public var initSelectedFilters: String?
+    public var selectedFilters: Set<FilterType> = []
+    public var initSelectedFilters: FilterType?
     public var showSortOptions: Bool = false
-    
-    // TODO: enum
-    public var selectedSort: String = "추천순"
-    public var sortOptions: [String] = ["추천순", "높은 도수순", "낮은 도수순"]
+    public var selectedSort: SortOption = .recommended
     
     public init(
-      initSelectedFilters: String? = nil
+      initSelectedFilters: FilterType? = nil
     ) {
       self.initSelectedFilters = initSelectedFilters
     }
@@ -35,9 +34,9 @@ public struct FilterCore {
   public enum Action {
     case onAppear
     
-    case toggleFilter(String)
+    case toggleFilter(FilterType)
     case toggleSortOptions
-    case selectSort(String)
+    case selectSort(SortOption)
     case dismissSortOptions
   }
   

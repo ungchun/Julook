@@ -11,6 +11,10 @@ import Foundation
 import ComposableArchitecture
 import Supabase
 
+public enum Bucket {
+  public static let MAKGEOLLIIMAGE = "makgeolli_image"
+}
+
 @DependencyClient
 public struct SupabaseClient: Sendable {
   public var initialize: @Sendable () async -> Void
@@ -26,14 +30,31 @@ extension SupabaseClient: DependencyKey {
     
     return SupabaseClient(
       initialize: {
-        // TODO: 강제 언래핑 수정
-        let supabaseKey = Bundle.main.infoDictionary?["SUPABASE_KEY"] as! String
-        let trimmedKey = supabaseKey.trimmingCharacters(in: CharacterSet(charactersIn: "\""))
-        let client = Supabase.SupabaseClient(
-          supabaseURL: URL(string: "https://avfwwfpwpdpsoegwehry.supabase.co")!,
-          supabaseKey: trimmedKey
-        )
-        clientRef.setValue(client)
+        do {
+          guard let supabaseKeyValue = Bundle.main.infoDictionary?["SUPABASE_KEY"]
+                  as? String else {
+            throw SupabaseClientError(
+              code: .clientNotInitialized,
+              underlying: nil
+            )
+          }
+          let trimmedKey = supabaseKeyValue.trimmingCharacters(
+            in: CharacterSet(charactersIn: "\"")
+          )
+          guard let supabaseURL = URL(string: "https://avfwwfpwpdpsoegwehry.supabase.co") else {
+            throw SupabaseClientError(
+              code: .clientNotInitialized,
+              underlying: nil
+            )
+          }
+          let client = Supabase.SupabaseClient(
+            supabaseURL: supabaseURL,
+            supabaseKey: trimmedKey
+          )
+          clientRef.setValue(client)
+        } catch {
+          Log.error(error)
+        }
       },
       
       fetchNewReleases: {

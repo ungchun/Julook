@@ -20,11 +20,6 @@ public struct FilterView: View {
     self.store = store
   }
   
-  // TODO: 분리 + enum
-  private var filterOptions: [String] {
-    ["걸쭉한", "달달한", "시큼한", "탄산감 많은", "아스파탐 없는"]
-  }
-  
   public var body: some View {
     ZStack {
       DesignSystemAsset.Colors.darkbase.swiftUIColor
@@ -34,11 +29,11 @@ public struct FilterView: View {
         ScrollView(.horizontal, showsIndicators: false) {
           // TODO: 특징
           HStack(spacing: 8) {
-            ForEach(filterOptions, id: \.self) { option in
+            ForEach(FilterType.allCases, id: \.self) { option in
               Button {
                 store.send(.toggleFilter(option))
               } label: {
-                Text(option)
+                Text(option.description)
                   .foregroundColor(.w)
                   .font(.SF15R)
               }
@@ -73,8 +68,8 @@ public struct FilterView: View {
                   get: { self.store.selectedSort },
                   set: { self.store.send(.selectSort($0)) }
                 )) {
-                  ForEach(store.sortOptions, id: \.self) { option in
-                    Text(option)
+                  ForEach(SortOption.allCases) { option in
+                    Text(option.description)
                       .foregroundColor(.white)
                       .font(.SF14R)
                       .tag(option)
@@ -84,14 +79,13 @@ public struct FilterView: View {
               } label: {
                 HStack(spacing: 4) {
                   Group {
-                    Text(self.store.selectedSort)
+                    Text(self.store.selectedSort.description)
                     Image(systemName: "chevron.up.chevron.down")
                   }
                   .font(.SF12B)
                   .foregroundColor(DesignSystemAsset.Colors.primary.swiftUIColor)
                 }
-              }
-            }
+              }            }
             .padding(.horizontal, 16)
             .padding(.vertical, 10)
           }
