@@ -94,4 +94,15 @@ public extension LinearGradient {
       endPoint: .bottom
     )
   }
+  
+  static var lilacNeutral: LinearGradient {
+    LinearGradient(
+      gradient: Gradient(colors: [
+        Color(hex: 0x3D3D72),
+        Color(hex: 0x000000)
+      ]),
+      startPoint: .top,
+      endPoint: .bottom
+    )
+  }
 }
