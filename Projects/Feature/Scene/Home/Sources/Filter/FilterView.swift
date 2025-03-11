@@ -93,6 +93,19 @@ private struct SortOptionsView: View {
             .frame(width: 12, height: 12)
             .foregroundColor(.w50)
         }
+        .onTapGesture {
+          store.send(.toggleSortInfoAlert)
+        }
+        .alert("추천순으로 정렬", isPresented: Binding(
+          get: { store.showSortInfoAlert },
+          set: { if !$0 { store.send(.toggleSortInfoAlert) } }
+        )) {
+          Button("확인", role: .cancel) {
+            store.send(.toggleSortInfoAlert)
+          }
+        } message: {
+          Text("최근에 나온 막걸리일수록 리스트 상단에 정렬돼요.")
+        }
         
         Spacer()
         

@@ -32,6 +32,7 @@ public struct FilterCore {
     public var pageSize: Int = 10
     public var isTopicMode: Bool = false
     public var topicTitle: String = ""
+    public var showSortInfoAlert: Bool = false
     
     public init(
       initSelectedFilters: FilterType? = nil
@@ -64,6 +65,7 @@ public struct FilterCore {
     case makgeolliImageResponse(id: UUID, TaskResult<URL>)
     case applyFilters
     case fetchMakgeollisByTopic
+    case toggleSortInfoAlert
     
     case moveToInformation(Makgeolli, URL?)
     
@@ -130,6 +132,10 @@ public struct FilterCore {
             return aAlcohol < bAlcohol
           }
         }
+        return .none
+        
+      case .toggleSortInfoAlert:
+        state.showSortInfoAlert.toggle()
         return .none
         
       case .dismissSortOptions:
