@@ -65,6 +65,8 @@ public struct FilterCore {
     case applyFilters
     case fetchMakgeollisByTopic
     
+    case moveToInformation(Makgeolli, URL?)
+    
     case logError(FilterCoreError)
   }
   
@@ -273,7 +275,6 @@ public struct FilterCore {
         let supabaseClient = self.supabaseClient
         return .run { send in
           do {
-            // 초기 주제별 막걸리 데이터 로드 (페이징 처리 추가)
             let makgeollis = try await supabaseClient.fetchMakgeollisByAward(
               topicTitle,
               pageSize,
@@ -284,6 +285,9 @@ public struct FilterCore {
             await send(.makgeollisResponse(.failure(error), false))
           }
         }
+        
+      case .moveToInformation(_, _):
+        return .none
         
       case let .logError(error):
         return .run { _ in

@@ -224,6 +224,9 @@ private struct NewReleasesView: View {
                   }
                   .padding(20)
                 }
+                .onTapGesture {
+                  store.send(.newReleaseItemTapped(makgeolli))
+                }
                 .padding(.leading, idx == 0 ? 16 : 0)
             }
           }

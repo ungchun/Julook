@@ -192,12 +192,10 @@ private extension MakgeolliGridView {
               .frame(height: 150)
           }
         }
-        .cornerRadius(8)
       } else {
         Rectangle()
           .fill(Color.darkgray)
           .frame(height: 150)
-          .cornerRadius(8)
           .overlay(
             ProgressView()
               .progressViewStyle(CircularProgressViewStyle(tint: .w))
@@ -270,6 +268,9 @@ private extension MakgeolliGridView {
     .padding(.top, 32)
     .background(Color.darkgray)
     .cornerRadius(20)
+    .onTapGesture {
+      store.send(.moveToInformation(makgeolli, imageURL))
+    }
   }
   
   func getScoreImage(for score: Int?) -> Image {

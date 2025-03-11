@@ -15,12 +15,10 @@ struct BackButton: View {
     Button {
       dismiss()
     } label: {
-      DesignSystemAsset.Images.arrowLeft.swiftUIImage
+      DesignSystemAsset.Images.back.swiftUIImage
         .resizable()
         .aspectRatio(contentMode: .fit)
-        .frame(height: 17)
-        .foregroundColor(color)
-        .contentShape(Rectangle())
+        .frame(height: 24)
     }
   }
 }

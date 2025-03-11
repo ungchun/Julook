@@ -41,10 +41,12 @@ public struct HomeCore {
     case fetchAwards
     case awardsResponse(TaskResult<[Award]>)
     case topicItemTapped(Award)
+    case newReleaseItemTapped(Makgeolli)
     
     case moveToFilter
     case moveToFilterWithSelection(FilterType)
     case moveToFilterWithTopic(String)
+    case moveToInformation(Makgeolli, URL?)
     
     case logError(HomeCoreError)
   }
@@ -63,6 +65,10 @@ public struct HomeCore {
         } else {
           return .none
         }
+        
+      case let .newReleaseItemTapped(makgeolli):
+        let imageURL = state.newReleasesImages[makgeolli.id]
+        return .send(.moveToInformation(makgeolli, imageURL))
         
       case let .topicItemTapped(award):
         return .send(.moveToFilterWithTopic(award.name))
@@ -159,6 +165,9 @@ public struct HomeCore {
         return .none
         
       case .moveToFilterWithTopic:
+        return .none
+        
+      case .moveToInformation:
         return .none
         
       case let .logError(error):

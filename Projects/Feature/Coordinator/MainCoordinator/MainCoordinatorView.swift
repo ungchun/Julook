@@ -29,6 +29,8 @@ public struct MainCoordinatorView: View {
           TabsView(store: store)
         case let .filter(store):
           FilterView(store: store)
+        case let .information(store):
+          InformationView(store: store)
         }
       }
     }

@@ -16,6 +16,7 @@ import TCACoordinators
 public enum MainScreen {
   case tabs(TabCore)
   case filter(FilterCore)
+  case information(InformationCore)
 }
 
 @Reducer
@@ -50,6 +51,22 @@ public struct MainCoordinatorCore {
         id: _, action: .tabs(.homeTab(.moveToFilterWithTopic(title))))):
         state.routes.push(.filter(.init(topicTitle: title)))
         return .none
+        
+      case let .router(.routeAction(
+        id: _, action: .tabs(.homeTab(.moveToInformation(makgeolli, imageURL))))):
+        state.routes.presentCover(.information(
+          .init(makgeolli: makgeolli, makgeolliImage: imageURL)))
+        return .none
+        
+      case .router(.routeAction(id: _, action: .information(.dismiss))):
+        state.routes.dismiss()
+        return .none
+        
+      case let .router(.routeAction(
+         id: _, action: .filter(.moveToInformation(makgeolli, imageURL)))):
+         state.routes.presentCover(.information(
+           .init(makgeolli: makgeolli, makgeolliImage: imageURL)))
+         return .none
         
       default:
         break
