@@ -31,18 +31,20 @@ public struct HomeCore {
   
   public enum Action {
     case onAppear
+    
     case filterButtonTapped
     case filterItemTapped(FilterType)
-    
     case fetchNewReleases
     case newReleasesResponse(TaskResult<[Makgeolli]>)
     case fetchNewReleasesImage(Makgeolli)
     case newReleasesImageResponse(id: UUID, TaskResult<URL>)
     case fetchAwards
     case awardsResponse(TaskResult<[Award]>)
+    case topicItemTapped(Award)
     
     case moveToFilter
     case moveToFilterWithSelection(FilterType)
+    case moveToFilterWithTopic(String)
     
     case logError(HomeCoreError)
   }
@@ -61,6 +63,9 @@ public struct HomeCore {
         } else {
           return .none
         }
+        
+      case let .topicItemTapped(award):
+        return .send(.moveToFilterWithTopic(award.name))
         
       case .filterButtonTapped:
         return .send(.moveToFilter)
@@ -151,6 +156,9 @@ public struct HomeCore {
         return .none
         
       case .moveToFilterWithSelection:
+        return .none
+        
+      case .moveToFilterWithTopic:
         return .none
         
       case let .logError(error):

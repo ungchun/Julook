@@ -10,7 +10,7 @@ import SwiftUI
 
 import DesignSystem
 
-public enum FilterType: String, CaseIterable, Identifiable {
+public enum FilterType: String, CaseIterable, Identifiable, Sendable {
   case thick = "걸쭉한"
   case sweet = "달달한"
   case sour = "시큼한"

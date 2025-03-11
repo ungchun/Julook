@@ -124,7 +124,6 @@ private struct MakgeolliFilterView: View {
                 .font(.SF12B)
             }
             .onTapGesture {
-              // 필터 아이템 클릭 시 해당 필터를 선택한 상태로 FilterView로 이동
               store.send(.filterItemTapped(filterType))
             }
           }
@@ -162,8 +161,9 @@ private struct NewReleasesView: View {
               RoundedRectangle(cornerRadius: 16)
                 .fill(Color.darkgray)
                 .frame(width: 104, height: 240)
-                .overlay {
+                .overlay(alignment: .center) {
                   ProgressView()
+                    .frame(width: 50, height: 114)
                     .progressViewStyle(CircularProgressViewStyle(tint: .w))
                 }
                 .padding(.leading, idx == 0 ? 16 : 0)
@@ -325,6 +325,7 @@ private struct MakgeolliTopicView: View {
             }
           } else {
             ForEach(Array(store.awards.enumerated()), id: \.element.id) { idx, award in
+              // TODO: set award enum
               if award.type == "korea_award" {
                 RoundedRectangle(cornerRadius: 16)
                   .fill(LinearGradient.warmNeutral)
@@ -356,6 +357,9 @@ private struct MakgeolliTopicView: View {
                     .padding(.horizontal, 16)
                   }
                   .padding(.leading, idx == 0 ? 16 : 0)
+                  .onTapGesture {
+                    store.send(.topicItemTapped(award))
+                  }
               }
             }
           }

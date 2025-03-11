@@ -21,6 +21,9 @@ public struct SupabaseClient: Sendable {
   
   public var fetchNewReleases: @Sendable () async throws -> [Makgeolli]
   public var fetchAwards: @Sendable () async throws -> [Award]
+  public var fetchMakgeollis: @Sendable (Int, Int) async throws -> [Makgeolli]
+  public var fetchFilteredMakgeollis: @Sendable (Int, Int, Set<FilterType>) async throws -> [Makgeolli]
+  public var fetchMakgeollisByAward: @Sendable (String, Int, Int) async throws -> [Makgeolli]
   public var getPublicURL: @Sendable (String, String) async throws -> URL
 }
 
@@ -88,6 +91,80 @@ extension SupabaseClient: DependencyKey {
           .select()
           .order("year", ascending: false)
           .limit(5)
+          .execute()
+          .value
+        
+        return result
+      },
+      
+      fetchMakgeollis: { limit, offset in
+        guard let client = clientRef.value else {
+          throw SupabaseClientError(
+            code: .clientNotInitialized,
+            underlying: nil
+          )
+        }
+        
+        let result: [Makgeolli] = try await client
+          .from("makgeolli")
+          .select()
+          .order("id", ascending: true)
+          .order("created_at", ascending: false)
+          .range(from: offset, to: offset + limit - 1)
+          .execute()
+          .value
+        return result
+      },
+      
+      fetchFilteredMakgeollis: { pageSize, offset, filters in
+        guard let client = clientRef.value else {
+          throw SupabaseClientError(
+            code: .clientNotInitialized,
+            underlying: nil
+          )
+        }
+        
+        var query = client.from("makgeolli").select()
+        for filter in filters {
+          switch filter {
+          case .sweet:
+            query = query.gte("sweetness", value: 3)
+          case .sour:
+            query = query.gte("sourness", value: 3)
+          case .thick:
+            query = query.gte("thickness", value: 3)
+          case .carbonated:
+            query = query.gte("carbonation", value: 3)
+          case .noAspartame:
+            query = query.eq("has_aspartame", value: false)
+          }
+        }
+        
+        let result: [Makgeolli] = try await query
+          .order("id", ascending: true)
+          .order("created_at", ascending: false)
+          .range(from: offset, to: offset + pageSize - 1)
+          .execute()
+          .value
+        
+        return result
+      },
+      
+      fetchMakgeollisByAward: { awardType, pageSize, offset in
+        guard let client = clientRef.value else {
+          throw SupabaseClientError(
+            code: .clientNotInitialized,
+            underlying: nil
+          )
+        }
+        
+        let result: [Makgeolli] = try await client
+          .from("makgeolli")
+          .select()
+          .contains("awards", value: [awardType])
+          .order("id", ascending: true)
+          .order("created_at", ascending: false)
+          .range(from: offset, to: offset + pageSize - 1)
           .execute()
           .value
         

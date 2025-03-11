@@ -46,6 +46,11 @@ public struct MainCoordinatorCore {
         state.routes.push(.filter(.init(initSelectedFilters: filterName)))
         return .none
         
+      case let .router(.routeAction(
+        id: _, action: .tabs(.homeTab(.moveToFilterWithTopic(title))))):
+        state.routes.push(.filter(.init(topicTitle: title)))
+        return .none
+        
       default:
         break
       }
