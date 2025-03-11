@@ -22,7 +22,6 @@ struct AppDelegateCore {
   enum Action {
     case didFinishLaunching
     
-    // supabase
     case setupSupabase
     
     case logError(AppDelegateCoreError)

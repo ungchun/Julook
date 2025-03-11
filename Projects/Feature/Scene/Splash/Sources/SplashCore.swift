@@ -31,8 +31,6 @@ public struct SplashCore {
     case timerTick
   }
   
-  private enum CancelID { case timer }
-  
   public var body: some Reducer<State, Action> {
     Reduce { state, action in
       switch action {
@@ -44,7 +42,6 @@ public struct SplashCore {
             await send(.timerTick)
           }
         }
-        .cancellable(id: CancelID.timer)
         
       case .timerTick:
         return .send(.updateImageIndex)
