@@ -343,7 +343,7 @@ private extension InformationView {
           Text(ingredients.joined(separator: ", "))
             .foregroundColor(.w85)
             .font(.SF14R)
-            .multilineTextAlignment(.center)
+            .multilineTextAlignment(.leading)
             .padding(.bottom, 16)
           
           Text("정보출처: 식품안전나라")

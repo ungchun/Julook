@@ -49,7 +49,7 @@ public struct SplashView: View {
       imageFrames[store.currentImageIndex]
         .resizable()
         .scaledToFit()
-        .frame(width: 200)
+        .frame(width: 160)
         .aspectRatio(contentMode: .fit)
     }
     .frame(maxWidth: .infinity, maxHeight: .infinity)

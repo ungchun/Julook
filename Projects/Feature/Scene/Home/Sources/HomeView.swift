@@ -157,7 +157,7 @@ private struct NewReleasesView: View {
       ScrollView(.horizontal, showsIndicators: false) {
         LazyHStack(spacing: 16) {
           if store.isLoadingNewReleases {
-            ForEach(0..<3, id: \.self) { idx in
+            ForEach(0..<5, id: \.self) { idx in
               RoundedRectangle(cornerRadius: 16)
                 .fill(Color.darkgray)
                 .frame(width: 104, height: 240)
