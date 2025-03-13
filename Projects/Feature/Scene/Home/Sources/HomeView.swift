@@ -64,6 +64,7 @@ private struct HeaderView: View {
         .frame(width: 30, height: 30)
     }
     .padding(.horizontal, 16)
+    .padding(.bottom, 10)
   }
   
   private var randomProfileImage: Image {

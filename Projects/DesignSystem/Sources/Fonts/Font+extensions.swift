@@ -12,7 +12,7 @@ extension Font {
   public static func style(_ fontStyle: JulookFont) -> Font {
     switch fontStyle {
     case .SFTitle:
-      return .system(size: 34, weight: .bold)
+      return .system(size: 28, weight: .bold)
     case .SF24B:
       return .system(size: 24, weight: .bold)
     case .SF20B:
