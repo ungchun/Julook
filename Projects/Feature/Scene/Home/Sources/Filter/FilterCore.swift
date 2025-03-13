@@ -25,14 +25,15 @@ public struct FilterCore {
     public var selectedSort: SortOption = .recommended
     public var isLoadingMakgeollis: Bool = false
     public var makgeollis: [Makgeolli] = []
+    public var tempMakgeollis: [Makgeolli] = []
     public var makgeolliImages: [UUID: URL] = [:]
-    public var errorMessage: String? = nil
     public var currentPage: Int = 0
     public var hasMoreData: Bool = true
     public var pageSize: Int = 10
     public var isTopicMode: Bool = false
     public var topicTitle: String = ""
     public var showSortInfoAlert: Bool = false
+    public var scrollToTop: Bool = false
     
     public init(
       initSelectedFilters: FilterType? = nil
@@ -66,6 +67,7 @@ public struct FilterCore {
     case applyFilters
     case fetchMakgeollisByTopic
     case toggleSortInfoAlert
+    case resetScroll
     
     case moveToInformation(Makgeolli, URL?)
     
@@ -165,6 +167,10 @@ public struct FilterCore {
           }
         }
         
+      case .resetScroll:
+        state.scrollToTop = false
+        return .none
+        
       case .loadMoreMakgeollis:
         if state.isLoadingMakgeollis || !state.hasMoreData {
           return .none
@@ -217,9 +223,12 @@ public struct FilterCore {
           let uniqueMakgeollis = removeDuplicates(from: makgeollis)
           let existingIds = Set(state.makgeollis.map { $0.id })
           let newMakgeollis = uniqueMakgeollis.filter { !existingIds.contains($0.id) }
-          state.makgeollis.append(contentsOf: newMakgeollis)
+          Log.debug("AZHY CALL 3", newMakgeollis.map{$0.name})
+          state.tempMakgeollis.append(contentsOf: newMakgeollis)
+          // state.makgeollis.append(contentsOf: newMakgeollis)
         } else {
-          state.makgeollis = makgeollis
+          state.tempMakgeollis = makgeollis
+          // state.makgeollis = makgeollis
         }
         
         return .merge(
@@ -230,7 +239,6 @@ public struct FilterCore {
         
       case let .makgeollisResponse(.failure(error), _):
         state.isLoadingMakgeollis = false
-        state.errorMessage = "막걸리 데이터를 불러오는데 실패했습니다."
         return .send(.logError(FilterCoreError(
           code: .failToFetchMakgeollis,
           underlying: error
@@ -254,6 +262,8 @@ public struct FilterCore {
         
       case let .makgeolliImageResponse(id, .success(url)):
         state.makgeolliImages[id] = url
+        state.makgeollis.append(contentsOf: state.tempMakgeollis)
+        state.tempMakgeollis = []
         return .none
         
       case let .makgeolliImageResponse(_, .failure(error)):
@@ -267,6 +277,8 @@ public struct FilterCore {
         state.makgeollis = []
         state.makgeolliImages = [:]
         state.hasMoreData = true
+        state.scrollToTop = true
+        state.selectedSort = .recommended
         return .send(.fetchMakgeollis)
         
       case .fetchMakgeollisByTopic:
