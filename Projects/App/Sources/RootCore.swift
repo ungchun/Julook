@@ -34,6 +34,7 @@ public struct RootCore {
   
   public enum Action: BindableAction {
     case onAppear
+    
     case splashCompleted
     
     case binding(BindingAction<State>)

@@ -14,8 +14,6 @@ import ComposableArchitecture
 
 @Reducer
 public struct InformationCore {
-  public init() { }
-  
   @ObservableState
   public struct State: Equatable {
     public var makgeolli: Makgeolli
@@ -32,6 +30,8 @@ public struct InformationCore {
     
     case dismiss
   }
+  
+  public init() { }
   
   public var body: some Reducer<State, Action> {
     Reduce { state, action in

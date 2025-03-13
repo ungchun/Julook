@@ -15,34 +15,41 @@ import Supabase
 
 @Reducer
 public struct HomeCore {
-  public init() { }
-  
   @ObservableState
   public struct State: Equatable {
+    // 신상 막걸리
+    public var isLoadingNewReleases: Bool = false
+    public var newReleases: [Makgeolli] = []
+    public var newReleasesImages: [UUID: URL] = [:]
+    
+    // 수상
+    public var isLoadingAwards: Bool = false
+    public var awards: [Award] = []
+    
     public init() { }
-    
-    var isLoadingNewReleases: Bool = false
-    var newReleases: [Makgeolli] = []
-    var newReleasesImages: [UUID: URL] = [:]
-    
-    var isLoadingAwards: Bool = false
-    var awards: [Award] = []
   }
   
   public enum Action {
+    // 라이프사이클
     case onAppear
     
+    // 사용자 액션
     case filterButtonTapped
     case filterItemTapped(FilterType)
+    case newReleaseItemTapped(Makgeolli)
+    case topicItemTapped(Award)
+    
+    // 신상 막걸리
     case fetchNewReleases
     case newReleasesResponse(TaskResult<[Makgeolli]>)
     case fetchNewReleasesImage(Makgeolli)
     case newReleasesImageResponse(id: UUID, TaskResult<URL>)
+    
+    // 수상
     case fetchAwards
     case awardsResponse(TaskResult<[Award]>)
-    case topicItemTapped(Award)
-    case newReleaseItemTapped(Makgeolli)
     
+    // 네비게이션
     case moveToFilter
     case moveToFilterWithSelection(FilterType)
     case moveToFilterWithTopic(String)
@@ -50,6 +57,8 @@ public struct HomeCore {
     
     case logError(HomeCoreError)
   }
+  
+  public init() { }
   
   @Dependency(\.supabaseClient) var supabaseClient
   
@@ -66,18 +75,18 @@ public struct HomeCore {
           return .none
         }
         
+      case .filterButtonTapped:
+        return .send(.moveToFilter)
+        
+      case let .filterItemTapped(filterName):
+        return .send(.moveToFilterWithSelection(filterName))
+        
       case let .newReleaseItemTapped(makgeolli):
         let imageURL = state.newReleasesImages[makgeolli.id]
         return .send(.moveToInformation(makgeolli, imageURL))
         
       case let .topicItemTapped(award):
         return .send(.moveToFilterWithTopic(award.name))
-        
-      case .filterButtonTapped:
-        return .send(.moveToFilter)
-        
-      case let .filterItemTapped(filterName):
-        return .send(.moveToFilterWithSelection(filterName))
         
       case .fetchNewReleases:
         state.isLoadingNewReleases = true

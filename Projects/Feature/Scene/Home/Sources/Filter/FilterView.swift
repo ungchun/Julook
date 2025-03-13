@@ -70,8 +70,7 @@ private struct FilterOptionsView: View {
       HStack(spacing: 8) {
         ForEach(Array(FilterType.allCases.enumerated()), id: \.element) { index, option in
           Button {
-            store.send(.toggleFilter(option))
-            store.send(.applyFilters)
+            store.send(.toggleFilterTapped(option))
           } label: {
             Text(option.description)
               .foregroundColor(.w)
@@ -110,14 +109,14 @@ private struct SortOptionsView: View {
             .foregroundColor(.w50)
         }
         .onTapGesture {
-          store.send(.toggleSortInfoAlert)
+          store.send(.toggleSortInfoAlertTapped)
         }
         .alert("추천순으로 정렬", isPresented: Binding(
           get: { store.showSortInfoAlert },
-          set: { if !$0 { store.send(.toggleSortInfoAlert) } }
+          set: { if !$0 { store.send(.toggleSortInfoAlertTapped) } }
         )) {
           Button("확인", role: .cancel) {
-            store.send(.toggleSortInfoAlert)
+            store.send(.toggleSortInfoAlertTapped)
           }
         } message: {
           Text("최근에 나온 막걸리일수록 리스트 상단에 정렬돼요.")
