@@ -232,6 +232,7 @@ private struct SearchResultsView: View {
           .font(.SF17R)
         Spacer()
       }
+      .lineLimit(1)
       .padding(.top, 32)
     } else {
       VStack(spacing: 16) {
