@@ -32,5 +32,12 @@ struct RootView: View {
       }
     }
     .onAppear { store.send(.onAppear) }
+    .alert("업데이트가 필요합니다", isPresented: $store.showUpdateAlert) {
+      Button("업데이트") {
+        store.send(.updateButtonTapped)
+      }
+    } message: {
+      Text("더 나은 서비스를 위해 주룩이 수정되었어요!")
+    }
   }
 }
