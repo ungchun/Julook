@@ -19,6 +19,8 @@ public struct TabsView: View {
   
   public init(store: StoreOf<TabCore>) {
     self.store = store
+    
+    UITabBar.appearance().backgroundColor = DesignSystemAsset.Colors.darkbase.color
   }
   
   public var body: some View {
