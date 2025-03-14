@@ -315,6 +315,8 @@ public struct FilterCore {
         return .none
         
       case let .makgeolliImageResponse(_, .failure(error)):
+        state.makgeollis.append(contentsOf: state.tempMakgeollis)
+        state.tempMakgeollis = []
         return .send(.logError(FilterCoreError(
           code: .failToFetchImage,
           underlying: error

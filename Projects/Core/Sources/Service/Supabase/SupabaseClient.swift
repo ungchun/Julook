@@ -25,6 +25,7 @@ public struct SupabaseClient: Sendable {
   public var fetchFilteredMakgeollis: @Sendable (Int, Int, Set<FilterType>) async throws -> [Makgeolli]
   public var fetchMakgeollisByAward: @Sendable (String, Int, Int) async throws -> [Makgeolli]
   public var getPublicURL: @Sendable (String, String) async throws -> URL
+  public var searchMakgeollis: @Sendable (String) async throws -> [Makgeolli]
 }
 
 extension SupabaseClient: DependencyKey {
@@ -180,6 +181,32 @@ extension SupabaseClient: DependencyKey {
         }
         
         return try client.storage.from(bucket).getPublicURL(path: path)
+      },
+      
+      searchMakgeollis: { query in
+        guard let client = clientRef.value else {
+          throw SupabaseClientError(
+            code: .clientNotInitialized,
+            underlying: nil
+          )
+        }
+        
+        do {
+          let lowercasedQuery = query.lowercased()
+          let result: [Makgeolli] = try await client
+            .from("makgeolli")
+            .select()
+            .or("name.ilike.%\(lowercasedQuery)%,brewery.ilike.%\(lowercasedQuery)%")
+            .execute()
+            .value
+          
+          return result
+        } catch {
+          throw SupabaseClientError(
+            code: .failToFetch,
+            underlying: error
+          )
+        }
       }
     )
   }

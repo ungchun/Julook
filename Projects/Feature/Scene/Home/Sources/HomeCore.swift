@@ -17,6 +17,8 @@ import Supabase
 public struct HomeCore {
   @ObservableState
   public struct State: Equatable {
+    public var isInitialized: Bool = false
+    
     // 신상 막걸리
     public var isLoadingNewReleases: Bool = false
     public var newReleases: [Makgeolli] = []
@@ -66,6 +68,11 @@ public struct HomeCore {
     Reduce { state, action in
       switch action {
       case .onAppear:
+        if state.isInitialized {
+          return .none
+        }
+        state.isInitialized = true
+        
         if !state.isLoadingNewReleases && !state.isLoadingAwards {
           return .merge(
             .send(.fetchNewReleases),

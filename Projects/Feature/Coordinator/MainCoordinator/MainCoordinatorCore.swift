@@ -58,15 +58,21 @@ public struct MainCoordinatorCore {
           .init(makgeolli: makgeolli, makgeolliImage: imageURL)))
         return .none
         
-      case .router(.routeAction(id: _, action: .information(.dismiss))):
-        state.routes.dismiss()
+      case let .router(.routeAction(
+        id: _, action: .filter(.moveToInformation(makgeolli, imageURL)))):
+        state.routes.presentCover(.information(
+          .init(makgeolli: makgeolli, makgeolliImage: imageURL)))
         return .none
         
       case let .router(.routeAction(
-         id: _, action: .filter(.moveToInformation(makgeolli, imageURL)))):
-         state.routes.presentCover(.information(
-           .init(makgeolli: makgeolli, makgeolliImage: imageURL)))
-         return .none
+        id: _, action: .tabs(.searchTab(.moveToInformation(makgeolli, imageURL))))):
+        state.routes.presentCover(.information(
+          .init(makgeolli: makgeolli, makgeolliImage: imageURL)))
+        return .none
+        
+      case .router(.routeAction(id: _, action: .information(.dismiss))):
+        state.routes.dismiss()
+        return .none
         
       default:
         break

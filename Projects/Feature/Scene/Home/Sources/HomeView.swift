@@ -35,7 +35,6 @@ public struct HomeView: View {
           MakgeolliTopicView(store: store)
         }
       }
-      .padding(.vertical, 20)
     }
     .onAppear { store.send(.onAppear) }
   }
@@ -65,6 +64,7 @@ private struct HeaderView: View {
     }
     .padding(.horizontal, 16)
     .padding(.bottom, 10)
+    .padding(.top, 20)
   }
   
   private var randomProfileImage: Image {
@@ -99,7 +99,7 @@ private struct MakgeolliFilterView: View {
         DesignSystemAsset.Images.arrowRight.swiftUIImage
           .resizable()
           .aspectRatio(contentMode: .fit)
-          .frame(height: 20)
+          .frame(height: 16)
           .foregroundColor(.w)
         
         Spacer()
