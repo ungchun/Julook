@@ -15,7 +15,8 @@ let project = Project.make(
         .project(target: .core, projectPath: .core),
         .project(target: .designSystem, projectPath: .designSystem),
         .project(target: .splash, projectPath: .scene),
-        .project(target: .mainCoordinator, projectPath: .coordinator)
+        .project(target: .mainCoordinator, projectPath: .coordinator),
+        .external(externalDependency: .firebaseAnalytics)
       ],
       settings: .settings(
         base: ["SWIFT_VERSION": "6.0"],
@@ -35,7 +36,8 @@ let project = Project.make(
         .project(target: .core, projectPath: .core),
         .project(target: .designSystem, projectPath: .designSystem),
         .project(target: .splash, projectPath: .scene),
-        .project(target: .mainCoordinator, projectPath: .coordinator)
+        .project(target: .mainCoordinator, projectPath: .coordinator),
+        .external(externalDependency: .firebaseAnalytics)
       ],
       settings: .settings(
         base: ["SWIFT_VERSION": "6.0"],

@@ -9,6 +9,7 @@
 import UIKit
 
 import ComposableArchitecture
+import Firebase
 
 final class AppDelegate: NSObject, UIApplicationDelegate {
   let store = StoreOf<AppDelegateCore>.init(
@@ -22,6 +23,7 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
     _ application: UIApplication,
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
   ) -> Bool {
+    FirebaseApp.configure()
     store.send(.didFinishLaunching)
     return true
   }
