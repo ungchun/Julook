@@ -22,6 +22,7 @@ public struct SearchCore {
     public var isSearchBarFocused: Bool = false
     public var isSearching: Bool = false
     public var searchDebounceId: UUID?
+    public var isShowingRequestAlert: Bool = false
     
     // 최근 검색어
     public var recentSearches: [String] = []
@@ -48,6 +49,7 @@ public struct SearchCore {
     case searchSubmitted
     case setSearchBarFocus(Bool)
     case debouncedSearch(id: UUID, query: String)
+    case showRequestAlert(Bool)
     
     // 최근 검색어
     case addRecentSearch(String)
@@ -86,6 +88,10 @@ public struct SearchCore {
         return .send(.loadRecentSearches)
         
       case .binding:
+        return .none
+        
+      case let .showRequestAlert(isShowing):
+        state.isShowingRequestAlert = isShowing
         return .none
         
       case let .makgeolliTapped(makgeolli):
