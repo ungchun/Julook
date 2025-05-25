@@ -236,7 +236,7 @@ private struct SearchResultsView: View {
         .lineLimit(1)
         
         Button {
-          store.send(.showRequestAlert(true))
+          store.send(.requestRegisterMakgeolli(store.searchText))
         } label: {
           Text("등록 요청하기")
             .foregroundColor(DesignSystemAsset.Colors.primary.swiftUIColor)

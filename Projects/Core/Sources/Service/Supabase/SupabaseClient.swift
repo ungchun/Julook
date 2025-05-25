@@ -26,6 +26,7 @@ public struct SupabaseClient: Sendable {
   public var fetchMakgeollisByAward: @Sendable (String, Int, Int) async throws -> [Makgeolli]
   public var getPublicURL: @Sendable (String, String) async throws -> URL
   public var searchMakgeollis: @Sendable (String) async throws -> [Makgeolli]
+  public var requestRegisterMakgeolli: @Sendable (String) async throws -> Void
 }
 
 extension SupabaseClient: DependencyKey {
@@ -207,6 +208,38 @@ extension SupabaseClient: DependencyKey {
             underlying: error
           )
         }
+      },
+      
+      requestRegisterMakgeolli: { searchText in
+        guard let client = clientRef.value else {
+          throw SupabaseClientError(
+            code: .clientNotInitialized,
+            underlying: nil
+          )
+        }
+        
+        do {
+          let result: PostgrestResponse = try await client
+            .from("makgeolli_requests")
+            .insert(
+              [
+                "search_text": searchText
+              ]
+            )
+            .execute()
+          
+          if result.status != 201 {
+            throw SupabaseClientError(
+              code: .failToSaveRequest,
+              underlying: nil
+            )
+          }
+        } catch {
+          throw SupabaseClientError(
+            code: .failToSaveRequest,
+            underlying: error
+          )
+        }
       }
     )
   }
@@ -238,6 +271,7 @@ public struct SupabaseClientError: JulookError, @unchecked Sendable {
     case clientNotInitialized
     case failToFetch
     case failToGetPublicURL
+    case failToSaveRequest
     case unknownError
   }
 }

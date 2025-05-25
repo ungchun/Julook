@@ -50,6 +50,7 @@ public struct SearchCore {
     case setSearchBarFocus(Bool)
     case debouncedSearch(id: UUID, query: String)
     case showRequestAlert(Bool)
+    case requestRegisterMakgeolli(String)
     
     // 최근 검색어
     case addRecentSearch(String)
@@ -184,6 +185,16 @@ public struct SearchCore {
             await send(.recentSearchesResponse([]))
           }
         }
+
+      case let .requestRegisterMakgeolli(searchText):
+          return .run { [supabaseClient] send in
+              do {
+                  try await supabaseClient.requestRegisterMakgeolli(searchText)
+                await send(.showRequestAlert(true))
+              } catch {
+                await send(.showRequestAlert(true))
+              }
+          }
         
       case let .recentSearchesResponse(searches):
         state.recentSearches = searches
