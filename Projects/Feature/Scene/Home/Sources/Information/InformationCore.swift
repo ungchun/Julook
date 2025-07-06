@@ -9,6 +9,7 @@
 import Foundation
 
 import Core
+import DesignSystem
 
 import ComposableArchitecture
 
@@ -18,6 +19,8 @@ public struct InformationCore {
   public struct State: Equatable {
     public var makgeolli: Makgeolli
     public var makgeolliImage: URL?
+    public var likeButtonState: ReactionButtonState = .active
+    public var dislikeButtonState: ReactionButtonState = .active
     
     public init(makgeolli: Makgeolli, makgeolliImage: URL? = nil) {
       self.makgeolli = makgeolli
@@ -29,6 +32,8 @@ public struct InformationCore {
     case onAppear
     
     case dismiss
+    case likeButtonTapped
+    case dislikeButtonTapped
   }
   
   public init() { }
@@ -39,7 +44,13 @@ public struct InformationCore {
       case .onAppear:
         return .none
         
-      case.dismiss:
+      case .dismiss:
+        return .none
+        
+      case .likeButtonTapped:
+        return .none
+        
+      case .dislikeButtonTapped:
         return .none
       }
     }

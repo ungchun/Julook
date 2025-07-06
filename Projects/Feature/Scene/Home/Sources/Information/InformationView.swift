@@ -31,6 +31,8 @@ public struct InformationView: View {
           
           MakgeolliDetailSectionView()
           
+          ReactionButtonsView()
+          
           AwardsView()
           
           MakgeolliDescriptionSection()
@@ -188,6 +190,32 @@ private extension InformationView {
   func formatValue<T>(_ value: T?) -> String {
     guard let value = value else { return "-" }
     return "\(value)"
+  }
+}
+
+private extension InformationView {
+  @ViewBuilder
+  func ReactionButtonsView() -> some View {
+    HStack(spacing: 12) {
+      ReactionButton(
+        state: store.state.dislikeButtonState,
+        type: .dislike,
+        text: "아쉬워요",
+        action: {
+          store.send(.dislikeButtonTapped)
+        }
+      )
+      
+      ReactionButton(
+        state: store.state.likeButtonState,
+        type: .like,
+        text: "좋았어요",
+        action: {
+          store.send(.likeButtonTapped)
+        }
+      )
+    }
+    .padding(.bottom, 16)
   }
 }
 
