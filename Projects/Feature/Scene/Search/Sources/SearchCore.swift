@@ -185,16 +185,16 @@ public struct SearchCore {
             await send(.recentSearchesResponse([]))
           }
         }
-
+        
       case let .requestRegisterMakgeolli(searchText):
-          return .run { [supabaseClient] send in
-              do {
-                  try await supabaseClient.requestRegisterMakgeolli(searchText)
-                await send(.showRequestAlert(true))
-              } catch {
-                await send(.showRequestAlert(true))
-              }
+        return .run { [supabaseClient] send in
+          do {
+            try await supabaseClient.requestRegisterMakgeolli(searchText)
+            await send(.showRequestAlert(true))
+          } catch {
+            await send(.showRequestAlert(true))
           }
+        }
         
       case let .recentSearchesResponse(searches):
         state.recentSearches = searches

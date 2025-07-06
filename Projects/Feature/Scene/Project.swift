@@ -12,6 +12,7 @@ let project = Project.make(
       dependencies: [
         .project(target: .home, projectPath: .scene),
         .project(target: .search, projectPath: .scene),
+        .project(target: .myMakgeolli, projectPath: .scene),
         .project(target: .core, projectPath: .core),
         .project(target: .designSystem, projectPath: .designSystem),
         .external(externalDependency: .composableArchitecture)
@@ -39,6 +40,20 @@ let project = Project.make(
       product: .framework,
       bundleId: "com.azhy.julook.search",
       sources: ["Search/Sources/**"],
+      dependencies: [
+        .project(target: .core, projectPath: .core),
+        .project(target: .designSystem, projectPath: .designSystem),
+        .external(externalDependency: .composableArchitecture)
+      ],
+      settings: .settings(
+        base: ["SWIFT_VERSION": "6.0"]
+      )
+    ),
+    .make(
+      name: "FeatureMyMakgeolli",
+      product: .framework,
+      bundleId: "com.azhy.julook.myMakgeolli",
+      sources: ["MyMakgeolli/Sources/**"],
       dependencies: [
         .project(target: .core, projectPath: .core),
         .project(target: .designSystem, projectPath: .designSystem),

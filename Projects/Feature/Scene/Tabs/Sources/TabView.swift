@@ -10,6 +10,7 @@ import SwiftUI
 
 import FeatureHome
 import FeatureSearch
+import FeatureMyMakgeolli
 import DesignSystem
 
 import ComposableArchitecture
@@ -44,6 +45,16 @@ public struct TabsView: View {
           .font(.style(.SF10B))
       }
       .tag(Tab.search)
+      
+      MyMakgeolliView(store: store.scope(
+        state: \.myMakgeolliTab,
+        action: \.myMakgeolliTab))
+      .tabItem {
+        Image(systemName: "heart.fill")
+        Text("내 막걸리")
+          .font(.style(.SF10B))
+      }
+      .tag(Tab.myMakgeolli)
     }
     .accentColor(DesignSystemAsset.Colors.primary.swiftUIColor)
   }

@@ -8,12 +8,14 @@
 
 import FeatureHome
 import FeatureSearch
+import FeatureMyMakgeolli
 
 import ComposableArchitecture
 
 public enum Tab: Equatable {
   case home
   case search
+  case myMakgeolli
 }
 
 @Reducer
@@ -26,17 +28,20 @@ public struct TabCore {
     
     var homeTab: HomeCore.State
     var searchTab: SearchCore.State
+    var myMakgeolliTab: MyMakgeolliCore.State
     
     public init(
       selectedTab: Tab = .home,
       
       homeTab: HomeCore.State = .init(),
-      searchTab: SearchCore.State = .init()
+      searchTab: SearchCore.State = .init(),
+      myMakgeolliTab: MyMakgeolliCore.State = .init()
     ) {
       self.selectedTab = selectedTab
       
       self.homeTab = homeTab
       self.searchTab = searchTab
+      self.myMakgeolliTab = myMakgeolliTab
     }
   }
   
@@ -45,6 +50,7 @@ public struct TabCore {
     
     case homeTab (HomeCore.Action)
     case searchTab (SearchCore.Action)
+    case myMakgeolliTab (MyMakgeolliCore.Action)
   }
   
   public var body: some ReducerOf<Self> {
@@ -54,6 +60,10 @@ public struct TabCore {
     
     Scope(state: \.searchTab, action: \.searchTab) {
       SearchCore()
+    }
+    
+    Scope(state: \.myMakgeolliTab, action: \.myMakgeolliTab) {
+      MyMakgeolliCore()
     }
     
     Reduce { state, action in
@@ -66,6 +76,9 @@ public struct TabCore {
         return .none
         
       case .searchTab:
+        return .none
+        
+      case .myMakgeolliTab:
         return .none
       }
     }
