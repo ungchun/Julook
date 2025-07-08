@@ -34,7 +34,7 @@ public struct MyMakgeolliCore: Sendable{
   
   public init() { }
   
-  @Dependency(\.myMakgeolliManager) var myMakgeolliManager
+  @Dependency(\.myMakgeolliClient) var myMakgeolliClient
   @Dependency(\.supabaseClient) var supabaseClient
   
   public var body: some Reducer<State, Action> {
@@ -43,7 +43,7 @@ public struct MyMakgeolliCore: Sendable{
       case .viewAppeared:
         return .run { send in
           do {
-            let myMakgeollis = try await myMakgeolliManager.getMyMakgeollis()
+            let myMakgeollis = try await myMakgeolliClient.getMyMakgeollis()
             await send(.updateMyMakgeollis(myMakgeollis))
             await send(.loadMakgeolliImages(myMakgeollis))
           } catch {

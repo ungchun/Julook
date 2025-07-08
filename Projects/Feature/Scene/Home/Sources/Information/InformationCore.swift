@@ -43,7 +43,7 @@ public struct InformationCore: Sendable {
   
   public init() { }
   
-  @Dependency(\.myMakgeolliManager) var myMakgeolliManager
+  @Dependency(\.myMakgeolliClient) var myMakgeolliClient
   
   public var body: some Reducer<State, Action> {
     Reduce { state, action in
@@ -51,7 +51,7 @@ public struct InformationCore: Sendable {
       case .onAppear:
         return .run { [makgeolli = state.makgeolli] send in
           do {
-            let isFavorite = try await myMakgeolliManager.isFavorite(makgeolli.id)
+            let isFavorite = try await myMakgeolliClient.isFavorite(makgeolli.id)
             await send(.updateFavoriteStatus(isFavorite))
           } catch {
             await send(.updateFavoriteStatus(false))
@@ -73,9 +73,9 @@ public struct InformationCore: Sendable {
         
       case .favoriteButtonTapped:
         return .run { [makgeolli = state.makgeolli] send in
-          await myMakgeolliManager.toggleFavorite(makgeolli)
+          await myMakgeolliClient.toggleFavorite(makgeolli)
           do {
-            let newFavoriteStatus = try await myMakgeolliManager.isFavorite(makgeolli.id)
+            let newFavoriteStatus = try await myMakgeolliClient.isFavorite(makgeolli.id)
             await send(.updateFavoriteStatus(newFavoriteStatus))
           } catch {
             await send(.logError(InformationCoreError(
