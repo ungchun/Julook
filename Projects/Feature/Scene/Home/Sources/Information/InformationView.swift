@@ -31,7 +31,7 @@ public struct InformationView: View {
           
           MakgeolliDetailSectionView()
           
-          ReactionButtonsView()
+          // ReactionButtonsView()
           
           AwardsView()
           
@@ -44,6 +44,9 @@ public struct InformationView: View {
         .padding(.horizontal, 16)
       }
     }
+    .onAppear {
+      store.send(.onAppear)
+    }
   }
 }
 
@@ -51,6 +54,12 @@ private extension InformationView {
   @ViewBuilder
   func NavigationBar() -> some View {
     HStack {
+      Image(systemName: store.state.isFavorite ? "heart.fill" : "heart")
+        .font(.SF24B)
+        .foregroundColor(store.state.isFavorite ? .red : .w25)
+        .onTapGesture {
+          store.send(.favoriteButtonTapped)
+        }
       Spacer()
       DesignSystemAsset.Images.close.swiftUIImage
         .resizable()
@@ -60,6 +69,8 @@ private extension InformationView {
           store.send(.dismiss)
         }
     }
+    .frame(height: 40)
+    .padding(.top, 4)
     .padding(.bottom, 32)
   }
 }
