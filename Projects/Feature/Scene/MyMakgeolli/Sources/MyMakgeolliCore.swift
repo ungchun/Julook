@@ -28,6 +28,10 @@ public struct MyMakgeolliCore: Sendable{
     case updateMyMakgeollis([MyMakgeolliEntity])
     case loadMakgeolliImages([MyMakgeolliEntity])
     case updateMakgeolliImage(UUID, URL)
+    case myMakgeolliItemTapped(MyMakgeolliEntity)
+    case fetchMakgeolliResponse(MyMakgeolliEntity, TaskResult<Makgeolli?>)
+    
+    case moveToInformation(Makgeolli, URL?)
     
     case logError(MyMakgeolliCoreError)
   }
@@ -88,6 +92,35 @@ public struct MyMakgeolliCore: Sendable{
         state.makgeolliImages[id] = url
         return .none
         
+      case let .myMakgeolliItemTapped(makgeolli):
+        return .run { send in
+          do {
+            let fullMakgeolli = try await supabaseClient.fetchMakgeolliById(makgeolli.id)
+            await send(.fetchMakgeolliResponse(makgeolli, .success(fullMakgeolli)))
+          } catch {
+            await send(.fetchMakgeolliResponse(makgeolli, .failure(error)))
+          }
+        }
+        
+      case let .fetchMakgeolliResponse(entity, .success(makgeolli)):
+        guard let makgeolli = makgeolli else {
+          return .send(.logError(MyMakgeolliCoreError(
+            code: .makgeolliNotFound,
+            underlying: nil
+          )))
+        }
+        let imageURL = state.makgeolliImages[entity.id]
+        return .send(.moveToInformation(makgeolli, imageURL))
+        
+      case let .fetchMakgeolliResponse(_, .failure(error)):
+        return .send(.logError(MyMakgeolliCoreError(
+          code: .failToFetchMakgeolliDetail,
+          underlying: error
+        )))
+        
+      case .moveToInformation:
+        return .none
+        
       case let .logError(error):
         return .run { _ in
           Log.error(error)
@@ -113,5 +146,7 @@ public struct MyMakgeolliCoreError: JulookError, @unchecked Sendable {
   public enum Code: Int, Sendable {
     case failToFetchMyMakgeollis
     case failToFetchImage
+    case failToFetchMakgeolliDetail
+    case makgeolliNotFound
   }
 }

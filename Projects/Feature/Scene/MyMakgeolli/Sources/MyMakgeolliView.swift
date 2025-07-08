@@ -60,6 +60,9 @@ public struct MyMakgeolliView: View {
                         .fill(DesignSystemAsset.Colors.darkgray.swiftUIColor)
                         .cornerRadius(18)
                     )
+                    .onTapGesture {
+                      store.send(.myMakgeolliItemTapped(makgeolli))
+                    }
                   }
                 }.padding(.horizontal, 16)
                 

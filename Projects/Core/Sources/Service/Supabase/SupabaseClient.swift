@@ -24,6 +24,7 @@ public struct SupabaseClient: Sendable {
   public var fetchMakgeollis: @Sendable (Int, Int) async throws -> [Makgeolli]
   public var fetchFilteredMakgeollis: @Sendable (Int, Int, Set<FilterType>) async throws -> [Makgeolli]
   public var fetchMakgeollisByAward: @Sendable (String, Int, Int) async throws -> [Makgeolli]
+  public var fetchMakgeolliById: @Sendable (UUID) async throws -> Makgeolli?
   public var getPublicURL: @Sendable (String, String) async throws -> URL
   public var searchMakgeollis: @Sendable (String) async throws -> [Makgeolli]
   public var requestRegisterMakgeolli: @Sendable (String) async throws -> Void
@@ -171,6 +172,31 @@ extension SupabaseClient: DependencyKey {
           .value
         
         return result
+      },
+      
+      fetchMakgeolliById: { id in
+        guard let client = clientRef.value else {
+          throw SupabaseClientError(
+            code: .clientNotInitialized,
+            underlying: nil
+          )
+        }
+        
+        do {
+          let result: [Makgeolli] = try await client
+            .from("makgeolli")
+            .select()
+            .eq("id", value: id.uuidString)
+            .execute()
+            .value
+          
+          return result.first
+        } catch {
+          throw SupabaseClientError(
+            code: .failToFetch,
+            underlying: error
+          )
+        }
       },
       
       getPublicURL: { bucket, path in

@@ -70,6 +70,12 @@ public struct MainCoordinatorCore {
           .init(makgeolli: makgeolli, makgeolliImage: imageURL)))
         return .none
         
+      case let .router(.routeAction(
+        id: _, action: .tabs(.myMakgeolliTab(.moveToInformation(makgeolli, imageURL))))):
+        state.routes.presentCover(.information(
+          .init(makgeolli: makgeolli, makgeolliImage: imageURL)))
+        return .none
+        
       case .router(.routeAction(id: _, action: .information(.dismiss))):
         state.routes.dismiss()
         return .none
