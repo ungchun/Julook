@@ -23,11 +23,13 @@ struct AppDelegateCore {
     case didFinishLaunching
     
     case setupSupabase
+    case setupSwiftData
     
     case logError(AppDelegateCoreError)
   }
   
   @Dependency(\.supabaseClient) var supabaseClient
+  @Dependency(\.myMakgeolliClient) var myMakgeolliClient
   
   var body: some Reducer<State, Action> {
     Reduce { state, action in
@@ -35,11 +37,17 @@ struct AppDelegateCore {
       case .didFinishLaunching:
         return .run { send in
           await send(.setupSupabase)
+          await send(.setupSwiftData)
         }
         
       case .setupSupabase:
         return .run { send in
           await supabaseClient.initialize()
+        }
+        
+      case .setupSwiftData:
+        return .run { send in
+          await myMakgeolliClient.initialize()
         }
         
       case let .logError(error):
@@ -56,7 +64,16 @@ public struct AppDelegateCoreError: JulookError, @unchecked Sendable {
   public var code: Code
   public var underlying: Error?
   
+  public init(
+    code: Code,
+    underlying: Error? = nil
+  ) {
+    self.code = code
+    self.underlying = underlying
+  }
+  
   public enum Code: Int, Sendable {
     case failToSupabaseInitialized
+    case failToSwiftDataInitialized
   }
 }
