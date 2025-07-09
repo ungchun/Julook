@@ -39,22 +39,25 @@ public struct MyMakgeolliView: View {
           }
         } else {
           VStack(spacing: 0) {
-            Text("내 막걸리")
-              .foregroundStyle(DesignSystemAsset.Colors.w.swiftUIColor)
-              .font(.SF17B)
-              .padding(.top, 12)
-              .padding(.bottom, 24)
+            HStack {
+              Text("내 막걸리")
+                .foregroundColor(.w)
+                .font(.SFTitle)
+              Spacer()
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 20)
             
             GeometryReader { geometry in
               ScrollView {
-                LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 8), count: 3),
+                LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 16), count: 3),
                           spacing: 16) {
                   ForEach(store.state.myMakgeollis, id: \.id) { makgeolli in
                     MyMakgeolliGridItem(
                       makgeolli: makgeolli,
                       imageURL: store.state.makgeolliImages[makgeolli.id]
                     )
-                    .frame(width: geometry.size.width / 3 - 16)
+                    .frame(width: (geometry.size.width - 32 - 32) / 3)
                     .background(
                       Rectangle()
                         .fill(DesignSystemAsset.Colors.darkgray.swiftUIColor)
