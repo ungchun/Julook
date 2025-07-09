@@ -25,6 +25,7 @@ public struct MyMakgeolliCore: Sendable{
   public enum Action {
     case viewAppeared
     
+    case refreshMyMakgeollis
     case updateMyMakgeollis([MyMakgeolliEntity])
     case loadMakgeolliImages([MyMakgeolliEntity])
     case updateMakgeolliImage(UUID, URL)
@@ -45,6 +46,9 @@ public struct MyMakgeolliCore: Sendable{
     Reduce { state, action in
       switch action {
       case .viewAppeared:
+        return .send(.refreshMyMakgeollis)
+        
+      case .refreshMyMakgeollis:
         return .run { send in
           do {
             let myMakgeollis = try await myMakgeolliClient.getMyMakgeollis()

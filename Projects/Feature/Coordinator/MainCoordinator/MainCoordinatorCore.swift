@@ -80,6 +80,10 @@ public struct MainCoordinatorCore {
         state.routes.dismiss()
         return .none
         
+      case .router(.routeAction(id: _, action: .information(.favoriteStatusChanged))):
+        return .send(.router(.routeAction(
+          id: 0, action: .tabs(.myMakgeolliTab(.refreshMyMakgeollis)))))
+        
       default:
         break
       }

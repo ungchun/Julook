@@ -37,6 +37,7 @@ public struct InformationCore: Sendable {
     case dislikeButtonTapped
     case favoriteButtonTapped
     case updateFavoriteStatus(Bool)
+    case favoriteStatusChanged
     
     case logError(InformationCoreError)
   }
@@ -86,7 +87,15 @@ public struct InformationCore: Sendable {
         }
         
       case let .updateFavoriteStatus(isFavorite):
+        let previousStatus = state.isFavorite
         state.isFavorite = isFavorite
+        
+        if previousStatus != isFavorite {
+          return .send(.favoriteStatusChanged)
+        }
+        return .none
+        
+      case .favoriteStatusChanged:
         return .none
         
       case let .logError(error):
