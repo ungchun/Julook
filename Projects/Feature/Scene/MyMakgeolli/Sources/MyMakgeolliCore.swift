@@ -17,6 +17,7 @@ import ComposableArchitecture
 public struct MyMakgeolliCore: Sendable{
   @ObservableState
   public struct State: Equatable {
+    public var isInitialized: Bool = false
     public var myMakgeollis: [MyMakgeolliEntity] = []
     public var makgeolliImages: [UUID: URL] = [:]
     
@@ -29,6 +30,7 @@ public struct MyMakgeolliCore: Sendable{
     case refreshMyMakgeollis
     case updateMyMakgeollis([MyMakgeolliEntity])
     case loadMakgeolliImages([MyMakgeolliEntity])
+    case loadNewMakgeolliImages([MyMakgeolliEntity])
     case updateMakgeolliImage(UUID, URL)
     case myMakgeolliItemTapped(MyMakgeolliEntity)
     case fetchMakgeolliResponse(MyMakgeolliEntity, TaskResult<Makgeolli?>)
@@ -48,14 +50,24 @@ public struct MyMakgeolliCore: Sendable{
     Reduce { state, action in
       switch action {
       case .viewAppeared:
+        if state.isInitialized {
+          return .none
+        }
+        state.isInitialized = true
         return .send(.refreshMyMakgeollis)
         
       case .refreshMyMakgeollis:
-        return .run { send in
+        return .run { [currentMakgeollis = state.myMakgeollis] send in
           do {
             let myMakgeollis = try await myMakgeolliClient.getMyMakgeollis()
             await send(.updateMyMakgeollis(myMakgeollis))
-            await send(.loadMakgeolliImages(myMakgeollis))
+            
+            let currentIds = Set(currentMakgeollis.map { $0.id })
+            let newMakgeollis = myMakgeollis.filter { !currentIds.contains($0.id) }
+            
+            if !newMakgeollis.isEmpty {
+              await send(.loadNewMakgeolliImages(newMakgeollis))
+            }
           } catch {
             await send(.updateMyMakgeollis([]))
             await send(.logError(MyMakgeolliCoreError(
@@ -70,9 +82,35 @@ public struct MyMakgeolliCore: Sendable{
         return .none
         
       case let .loadMakgeolliImages(myMakgeollis):
-        return .run { send in
+        return .run { [makgeolliImages = state.makgeolliImages] send in
           await withTaskGroup(of: Void.self) { group in
             for makgeolli in myMakgeollis {
+              group.addTask {
+                guard let imageName = makgeolli.imageName,
+                      makgeolliImages[makgeolli.id] == nil else { return }
+                
+                do {
+                  let fileName = imageName.hasSuffix(".png") ? imageName : "\(imageName).png"
+                  let imageURL = try await supabaseClient.getPublicURL(
+                    Bucket.MAKGEOLLIIMAGE,
+                    fileName
+                  )
+                  await send(.updateMakgeolliImage(makgeolli.id, imageURL))
+                } catch {
+                  await send(.logError(MyMakgeolliCoreError(
+                    code: .failToFetchImage,
+                    underlying: error
+                  )))
+                }
+              }
+            }
+          }
+        }
+        
+      case let .loadNewMakgeolliImages(newMakgeollis):
+        return .run { send in
+          await withTaskGroup(of: Void.self) { group in
+            for makgeolli in newMakgeollis {
               group.addTask {
                 guard let imageName = makgeolli.imageName else { return }
                 
