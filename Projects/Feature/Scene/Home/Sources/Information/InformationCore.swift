@@ -40,6 +40,7 @@ public struct InformationCore: Sendable {
     case favoriteStatusChanged
     
     case logError(InformationCoreError)
+    case showToast(String, ToastType)
   }
   
   public init() { }
@@ -99,10 +100,24 @@ public struct InformationCore: Sendable {
         return .none
         
       case let .logError(error):
-        return .run { _ in
-          Log.error(error)
-        }
+        let message = getErrorMessage(for: error.code)
+        return .merge(
+          .run { _ in Log.error(error) },
+          .send(.showToast(message, .error))
+        )
+        
+      case .showToast(_, _):
+        return .none
       }
+    }
+  }
+  
+  private func getErrorMessage(for code: InformationCoreError.Code) -> String {
+    switch code {
+    case .failToCheckFavoriteStatus:
+      return "찜 상태를 확인하지 못했습니다."
+    case .failToUpdateFavoriteStatus:
+      return "찜 상태 변경에 실패했습니다."
     }
   }
 }

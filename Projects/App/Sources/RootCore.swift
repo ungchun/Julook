@@ -9,6 +9,7 @@
 import SwiftUI
 
 import Core
+import DesignSystem
 import MainCoordinator
 import FeatureTabs
 import FeatureSplash
@@ -31,6 +32,10 @@ public struct RootCore {
     var latestVersion: String = ""
     var currentVersion: String = ""
     
+    var showToast: Bool = false
+    var toastMessage: String = ""
+    var toastType: ToastType = .error
+    
     public init(
       destination: Destination.State? = nil
     ) {
@@ -45,6 +50,9 @@ public struct RootCore {
     case checkForUpdatesResponse(TaskResult<String>)
     case updateButtonTapped
     case dismissUpdateAlert
+    
+    case showToast(String, ToastType)
+    case dismissToast
     
     case binding(BindingAction<State>)
     case destination(PresentationAction<Destination.Action>)
@@ -64,13 +72,25 @@ public struct RootCore {
         
         let versionCheckClient = self.versionCheckClient
         
-        return .run { send in
-          try await Task.sleep(for: .seconds(2))
-          
-          await send(.checkForUpdatesResponse(
-            TaskResult { try await versionCheckClient.checkForUpdate() }
-          ))
-        }
+        return .merge(
+          .run { send in
+            try await Task.sleep(for: .seconds(2))
+            
+            await send(.checkForUpdatesResponse(
+              TaskResult { try await versionCheckClient.checkForUpdate() }
+            ))
+          },
+          .run { send in
+            for await notification in NotificationCenter.default.notifications(named: .showToast) {
+              if let userInfo = notification.userInfo,
+                 let message = userInfo["message"] as? String,
+                 let typeRaw = userInfo["type"] as? String,
+                 let type = ToastType(rawValue: typeRaw) {
+                await send(.showToast(message, type))
+              }
+            }
+          }
+        )
         
       case let .checkForUpdatesResponse(.success(latestVersion)):
         state.isCheckingForUpdates = false
@@ -118,6 +138,16 @@ public struct RootCore {
             )
           )
         }
+        return .none
+        
+      case let .showToast(message, type):
+        state.toastMessage = message
+        state.toastType = type
+        state.showToast = true
+        return .none
+        
+      case .dismissToast:
+        state.showToast = false
         return .none
         
       case .binding:

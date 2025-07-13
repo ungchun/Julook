@@ -9,6 +9,7 @@
 import Foundation
 
 import Core
+import DesignSystem
 
 import ComposableArchitecture
 
@@ -35,6 +36,7 @@ public struct MyMakgeolliCore: Sendable{
     case moveToInformation(Makgeolli, URL?)
     
     case logError(MyMakgeolliCoreError)
+    case showToast(String, ToastType)
   }
   
   public init() { }
@@ -126,10 +128,34 @@ public struct MyMakgeolliCore: Sendable{
         return .none
         
       case let .logError(error):
-        return .run { _ in
-          Log.error(error)
-        }
+        let message = getErrorMessage(for: error.code)
+        return .merge(
+          .run { _ in Log.error(error) },
+          .run { _ in
+            NotificationCenter.default.post(
+              name: .showToast,
+              object: nil,
+              userInfo: ["message": message, "type": "error"]
+            )
+          }
+        )
+        
+      case .showToast(_, _):
+        return .none
       }
+    }
+  }
+  
+  private func getErrorMessage(for code: MyMakgeolliCoreError.Code) -> String {
+    switch code {
+    case .failToFetchMyMakgeollis:
+      return "찜한 막걸리 목록을 불러오지 못했습니다."
+    case .failToFetchImage:
+      return "이미지 로딩에 실패했습니다."
+    case .failToFetchMakgeolliDetail:
+      return "막걸리 정보를 불러오지 못했습니다."
+    case .makgeolliNotFound:
+      return "해당 막걸리를 찾을 수 없습니다."
     }
   }
 }

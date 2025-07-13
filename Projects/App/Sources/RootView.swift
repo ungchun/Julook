@@ -2,6 +2,7 @@ import SwiftUI
 
 import MainCoordinator
 import FeatureSplash
+import DesignSystem
 
 import ComposableArchitecture
 
@@ -39,5 +40,10 @@ struct RootView: View {
     } message: {
       Text("더 나은 서비스를 위해 주룩이 수정되었어요!")
     }
+    .toast(
+      message: store.toastMessage,
+      type: store.toastType,
+      isShowing: $store.showToast
+    )
   }
 }

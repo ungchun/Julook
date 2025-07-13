@@ -9,6 +9,7 @@
 import Foundation
 
 import Core
+import DesignSystem
 
 import ComposableArchitecture
 import Supabase
@@ -58,6 +59,7 @@ public struct HomeCore {
     case moveToInformation(Makgeolli, URL?)
     
     case logError(HomeCoreError)
+    case showToast(String, ToastType)
   }
   
   public init() { }
@@ -187,10 +189,36 @@ public struct HomeCore {
         return .none
         
       case let .logError(error):
-        return .run { _ in
-          Log.error(error)
-        }
+        let message = getErrorMessage(for: error.code)
+        return .merge(
+          .run { _ in Log.error(error) },
+          .run { _ in
+            NotificationCenter.default.post(
+              name: .showToast,
+              object: nil,
+              userInfo: ["message": message, "type": "error"]
+            )
+          }
+        )
+        
+      case .showToast(_, _):
+        return .none
       }
+    }
+  }
+  
+  private func getErrorMessage(for code: HomeCoreError.Code) -> String {
+    switch code {
+    case .failToSupabaseClientInitialized:
+      return "서비스 연결에 실패했습니다."
+    case .failToFetchNewReleases:
+      return "새로운 막걸리 정보를 불러오지 못했습니다."
+    case .failToGetImageUrl:
+      return "이미지를 불러오지 못했습니다."
+    case .failToFetchImage:
+      return "이미지 로딩에 실패했습니다."
+    case .failToFetchAwards:
+      return "수상 정보를 불러오지 못했습니다."
     }
   }
 }
