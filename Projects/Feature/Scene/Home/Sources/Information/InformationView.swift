@@ -31,7 +31,7 @@ public struct InformationView: View {
           
           MakgeolliDetailSectionView()
           
-          // ReactionButtonsView()
+          ReactionButtonsView()
           
           AwardsView()
           

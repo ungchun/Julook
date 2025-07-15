@@ -13,13 +13,36 @@ import DesignSystem
 
 import ComposableArchitecture
 
+public enum MyMakgeolliFilterTab: String, CaseIterable, Equatable {
+  case all = "전체"
+  case like = "좋았어요"
+  case dislike = "아쉬워요"
+  case favorite = "찜"
+}
+
 @Reducer
 public struct MyMakgeolliCore: Sendable{
   @ObservableState
   public struct State: Equatable {
     public var isInitialized: Bool = false
-    public var myMakgeollis: [MyMakgeolliEntity] = []
+    public var selectedTab: MyMakgeolliFilterTab = .all
+    public var allMyMakgeollis: [MyMakgeolliEntity] = []
+    public var likedMakgeollis: [MyMakgeolliEntity] = []
+    public var dislikedMakgeollis: [MyMakgeolliEntity] = []
+    public var favoriteMakgeollis: [MyMakgeolliEntity] = []
     public var makgeolliImages: [UUID: URL] = [:]
+    public var myMakgeollis: [MyMakgeolliEntity] {
+      switch selectedTab {
+      case .all:
+        return allMyMakgeollis
+      case .like:
+        return likedMakgeollis
+      case .dislike:
+        return dislikedMakgeollis
+      case .favorite:
+        return favoriteMakgeollis
+      }
+    }
     
     public init() { }
   }
@@ -27,8 +50,12 @@ public struct MyMakgeolliCore: Sendable{
   public enum Action {
     case viewAppeared
     
+    case tabSelected(MyMakgeolliFilterTab)
     case refreshMyMakgeollis
-    case updateMyMakgeollis([MyMakgeolliEntity])
+    case loadReactionData
+    case updateAllData(
+      [MyMakgeolliEntity], [MyMakgeolliEntity], [MyMakgeolliEntity], [MyMakgeolliEntity]
+    )
     case loadMakgeolliImages([MyMakgeolliEntity])
     case loadNewMakgeolliImages([MyMakgeolliEntity])
     case updateMakgeolliImage(UUID, URL)
@@ -44,6 +71,7 @@ public struct MyMakgeolliCore: Sendable{
   public init() { }
   
   @Dependency(\.myMakgeolliClient) var myMakgeolliClient
+  @Dependency(\.makgeolliReactionClient) var makgeolliReactionClient
   @Dependency(\.supabaseClient) var supabaseClient
   
   public var body: some Reducer<State, Action> {
@@ -54,22 +82,88 @@ public struct MyMakgeolliCore: Sendable{
           return .none
         }
         state.isInitialized = true
-        return .send(.refreshMyMakgeollis)
+        return .send(.loadReactionData)
+        
+      case let .tabSelected(tab):
+        state.selectedTab = tab
+        return .none
         
       case .refreshMyMakgeollis:
-        return .run { [currentMakgeollis = state.myMakgeollis] send in
+        return .send(.loadReactionData)
+        
+      case .loadReactionData:
+        return .run { send in
           do {
-            let myMakgeollis = try await myMakgeolliClient.getMyMakgeollis()
-            await send(.updateMyMakgeollis(myMakgeollis))
+            let favoriteMakgeollis = try await myMakgeolliClient.getMyMakgeollis()
+            let allReactions = try await makgeolliReactionClient.getAllReactions()
             
-            let currentIds = Set(currentMakgeollis.map { $0.id })
-            let newMakgeollis = myMakgeollis.filter { !currentIds.contains($0.id) }
+            var likedMakgeollis: [MyMakgeolliEntity] = []
+            var dislikedMakgeollis: [MyMakgeolliEntity] = []
+            var allMakgeollisMap: [UUID: MyMakgeolliEntity] = [:]
             
-            if !newMakgeollis.isEmpty {
-              await send(.loadNewMakgeolliImages(newMakgeollis))
+            for makgeolli in favoriteMakgeollis {
+              allMakgeollisMap[makgeolli.id] = makgeolli
             }
+            
+            for reaction in allReactions {
+              guard let reactionType = reaction.reactionType else { continue }
+              
+              if let favoriteMakgeolli = allMakgeollisMap[reaction.makgeolliId] {
+                if reactionType == "like" {
+                  likedMakgeollis.append(favoriteMakgeolli)
+                } else if reactionType == "dislike" {
+                  dislikedMakgeollis.append(favoriteMakgeolli)
+                }
+              } else {
+                do {
+                  if let makgeolliInfo = try await supabaseClient.fetchMakgeolliById(
+                    reaction.makgeolliId
+                  ) {
+                    let makgeolliEntity = MyMakgeolliEntity(
+                      id: makgeolliInfo.id,
+                      name: makgeolliInfo.name,
+                      imageName: makgeolliInfo.imageName,
+                      feedback: nil,
+                      isFavorite: false,
+                      comment: nil,
+                      createdAt: reaction.createdAt,
+                      updatedAt: reaction.updatedAt
+                    )
+                    
+                    allMakgeollisMap[reaction.makgeolliId] = makgeolliEntity
+                    
+                    if reactionType == "like" {
+                      likedMakgeollis.append(makgeolliEntity)
+                    } else if reactionType == "dislike" {
+                      dislikedMakgeollis.append(makgeolliEntity)
+                    }
+                  }
+                } catch {
+                  
+                }
+              }
+            }
+            
+            let sortedAllMakgeollis = Array(allMakgeollisMap.values).sorted {
+              $0.updatedAt > $1.updatedAt
+            }
+            let sortedLikedMakgeollis = likedMakgeollis.sorted {
+              $0.updatedAt > $1.updatedAt
+            }
+            let sortedDislikedMakgeollis = dislikedMakgeollis.sorted {
+              $0.updatedAt > $1.updatedAt
+            }
+            let sortedFavoriteMakgeollis = favoriteMakgeollis.sorted {
+              $0.updatedAt > $1.updatedAt
+            }
+            
+            await send(.updateAllData(
+              sortedAllMakgeollis,
+              sortedLikedMakgeollis,
+              sortedDislikedMakgeollis,
+              sortedFavoriteMakgeollis)
+            )
           } catch {
-            await send(.updateMyMakgeollis([]))
             await send(.logError(MyMakgeolliCoreError(
               code: .failToFetchMyMakgeollis,
               underlying: error
@@ -77,17 +171,28 @@ public struct MyMakgeolliCore: Sendable{
           }
         }
         
-      case let .updateMyMakgeollis(myMakgeollis):
-        state.myMakgeollis = myMakgeollis
-        return .none
+      case let .updateAllData(allData, likedData, dislikedData, favoriteData):
+        state.allMyMakgeollis = allData
+        state.likedMakgeollis = likedData
+        state.dislikedMakgeollis = dislikedData
+        state.favoriteMakgeollis = favoriteData
+        
+        var allUniqueMakgeollis = Set<MyMakgeolliEntity>()
+        allUniqueMakgeollis.formUnion(allData)
+        allUniqueMakgeollis.formUnion(likedData)
+        allUniqueMakgeollis.formUnion(dislikedData)
+        allUniqueMakgeollis.formUnion(favoriteData)
+        
+        let uniqueMakgeollisList = Array(allUniqueMakgeollis)
+        
+        return .send(.loadMakgeolliImages(uniqueMakgeollisList))
         
       case let .loadMakgeolliImages(myMakgeollis):
-        return .run { [makgeolliImages = state.makgeolliImages] send in
+        return .run { send in
           await withTaskGroup(of: Void.self) { group in
             for makgeolli in myMakgeollis {
               group.addTask {
-                guard let imageName = makgeolli.imageName,
-                      makgeolliImages[makgeolli.id] == nil else { return }
+                guard let imageName = makgeolli.imageName else { return }
                 
                 do {
                   let fileName = imageName.hasSuffix(".png") ? imageName : "\(imageName).png"

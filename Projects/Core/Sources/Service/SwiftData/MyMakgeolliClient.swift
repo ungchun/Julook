@@ -28,7 +28,7 @@ extension MyMakgeolliClient: DependencyKey {
     return MyMakgeolliClient(
       initialize: {
         do {
-          let schema = Schema([MyMakgeolli.self])
+          let schema = Schema([MyMakgeolli.self, MakgeolliReaction.self])
           let configuration = ModelConfiguration(
             schema: schema,
             isStoredInMemoryOnly: false,
@@ -137,11 +137,20 @@ extension MyMakgeolliClient: DependencyKey {
       },
       
       checkCloudKitStatus: {
-        guard containerRef.value != nil else {
+        guard let container = containerRef.value else {
           return false
         }
         
-        return true
+        return await MainActor.run {
+          let context = container.mainContext
+          do {
+            let descriptor = FetchDescriptor<MyMakgeolli>()
+            let _ = try context.fetchCount(descriptor)
+            return true
+          } catch {
+            return false
+          }
+        }
       }
     )
   }

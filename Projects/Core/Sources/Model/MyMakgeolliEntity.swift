@@ -8,7 +8,7 @@
 
 import Foundation
 
-public struct MyMakgeolliEntity: Sendable, Equatable {
+public struct MyMakgeolliEntity: Sendable, Equatable, Hashable {
   public let id: UUID
   public let name: String
   public let imageName: String?

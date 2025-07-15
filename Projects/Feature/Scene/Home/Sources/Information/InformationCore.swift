@@ -22,6 +22,7 @@ public struct InformationCore: Sendable {
     public var likeButtonState: ReactionButtonState = .active
     public var dislikeButtonState: ReactionButtonState = .active
     public var isFavorite: Bool = false
+    public var currentReaction: String? = nil
     
     public init(makgeolli: Makgeolli, makgeolliImage: URL? = nil) {
       self.makgeolli = makgeolli
@@ -39,6 +40,12 @@ public struct InformationCore: Sendable {
     case updateFavoriteStatus(Bool)
     case favoriteStatusChanged
     
+    case loadReaction
+    case updateReaction(String?)
+    case updateReactionState(String?)
+    case reactionSaved
+    case reactionStatusChanged
+    
     case logError(InformationCoreError)
     case showToast(String, ToastType)
   }
@@ -46,32 +53,39 @@ public struct InformationCore: Sendable {
   public init() { }
   
   @Dependency(\.myMakgeolliClient) var myMakgeolliClient
+  @Dependency(\.makgeolliReactionClient) var makgeolliReactionClient
+  @Dependency(\.supabaseClient) var supabaseClient
   
   public var body: some Reducer<State, Action> {
     Reduce { state, action in
       switch action {
       case .onAppear:
-        return .run { [makgeolli = state.makgeolli] send in
-          do {
-            let isFavorite = try await myMakgeolliClient.isFavorite(makgeolli.id)
-            await send(.updateFavoriteStatus(isFavorite))
-          } catch {
-            await send(.updateFavoriteStatus(false))
-            await send(.logError(InformationCoreError(
-              code: .failToCheckFavoriteStatus,
-              underlying: error
-            )))
-          }
-        }
+        return .merge(
+          .run { [makgeolli = state.makgeolli] send in
+            do {
+              let isFavorite = try await myMakgeolliClient.isFavorite(makgeolli.id)
+              await send(.updateFavoriteStatus(isFavorite))
+            } catch {
+              await send(.updateFavoriteStatus(false))
+              await send(.logError(InformationCoreError(
+                code: .failToCheckFavoriteStatus,
+                underlying: error
+              )))
+            }
+          },
+          .send(.loadReaction)
+        )
         
       case .dismiss:
         return .none
         
       case .likeButtonTapped:
-        return .none
+        let newReaction = state.currentReaction == "like" ? nil : "like"
+        return .send(.updateReaction(newReaction))
         
       case .dislikeButtonTapped:
-        return .none
+        let newReaction = state.currentReaction == "dislike" ? nil : "dislike"
+        return .send(.updateReaction(newReaction))
         
       case .favoriteButtonTapped:
         return .run { [makgeolli = state.makgeolli] send in
@@ -99,6 +113,76 @@ public struct InformationCore: Sendable {
       case .favoriteStatusChanged:
         return .none
         
+      case .loadReaction:
+        return .run { [makgeolliId = state.makgeolli.id] send in
+          do {
+            let reaction = try await makgeolliReactionClient.getReaction(makgeolliId)
+            let reactionType: String? = reaction?.reactionType
+            await send(.updateReactionState(reactionType))
+          } catch {
+            await send(.logError(InformationCoreError(
+              code: .failToLoadReaction,
+              underlying: error
+            )))
+          }
+        }
+        
+      case let .updateReaction(reactionType):
+        state.currentReaction = reactionType
+        
+        if reactionType == "like" {
+          state.likeButtonState = .active
+          state.dislikeButtonState = .disabled
+        } else if reactionType == "dislike" {
+          state.likeButtonState = .disabled
+          state.dislikeButtonState = .active
+        } else {
+          state.likeButtonState = .disabled
+          state.dislikeButtonState = .disabled
+        }
+        
+        return .run { [makgeolliId = state.makgeolli.id] send in
+          do {
+            try await makgeolliReactionClient.saveReaction(makgeolliId, reactionType)
+            
+            let userId = getUserId()
+            if let reactionType = reactionType {
+              try await supabaseClient.saveReaction(userId, makgeolliId, reactionType)
+            } else {
+              try await supabaseClient.deleteReaction(userId, makgeolliId)
+            }
+            
+            await send(.reactionSaved)
+          } catch {
+            await send(.logError(InformationCoreError(
+              code: .failToSaveReaction,
+              underlying: error
+            )))
+          }
+        }
+        
+      case let .updateReactionState(reactionType):
+        state.currentReaction = reactionType
+        
+        if reactionType == "like" {
+          state.likeButtonState = .active
+          state.dislikeButtonState = .disabled
+        } else if reactionType == "dislike" {
+          state.likeButtonState = .disabled
+          state.dislikeButtonState = .active
+        } else {
+          state.likeButtonState = .disabled
+          state.dislikeButtonState = .disabled
+        }
+        
+        return .none
+        
+      case .reactionSaved:
+        return .send(.reactionStatusChanged)
+        
+      case .reactionStatusChanged:
+        return .none
+        
       case let .logError(error):
         let message = getErrorMessage(for: error.code)
         return .merge(
@@ -112,12 +196,28 @@ public struct InformationCore: Sendable {
     }
   }
   
+  private func getUserId() -> UUID {
+    let key = "julook_user_id"
+    if let existingId = UserDefaults.standard.string(forKey: key),
+       let uuid = UUID(uuidString: existingId) {
+      return uuid
+    } else {
+      let newId = UUID()
+      UserDefaults.standard.set(newId.uuidString, forKey: key)
+      return newId
+    }
+  }
+  
   private func getErrorMessage(for code: InformationCoreError.Code) -> String {
     switch code {
     case .failToCheckFavoriteStatus:
       return "찜 상태를 확인하지 못했습니다."
     case .failToUpdateFavoriteStatus:
       return "찜 상태 변경에 실패했습니다."
+    case .failToLoadReaction:
+      return "반응 정보를 불러오지 못했습니다."
+    case .failToSaveReaction:
+      return "반응 저장에 실패했습니다."
     }
   }
 }
@@ -138,5 +238,7 @@ public struct InformationCoreError: JulookError, @unchecked Sendable {
   public enum Code: Int, Sendable {
     case failToCheckFavoriteStatus
     case failToUpdateFavoriteStatus
+    case failToLoadReaction
+    case failToSaveReaction
   }
 }
