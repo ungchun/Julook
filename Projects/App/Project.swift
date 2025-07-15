@@ -28,6 +28,7 @@ let project = Project.make(
       infoPlist: .file(path: .relativeToRoot("Projects/App/Info.plist")),
       sources: ["Sources/**"],
       resources: ["Resources/**"],
+      entitlements: .file(path: .relativeToRoot("Projects/App/Julook.entitlements")),
       scripts: commonScripts,
       dependencies: [
         .project(target: .core, projectPath: .core),
