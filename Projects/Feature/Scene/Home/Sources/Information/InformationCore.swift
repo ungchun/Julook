@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import Security
 
 import Core
 import DesignSystem
@@ -145,7 +146,7 @@ public struct InformationCore: Sendable {
           do {
             try await makgeolliReactionClient.saveReaction(makgeolliId, reactionType)
             
-            let userId = getUserId()
+            let userId = getUserID()
             if let reactionType = reactionType {
               try await supabaseClient.saveReaction(userId, makgeolliId, reactionType)
             } else {
@@ -195,20 +196,58 @@ public struct InformationCore: Sendable {
       }
     }
   }
-  
-  private func getUserId() -> UUID {
-    let key = "julook_user_id"
-    if let existingId = UserDefaults.standard.string(forKey: key),
-       let uuid = UUID(uuidString: existingId) {
+}
+
+private extension InformationCore {
+  func getUserID() -> UUID {
+    let service = "com.azhy.julook"
+    let account = "user_id"
+    
+    if let existingID = getKeychainValue(service: service, account: account),
+       let uuid = UUID(uuidString: existingID) {
       return uuid
-    } else {
-      let newId = UUID()
-      UserDefaults.standard.set(newId.uuidString, forKey: key)
-      return newId
     }
+    
+    let newID = UUID()
+    setKeychainValue(service: service, account: account, value: newID.uuidString)
+    return newId
   }
   
-  private func getErrorMessage(for code: InformationCoreError.Code) -> String {
+  func getKeychainValue(service: String, account: String) -> String? {
+    let query: [String: Any] = [
+      kSecClass as String: kSecClassGenericPassword,
+      kSecAttrService as String: service,
+      kSecAttrAccount as String: account,
+      kSecReturnData as String: true
+    ]
+    
+    var result: CFTypeRef?
+    let status = SecItemCopyMatching(query as CFDictionary, &result)
+    
+    guard status == errSecSuccess,
+          let data = result as? Data,
+          let value = String(data: data, encoding: .utf8) else {
+      return nil
+    }
+    
+    return value
+  }
+  
+  func setKeychainValue(service: String, account: String, value: String) {
+    let data = value.data(using: .utf8)!
+    
+    let query: [String: Any] = [
+      kSecClass as String: kSecClassGenericPassword,
+      kSecAttrService as String: service,
+      kSecAttrAccount as String: account,
+      kSecValueData as String: data
+    ]
+    
+    SecItemDelete(query as CFDictionary)
+    SecItemAdd(query as CFDictionary, nil)
+  }
+  
+  func getErrorMessage(for code: InformationCoreError.Code) -> String {
     switch code {
     case .failToCheckFavoriteStatus:
       return "찜 상태를 확인하지 못했습니다."

@@ -29,7 +29,7 @@ public struct SupabaseClient: Sendable {
   public var searchMakgeollis: @Sendable (String) async throws -> [Makgeolli]
   public var requestRegisterMakgeolli: @Sendable (String) async throws -> Void
   public var saveReaction: @Sendable (UUID, UUID, String) async throws -> Void
-  public var getReaction: @Sendable (UUID, UUID) async throws -> MakgeolliReactionSupabase?
+  public var getReaction: @Sendable (UUID, UUID) async throws -> MakgeolliReactionRemote?
   public var getReactionCounts: @Sendable (UUID) async throws -> MakgeolliReactionCount?
   public var deleteReaction: @Sendable (UUID, UUID) async throws -> Void
 }
@@ -282,7 +282,7 @@ extension SupabaseClient: DependencyKey {
         }
         
         do {
-          let existingReactions: [MakgeolliReactionSupabase] = try await client
+          let existingReactions: [MakgeolliReactionRemote] = try await client
             .from("makgeolli_reactions")
             .select()
             .eq("user_id", value: userId.uuidString)
@@ -307,7 +307,7 @@ extension SupabaseClient: DependencyKey {
               )
             }
           } else {
-            let reaction = MakgeolliReactionSupabase(
+            let reaction = MakgeolliReactionRemote(
               userId: userId,
               makgeolliId: makgeolliId,
               reactionType: reactionType
@@ -343,7 +343,7 @@ extension SupabaseClient: DependencyKey {
         }
         
         do {
-          let result: [MakgeolliReactionSupabase] = try await client
+          let result: [MakgeolliReactionRemote] = try await client
             .from("makgeolli_reactions")
             .select()
             .eq("user_id", value: userId.uuidString)
@@ -403,7 +403,7 @@ extension SupabaseClient: DependencyKey {
             .eq("makgeolli_id", value: makgeolliId.uuidString)
             .execute()
           
-          if result.status != 204 {
+          if result.status < 200 || result.status >= 300 {
             throw SupabaseClientError(
               code: .failToDeleteReaction,
               underlying: nil

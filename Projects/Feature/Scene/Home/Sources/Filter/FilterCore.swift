@@ -75,7 +75,6 @@ public struct FilterCore {
     case applySorting
     case dismissSortOptions
     
-    
     // 데이터 로딩
     case fetchMakgeollis
     case loadMoreMakgeollis

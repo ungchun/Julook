@@ -47,7 +47,11 @@ struct AppDelegateCore {
         
       case .setupSwiftData:
         return .run { send in
-          await myMakgeolliClient.initialize()
+          do {
+            try await myMakgeolliClient.initialize()
+          } catch {
+            await send(.logError(AppDelegateCoreError(code: .failToSwiftDataInitialized, underlying: error)))
+          }
         }
         
       case let .logError(error):

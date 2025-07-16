@@ -39,7 +39,7 @@ public struct MyMakgeolliEntity: Sendable, Equatable, Hashable {
   }
 }
 
-extension MyMakgeolli {
+extension MyMakgeolliLocal {
   public func toEntity() -> MyMakgeolliEntity {
     return MyMakgeolliEntity(
       id: self.id,

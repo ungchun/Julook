@@ -25,6 +25,7 @@ public struct MyMakgeolliCore: Sendable{
   @ObservableState
   public struct State: Equatable {
     public var isInitialized: Bool = false
+    public var isLoading: Bool = false
     public var selectedTab: MyMakgeolliFilterTab = .all
     public var allMyMakgeollis: [MyMakgeolliEntity] = []
     public var likedMakgeollis: [MyMakgeolliEntity] = []
@@ -82,6 +83,7 @@ public struct MyMakgeolliCore: Sendable{
           return .none
         }
         state.isInitialized = true
+        state.isLoading = true
         return .send(.loadReactionData)
         
       case let .tabSelected(tab):
@@ -165,7 +167,7 @@ public struct MyMakgeolliCore: Sendable{
             )
           } catch {
             await send(.logError(MyMakgeolliCoreError(
-              code: .failToFetchMyMakgeollis,
+              code: .failToFetchReactionData,
               underlying: error
             )))
           }
@@ -176,6 +178,7 @@ public struct MyMakgeolliCore: Sendable{
         state.likedMakgeollis = likedData
         state.dislikedMakgeollis = dislikedData
         state.favoriteMakgeollis = favoriteData
+        state.isLoading = false
         
         var allUniqueMakgeollis = Set<MyMakgeolliEntity>()
         allUniqueMakgeollis.formUnion(allData)
@@ -293,6 +296,8 @@ public struct MyMakgeolliCore: Sendable{
     switch code {
     case .failToFetchMyMakgeollis:
       return "찜한 막걸리 목록을 불러오지 못했습니다."
+    case .failToFetchReactionData:
+      return "반응 데이터를 불러오지 못했습니다."
     case .failToFetchImage:
       return "이미지 로딩에 실패했습니다."
     case .failToFetchMakgeolliDetail:
@@ -318,6 +323,7 @@ public struct MyMakgeolliCoreError: JulookError, @unchecked Sendable {
   
   public enum Code: Int, Sendable {
     case failToFetchMyMakgeollis
+    case failToFetchReactionData
     case failToFetchImage
     case failToFetchMakgeolliDetail
     case makgeolliNotFound

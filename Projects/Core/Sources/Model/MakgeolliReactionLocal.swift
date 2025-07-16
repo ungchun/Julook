@@ -1,5 +1,5 @@
 //
-//  MakgeolliReaction.swift
+//  MakgeolliReactionLocal.swift
 //  Core
 //
 //  Created by Kim SungHun on 7/13/25.
@@ -10,7 +10,7 @@ import CloudKit
 import SwiftData
 
 @Model
-public class MakgeolliReaction {
+public class MakgeolliReactionLocal {
   public var id: UUID = UUID()
   public var makgeolliId: UUID = UUID()
   public var reactionType: String?

@@ -86,7 +86,7 @@ public struct MainCoordinatorCore {
         
       case .router(.routeAction(id: _, action: .information(.reactionStatusChanged))):
         return .send(.router(.routeAction(
-          id: 0, action: .tabs(.myMakgeolliTab(.loadReactionData)))))
+          id: 0, action: .tabs(.myMakgeolliTab(.refreshMyMakgeollis)))))
         
       default:
         break

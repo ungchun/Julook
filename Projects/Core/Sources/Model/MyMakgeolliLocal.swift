@@ -1,5 +1,5 @@
 //
-//  MyMakgeolli.swift
+//  MyMakgeolliLocal.swift
 //  Core
 //
 //  Created by Kim SungHun on 7/6/25.
@@ -10,7 +10,7 @@ import Foundation
 import SwiftData
 
 @Model
-public class MyMakgeolli {
+public class MyMakgeolliLocal {
   public var id: UUID = UUID()
   public var name: String = ""
   public var imageName: String?

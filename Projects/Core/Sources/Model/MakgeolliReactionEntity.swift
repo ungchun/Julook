@@ -32,7 +32,7 @@ public struct MakgeolliReactionEntity: Sendable, Equatable {
 }
 
 public extension MakgeolliReactionEntity {
-  init(from model: MakgeolliReaction) {
+  init(from model: MakgeolliReactionLocal) {
     self.id = model.id
     self.makgeolliId = model.makgeolliId
     self.reactionType = model.reactionType

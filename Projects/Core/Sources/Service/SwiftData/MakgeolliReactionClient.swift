@@ -21,17 +21,15 @@ public struct MakgeolliReactionClient: Sendable {
 
 extension MakgeolliReactionClient: DependencyKey {
   public static var liveValue: MakgeolliReactionClient {
-    let containerRef = LockIsolated<ModelContainer?>(nil)
-    
     return MakgeolliReactionClient(
       getReaction: { makgeolliId in
         return try await withCheckedThrowingContinuation { continuation in
           Task { @MainActor in
             do {
-              let container = try getOrCreateContainer(containerRef)
+              let container = try await SharedModelContainer.shared.container
               let context = container.mainContext
               
-              let descriptor = FetchDescriptor<MakgeolliReaction>(
+              let descriptor = FetchDescriptor<MakgeolliReactionLocal>(
                 predicate: #Predicate { $0.makgeolliId == makgeolliId }
               )
               
@@ -41,7 +39,10 @@ extension MakgeolliReactionClient: DependencyKey {
               )
               continuation.resume(returning: result)
             } catch {
-              // TODO: ERROR
+              Log.error(MakgeolliReactionClientError(
+                code: .failToGetReaction,
+                underlying: error
+              ))
               continuation.resume(throwing: error)
             }
           }
@@ -52,10 +53,10 @@ extension MakgeolliReactionClient: DependencyKey {
         return try await withCheckedThrowingContinuation { continuation in
           Task { @MainActor in
             do {
-              let container = try getOrCreateContainer(containerRef)
+              let container = try await SharedModelContainer.shared.container
               let context = container.mainContext
               
-              let descriptor = FetchDescriptor<MakgeolliReaction>(
+              let descriptor = FetchDescriptor<MakgeolliReactionLocal>(
                 sortBy: [SortDescriptor(\.updatedAt, order: .reverse)]
               )
               
@@ -63,6 +64,10 @@ extension MakgeolliReactionClient: DependencyKey {
               let result = reactions.map(MakgeolliReactionEntity.init)
               continuation.resume(returning: result)
             } catch {
+              Log.error(MakgeolliReactionClientError(
+                code: .failToGetAllReactions,
+                underlying: error
+              ))
               continuation.resume(throwing: error)
             }
           }
@@ -73,10 +78,10 @@ extension MakgeolliReactionClient: DependencyKey {
         return try await withCheckedThrowingContinuation { continuation in
           Task { @MainActor in
             do {
-              let container = try getOrCreateContainer(containerRef)
+              let container = try await SharedModelContainer.shared.container
               let context = container.mainContext
               
-              let descriptor = FetchDescriptor<MakgeolliReaction>(
+              let descriptor = FetchDescriptor<MakgeolliReactionLocal>(
                 predicate: #Predicate { $0.makgeolliId == makgeolliId }
               )
               
@@ -90,7 +95,7 @@ extension MakgeolliReactionClient: DependencyKey {
                   context.delete(existingReaction)
                 }
               } else if let reactionType = reactionType {
-                let newReaction = MakgeolliReaction(
+                let newReaction = MakgeolliReactionLocal(
                   makgeolliId: makgeolliId,
                   reactionType: reactionType
                 )
@@ -100,7 +105,10 @@ extension MakgeolliReactionClient: DependencyKey {
               try context.save()
               continuation.resume()
             } catch {
-              // TODO: ERROR
+              Log.error(MakgeolliReactionClientError(
+                code: .failToSaveReaction,
+                underlying: error
+              ))
               continuation.resume(throwing: error)
             }
           }
@@ -111,10 +119,10 @@ extension MakgeolliReactionClient: DependencyKey {
         return try await withCheckedThrowingContinuation { continuation in
           Task { @MainActor in
             do {
-              let container = try getOrCreateContainer(containerRef)
+              let container = try await SharedModelContainer.shared.container
               let context = container.mainContext
               
-              let descriptor = FetchDescriptor<MakgeolliReaction>(
+              let descriptor = FetchDescriptor<MakgeolliReactionLocal>(
                 predicate: #Predicate { $0.makgeolliId == makgeolliId }
               )
               
@@ -125,7 +133,10 @@ extension MakgeolliReactionClient: DependencyKey {
               try context.save()
               continuation.resume()
             } catch {
-              // TODO: ERROR
+              Log.error(MakgeolliReactionClientError(
+                code: .failToDeleteReaction,
+                underlying: error
+              ))
               continuation.resume(throwing: error)
             }
           }
@@ -149,22 +160,23 @@ extension DependencyValues {
   }
 }
 
-@MainActor
-private func getOrCreateContainer(
-  _ containerRef: LockIsolated<ModelContainer?>
-) throws -> ModelContainer {
-  if let container = containerRef.value {
-    return container
+public struct MakgeolliReactionClientError: JulookError, @unchecked Sendable {
+  public var userInfo: [String: Any] = [:]
+  public var code: Code
+  public var underlying: Error?
+  
+  public init(
+    code: Code,
+    underlying: Error? = nil
+  ) {
+    self.code = code
+    self.underlying = underlying
   }
   
-  let schema = Schema([MyMakgeolli.self, MakgeolliReaction.self])
-  let configuration = ModelConfiguration(
-    schema: schema,
-    isStoredInMemoryOnly: false,
-    cloudKitDatabase: .automatic
-  )
-  
-  let container = try ModelContainer(for: schema, configurations: [configuration])
-  containerRef.setValue(container)
-  return container
+  public enum Code: Int, Sendable {
+    case failToGetReaction
+    case failToGetAllReactions
+    case failToSaveReaction
+    case failToDeleteReaction
+  }
 }

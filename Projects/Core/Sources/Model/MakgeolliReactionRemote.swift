@@ -1,5 +1,5 @@
 //
-//  MakgeolliReactionSupabase.swift
+//  MakgeolliReactionRemote.swift
 //  Core
 //
 //  Created by Kim SungHun on 7/15/25.
@@ -9,7 +9,7 @@
 import Foundation
 
 /// Supabase makgeolli_reactions 테이블과 매핑되는 모델
-public struct MakgeolliReactionSupabase: Codable, Sendable, Equatable {
+public struct MakgeolliReactionRemote: Codable, Sendable, Equatable {
   public let id: UUID
   public let userId: UUID
   public let makgeolliId: UUID

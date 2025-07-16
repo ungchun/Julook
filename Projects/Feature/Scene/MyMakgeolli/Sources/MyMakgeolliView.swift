@@ -30,9 +30,16 @@ public struct MyMakgeolliView: View {
         FilterTabsView()
         
         Group {
-          if store.state.myMakgeollis.isEmpty {
+          if store.state.isLoading {
             VStack(spacing: 20) {
-              Text("찜한 막걸리가 없어요.")
+              ProgressView()
+                .progressViewStyle(CircularProgressViewStyle())
+                .scaleEffect(1.5)
+            }
+            .frame(maxHeight: .infinity)
+          } else if store.state.myMakgeollis.isEmpty {
+            VStack(spacing: 20) {
+              Text("비어있어요")
                 .foregroundColor(.w50)
                 .font(.SF17R)
               
@@ -84,14 +91,30 @@ public struct MyMakgeolliView: View {
 private extension MyMakgeolliView {
   @ViewBuilder
   func HeaderView() -> some View {
-    HStack {
-      Spacer()
-      
+    ZStack {
       Text("내 막걸리")
         .font(.SF17B)
         .foregroundColor(.w)
       
-      Spacer()
+      HStack {
+        #if DEBUG
+        Button("초기화") {
+          Task {
+            do {
+              try await CloudKitResetHelper.resetAllData()
+              store.send(.loadReactionData)
+            } catch {
+              print("초기화 실패: \(error)")
+            }
+          }
+        }
+        .padding(.horizontal, 32)
+        .foregroundColor(.red)
+        .font(.SF12R)
+        #endif
+        
+        Spacer()
+      }
     }
     .frame(height: 44)
   }
