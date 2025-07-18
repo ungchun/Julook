@@ -208,8 +208,8 @@ private extension InformationCore {
       return uuid
     }
     
-    let newID = UUID()
-    setKeychainValue(service: service, account: account, value: newID.uuidString)
+    let newId = UUID()
+    setKeychainValue(service: service, account: account, value: newId.uuidString)
     return newId
   }
   

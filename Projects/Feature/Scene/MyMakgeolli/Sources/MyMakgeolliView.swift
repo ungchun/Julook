@@ -58,9 +58,9 @@ public struct MyMakgeolliView: View {
                     ForEach(store.state.myMakgeollis, id: \.id) { makgeolli in
                       MyMakgeolliGridItem(
                         makgeolli: makgeolli,
-                        imageURL: store.state.makgeolliImages[makgeolli.id]
+                        imageURL: store.state.makgeolliImages[makgeolli.id],
+                        reactionType: getReactionType(for: makgeolli, state: store.state)
                       )
-                      
                       .frame(width: (geometry.size.width - 32 - 32) / 3)
                       .background(
                         Rectangle()
@@ -97,7 +97,7 @@ private extension MyMakgeolliView {
         .foregroundColor(.w)
       
       HStack {
-        #if DEBUG
+#if DEBUG
         Button("초기화") {
           Task {
             do {
@@ -111,7 +111,7 @@ private extension MyMakgeolliView {
         .padding(.horizontal, 32)
         .foregroundColor(.red)
         .font(.SF12R)
-        #endif
+#endif
         
         Spacer()
       }
@@ -148,6 +148,34 @@ private extension MyMakgeolliView {
     .frame(height: 44)
     .padding(.bottom, 16)
   }
+  
+  private func getReactionType(
+    for makgeolli: MyMakgeolliEntity,
+    state: MyMakgeolliCore.State
+  ) -> String? {
+    switch state.selectedTab {
+    case .like:
+      return state.likedMakgeollis.contains(where: { $0.id == makgeolli.id }) ? "like" : nil
+    case .dislike:
+      return state.dislikedMakgeollis.contains(where: { $0.id == makgeolli.id }) ? "dislike" : nil
+    case .all:
+      if state.likedMakgeollis.contains(where: { $0.id == makgeolli.id }) {
+        return "like"
+      } else if state.dislikedMakgeollis.contains(where: { $0.id == makgeolli.id }) {
+        return "dislike"
+      } else {
+        return nil
+      }
+    case .favorite:
+      if state.likedMakgeollis.contains(where: { $0.id == makgeolli.id }) {
+        return "like"
+      } else if state.dislikedMakgeollis.contains(where: { $0.id == makgeolli.id }) {
+        return "dislike"
+      } else {
+        return nil
+      }
+    }
+  }
 }
 
 private final class ImageCache: @unchecked Sendable {
@@ -169,10 +197,12 @@ private final class ImageCache: @unchecked Sendable {
 }
 
 private struct MyMakgeolliGridItem: View {
-  let makgeolli: MyMakgeolliEntity
-  let imageURL: URL?
   @State private var loadedImage: UIImage?
   @State private var isLoading = false
+  
+  let makgeolli: MyMakgeolliEntity
+  let imageURL: URL?
+  let reactionType: String?
   
   var body: some View {
     VStack(spacing: 12) {
@@ -217,6 +247,33 @@ private struct MyMakgeolliGridItem: View {
         .foregroundColor(.white)
         .lineLimit(1)
         .multilineTextAlignment(.center)
+      
+      HStack(spacing: 12) {
+        Group {
+          if reactionType == "like" {
+            DesignSystemAsset.Images.circleLike.swiftUIImage
+              .resizable()
+          } else if reactionType == "dislike" {
+            DesignSystemAsset.Images.circleDislike.swiftUIImage
+              .resizable()
+          } else {
+            DesignSystemAsset.Images.circleNone.swiftUIImage
+              .resizable()
+          }
+        }
+        .frame(width: 16, height: 16)
+        
+        Group {
+          if makgeolli.isFavorite {
+            DesignSystemAsset.Images.heartFill.swiftUIImage
+              .resizable()
+          } else {
+            DesignSystemAsset.Images.heartNone.swiftUIImage
+              .resizable()
+          }
+        }
+        .frame(width: 16, height: 16)
+      }
     }
     .padding(.horizontal, 12)
     .padding(.vertical, 20)
@@ -265,7 +322,7 @@ private struct MyMakgeolliGridItem: View {
         .frame(height: 120)
         .clipped()
         .cornerRadius(12)
-    case .failure(let error):
+    case .failure(_):
       DesignSystemAsset.Images.defaultMakgeolli.swiftUIImage
         .resizable()
         .aspectRatio(contentMode: .fit)
