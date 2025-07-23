@@ -61,6 +61,10 @@ public struct InformationCore: Sendable {
     Reduce { state, action in
       switch action {
       case .onAppear:
+        Amp.track(event: "makgeolli_detail_viewed", properties: [
+          "makgeolli_name": state.makgeolli.name
+        ])
+        
         return .merge(
           .run { [makgeolli = state.makgeolli] send in
             do {
@@ -82,13 +86,27 @@ public struct InformationCore: Sendable {
         
       case .likeButtonTapped:
         let newReaction = state.currentReaction == "like" ? nil : "like"
+        Amp.track(event: "like_button_clicked", properties: [
+          "makgeolli_name": state.makgeolli.name,
+          "reaction_type": newReaction ?? "removed"
+        ])
         return .send(.updateReaction(newReaction))
         
       case .dislikeButtonTapped:
         let newReaction = state.currentReaction == "dislike" ? nil : "dislike"
+        Amp.track(event: "dislike_button_clicked", properties: [
+          "makgeolli_name": state.makgeolli.name,
+          "reaction_type": newReaction ?? "removed"
+        ])
         return .send(.updateReaction(newReaction))
         
       case .favoriteButtonTapped:
+        let newFavoriteStatus = !state.isFavorite
+        Amp.track(event: "favorite_button_clicked", properties: [
+          "makgeolli_name": state.makgeolli.name,
+          "favorite_status": newFavoriteStatus ? "added" : "removed"
+        ])
+        
         return .run { [makgeolli = state.makgeolli] send in
           await myMakgeolliClient.toggleFavorite(makgeolli)
           do {

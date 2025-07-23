@@ -86,6 +86,9 @@ private extension SearchView {
           .focused($focused)
           .submitLabel(.search)
           .onSubmit {
+            Amp.track(event: "search_submitted", properties: [
+              "search_query": store.searchText
+            ])
             store.send(.searchSubmitted)
           }
           .onChange(of: store.searchText) { _, newValue in
@@ -187,6 +190,9 @@ private extension SearchView {
           }
           .contentShape(Rectangle())
           .onTapGesture {
+            Amp.track(event: "recent_search_clicked", properties: [
+              "search_query": search
+            ])
             if store.isSearchBarFocused {
               focused = false
               store.send(.setSearchBarFocus(false))

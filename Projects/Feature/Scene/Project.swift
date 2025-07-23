@@ -15,7 +15,8 @@ let project = Project.make(
         .project(target: .myMakgeolli, projectPath: .scene),
         .project(target: .core, projectPath: .core),
         .project(target: .designSystem, projectPath: .designSystem),
-        .external(externalDependency: .composableArchitecture)
+        .external(externalDependency: .composableArchitecture),
+        .external(externalDependency: .amplitude)
       ],
       settings: .settings(
         base: ["SWIFT_VERSION": "6.0"]
@@ -29,7 +30,8 @@ let project = Project.make(
       dependencies: [
         .project(target: .core, projectPath: .core),
         .project(target: .designSystem, projectPath: .designSystem),
-        .external(externalDependency: .composableArchitecture)
+        .external(externalDependency: .composableArchitecture),
+        .external(externalDependency: .amplitude)
       ],
       settings: .settings(
         base: ["SWIFT_VERSION": "6.0"]
@@ -43,7 +45,8 @@ let project = Project.make(
       dependencies: [
         .project(target: .core, projectPath: .core),
         .project(target: .designSystem, projectPath: .designSystem),
-        .external(externalDependency: .composableArchitecture)
+        .external(externalDependency: .composableArchitecture),
+        .external(externalDependency: .amplitude)
       ],
       settings: .settings(
         base: ["SWIFT_VERSION": "6.0"]
@@ -57,7 +60,8 @@ let project = Project.make(
       dependencies: [
         .project(target: .core, projectPath: .core),
         .project(target: .designSystem, projectPath: .designSystem),
-        .external(externalDependency: .composableArchitecture)
+        .external(externalDependency: .composableArchitecture),
+        .external(externalDependency: .amplitude)
       ],
       settings: .settings(
         base: ["SWIFT_VERSION": "6.0"]
@@ -71,7 +75,8 @@ let project = Project.make(
       dependencies: [
         .project(target: .core, projectPath: .core),
         .project(target: .designSystem, projectPath: .designSystem),
-        .external(externalDependency: .composableArchitecture)
+        .external(externalDependency: .composableArchitecture),
+        .external(externalDependency: .amplitude)
       ],
       settings: .settings(
         base: ["SWIFT_VERSION": "6.0"]

@@ -11,11 +11,12 @@ import FeatureSearch
 import FeatureMyMakgeolli
 
 import ComposableArchitecture
+import Core
 
-public enum Tab: Equatable {
-  case home
-  case search
-  case myMakgeolli
+public enum Tab: String, Equatable {
+  case home = "home"
+  case search = "search"
+  case myMakgeolli = "my_makgeolli"
 }
 
 @Reducer
@@ -70,6 +71,16 @@ public struct TabCore {
       switch action {
       case let .tabSeoected(tab):
         state.selectedTab = tab
+        
+        switch tab {
+        case .home:
+          Amp.track(event: "home_tab_selected")
+        case .search:
+          Amp.track(event: "search_tab_selected")
+        case .myMakgeolli:
+          Amp.track(event: "my_makgeolli_tab_selected")
+        }
+        
         return .none
         
       case .homeTab:

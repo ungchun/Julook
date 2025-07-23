@@ -11,7 +11,8 @@ let project = Project.make(
       sources: ["Sources/**"],
       dependencies: [
         .external(externalDependency: .composableArchitecture),
-        .external(externalDependency: .supabase)
+        .external(externalDependency: .supabase),
+        .external(externalDependency: .amplitude)
       ],
       settings: .settings(
         base: ["SWIFT_VERSION": "6.0"]

@@ -25,7 +25,10 @@ public struct TabsView: View {
   }
   
   public var body: some View {
-    TabView {
+    TabView(selection: Binding(
+      get: { store.selectedTab },
+      set: { store.send(.tabSeoected($0)) }
+    )) {
       HomeView(store: store.scope(
         state: \.homeTab,
         action: \.homeTab))

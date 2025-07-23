@@ -105,6 +105,7 @@ private struct MakgeolliFilterView: View {
         Spacer()
       }
       .onTapGesture {
+        Amp.track(event: "feature_filter_clicked")
         store.send(.filterButtonTapped)
       }
       .padding(.horizontal, 16)
@@ -125,6 +126,9 @@ private struct MakgeolliFilterView: View {
                 .font(.SF12B)
             }
             .onTapGesture {
+              Amp.track(event: "filter_type_clicked", properties: [
+                "filter_type": filterType.description
+              ])
               store.send(.filterItemTapped(filterType))
             }
           }
@@ -226,6 +230,7 @@ private struct NewReleasesView: View {
                   .padding(20)
                 }
                 .onTapGesture {
+                  Amp.track(event: "new_release_clicked")
                   store.send(.newReleaseItemTapped(makgeolli))
                 }
                 .padding(.leading, idx == 0 ? 16 : 0)
@@ -362,6 +367,9 @@ private struct MakgeolliTopicView: View {
                   }
                   .padding(.leading, idx == 0 ? 16 : 0)
                   .onTapGesture {
+                    Amp.track(event: "topic_clicked", properties: [
+                      "topic_name": award.name
+                    ])
                     store.send(.topicItemTapped(award))
                   }
               }

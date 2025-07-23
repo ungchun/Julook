@@ -42,4 +42,5 @@ public enum ExternalDependency: String {
   case supabase = "Supabase"
   case firebaseAnalytics = "FirebaseAnalytics"
   case firebaseCrashlytics = "FirebaseCrashlytics"
+  case amplitude = "AmplitudeSwift"
 }

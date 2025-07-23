@@ -71,6 +71,9 @@ private struct FilterOptionsView: View {
       HStack(spacing: 8) {
         ForEach(Array(FilterType.allCases.enumerated()), id: \.element) { index, option in
           Button {
+            Amp.track(event: "filter_type_clicked", properties: [
+              "filter_type": option.description
+            ])
             store.send(.toggleFilterTapped(option))
           } label: {
             Text(option.description)
@@ -129,6 +132,9 @@ private struct SortOptionsView: View {
           Picker("", selection: Binding(
             get: { self.store.selectedSort },
             set: { option in
+              Amp.track(event: "sort_option_selected", properties: [
+                "sort_option": option.description
+              ])
               self.store.send(.selectSort(option))
               self.store.send(.applySorting)
             }

@@ -12,7 +12,8 @@ let project = Project.make(
       dependencies: [
         .project(target: .tabs, projectPath: .scene),
         .external(externalDependency: .composableArchitecture),
-        .external(externalDependency: .tcaCoordinators)
+        .external(externalDependency: .tcaCoordinators),
+        .external(externalDependency: .amplitude)
       ],
       settings: .settings(
         base: ["SWIFT_VERSION": "6.0"]

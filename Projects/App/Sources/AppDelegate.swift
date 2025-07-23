@@ -8,6 +8,8 @@
 
 import UIKit
 
+import Core
+
 import ComposableArchitecture
 import Firebase
 
@@ -24,6 +26,10 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
   ) -> Bool {
     FirebaseApp.configure()
+    if let key = Bundle.main.infoDictionary?["AMPLITUDE_KEY"] as? String {
+      Amp.configure(apiKey: key)
+    }
+    
     store.send(.didFinishLaunching)
     return true
   }

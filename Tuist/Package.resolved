@@ -1,5 +1,5 @@
 {
-  "originHash" : "b59a5de0b26cca869386587bdf096ddd1a5ec9c2f54a07b48633f165d478f5c9",
+  "originHash" : "f82960635f05fdc30f106b592b410593f81728762c97a8b397d6a90245024037",
   "pins" : [
     {
       "identity" : "abseil-cpp-binary",
@@ -8,6 +8,33 @@
       "state" : {
         "revision" : "bbe8b69694d7873315fd3a4ad41efe043e1c07c5",
         "version" : "1.2024072200.0"
+      }
+    },
+    {
+      "identity" : "amplitude-swift",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/amplitude/Amplitude-Swift",
+      "state" : {
+        "revision" : "86a2bc7383ff969193b63a4496403279adf0a01b",
+        "version" : "1.13.9"
+      }
+    },
+    {
+      "identity" : "amplitudecore-swift",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/amplitude/AmplitudeCore-Swift.git",
+      "state" : {
+        "revision" : "13fd0eb0aa080816ffa409669758b2e8787322b2",
+        "version" : "1.1.0"
+      }
+    },
+    {
+      "identity" : "analytics-connector-ios",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/amplitude/analytics-connector-ios.git",
+      "state" : {
+        "revision" : "4adbfe85486e6dcdcdca5fa9362097ffe5ec712b",
+        "version" : "1.3.1"
       }
     },
     {
