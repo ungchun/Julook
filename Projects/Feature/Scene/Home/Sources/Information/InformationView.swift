@@ -226,7 +226,7 @@ private extension InformationView {
         }
       )
     }
-    .padding(.bottom, 16)
+    .padding(.bottom, 40)
   }
 }
 
@@ -244,7 +244,7 @@ private extension InformationView {
             ThreeAwardsView(awards: awards)
           }
         }
-        .padding(.vertical, 24)
+        .padding(.bottom, 24)
         
         Rectangle()
           .fill(Color.w25)
