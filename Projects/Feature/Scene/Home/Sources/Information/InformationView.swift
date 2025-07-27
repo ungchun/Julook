@@ -37,6 +37,8 @@ public struct InformationView: View {
           
           MakgeolliDescriptionSection()
           
+          MakgeolliEvaluationSection()
+          
           MakgeolliIngredientsSection()
           
           MakgeolliInformationSection()
@@ -362,6 +364,81 @@ private extension InformationView {
             .font(.SF14R)
         }
         Spacer()
+      }
+      .padding(.bottom, 40)
+    }
+  }
+}
+
+private extension InformationView {
+  @ViewBuilder
+  func MakgeolliEvaluationSection() -> some View {
+    if let reactionCounts = store.state.reactionCounts {
+      let likeCount = reactionCounts.likeCount
+      let dislikeCount = reactionCounts.dislikeCount
+      let totalCount = likeCount + dislikeCount
+      
+      let likePercentage = totalCount > 0 ? Double(likeCount) / Double(totalCount) * 100 : 0
+      let dislikePercentage = totalCount > 0 ? Double(dislikeCount) / Double(totalCount) * 100 : 0
+      
+      VStack(alignment: .leading, spacing: 20) {
+        Text("평가")
+          .foregroundColor(.w)
+          .font(.SF20B)
+        
+        VStack(spacing: 4) {
+          HStack {
+            Text("\(String(format: "%.0f", likePercentage))%")
+              .foregroundColor(.w85)
+              .font(.SF14R)
+            
+            Spacer()
+            
+            GeometryReader { geometry in
+              ZStack {
+                RoundedRectangle(cornerRadius: 4)
+                  .fill(Color.w10)
+                  .frame(width: geometry.size.width, height: 5)
+                
+                RoundedRectangle(cornerRadius: 4)
+                  .fill(LinearGradient(
+                    gradient: Gradient(stops: [
+                      .init(color: DesignSystemAsset.Colors.goldenyellow.swiftUIColor,
+                            location: 0),
+                      .init(color: DesignSystemAsset.Colors.goldenyellow.swiftUIColor,
+                            location: CGFloat(likePercentage / 100)),
+                      .init(color: DesignSystemAsset.Colors.lilac.swiftUIColor,
+                            location: CGFloat(likePercentage / 100)),
+                      .init(color: DesignSystemAsset.Colors.lilac.swiftUIColor,
+                            location: 1)
+                    ]),
+                    startPoint: .leading,
+                    endPoint: .trailing
+                  ))
+                  .frame(width: geometry.size.width, height: 5)
+              }
+            }
+            .frame(height: 5)
+            
+            Spacer()
+            
+            Text("\(String(format: "%.0f", dislikePercentage))%")
+              .foregroundColor(.w85)
+              .font(.SF14R)
+          }
+          
+          HStack {
+            Text("좋았어요 (\(likeCount))")
+              .foregroundColor(.w50)
+              .font(.SF14R)
+            
+            Spacer()
+            
+            Text("아쉬워요 (\(dislikeCount))")
+              .foregroundColor(.w50)
+              .font(.SF14R)
+          }
+        }
       }
       .padding(.bottom, 40)
     }

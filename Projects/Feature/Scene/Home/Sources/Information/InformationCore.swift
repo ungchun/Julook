@@ -24,6 +24,7 @@ public struct InformationCore: Sendable {
     public var dislikeButtonState: ReactionButtonState = .active
     public var isFavorite: Bool = false
     public var currentReaction: String? = nil
+    public var reactionCounts: MakgeolliReactionCount? = nil
     
     public init(makgeolli: Makgeolli, makgeolliImage: URL? = nil) {
       self.makgeolli = makgeolli
@@ -46,6 +47,9 @@ public struct InformationCore: Sendable {
     case updateReactionState(String?)
     case reactionSaved
     case reactionStatusChanged
+    
+    case loadReactionCounts
+    case updateReactionCounts(MakgeolliReactionCount?)
     
     case logError(InformationCoreError)
     case showToast(String, ToastType)
@@ -78,7 +82,8 @@ public struct InformationCore: Sendable {
               )))
             }
           },
-          .send(.loadReaction)
+          .send(.loadReaction),
+          .send(.loadReactionCounts)
         )
         
       case .dismiss:
@@ -172,6 +177,7 @@ public struct InformationCore: Sendable {
             }
             
             await send(.reactionSaved)
+            await send(.loadReactionCounts)
           } catch {
             await send(.logError(InformationCoreError(
               code: .failToSaveReaction,
@@ -202,11 +208,35 @@ public struct InformationCore: Sendable {
       case .reactionStatusChanged:
         return .none
         
+      case .loadReactionCounts:
+        let supabaseClient = self.supabaseClient
+        return .run { [makgeolliId = state.makgeolli.id] send in
+          do {
+            let reactionCounts = try await supabaseClient.getReactionCounts(makgeolliId)
+            await send(.updateReactionCounts(reactionCounts))
+          } catch {
+            await send(.logError(InformationCoreError(
+              code: .failToLoadReactionCounts,
+              underlying: error
+            )))
+          }
+        }
+        
+      case let .updateReactionCounts(reactionCounts):
+        state.reactionCounts = reactionCounts
+        return .none
+        
       case let .logError(error):
         let message = getErrorMessage(for: error.code)
         return .merge(
           .run { _ in Log.error(error) },
-          .send(.showToast(message, .error))
+          .run { _ in
+            NotificationCenter.default.post(
+              name: .showToast,
+              object: nil,
+              userInfo: ["message": message, "type": "error"]
+            )
+          }
         )
         
       case .showToast(_, _):
@@ -275,6 +305,8 @@ private extension InformationCore {
       return "반응 정보를 불러오지 못했습니다."
     case .failToSaveReaction:
       return "반응 저장에 실패했습니다."
+    case .failToLoadReactionCounts:
+      return "평가 통계를 불러오지 못했습니다."
     }
   }
 }
@@ -297,5 +329,6 @@ public struct InformationCoreError: JulookError, @unchecked Sendable {
     case failToUpdateFavoriteStatus
     case failToLoadReaction
     case failToSaveReaction
+    case failToLoadReactionCounts
   }
 }
