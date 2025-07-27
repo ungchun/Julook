@@ -32,6 +32,7 @@ public struct SupabaseClient: Sendable {
   public var getReaction: @Sendable (UUID, UUID) async throws -> MakgeolliReactionRemote?
   public var getReactionCounts: @Sendable (UUID) async throws -> MakgeolliReactionCount?
   public var deleteReaction: @Sendable (UUID, UUID) async throws -> Void
+  public var fetchTopLikedMakgeollis: @Sendable () async throws -> [Makgeolli]
 }
 
 extension SupabaseClient: DependencyKey {
@@ -412,6 +413,47 @@ extension SupabaseClient: DependencyKey {
         } catch {
           throw SupabaseClientError(
             code: .failToDeleteReaction,
+            underlying: error
+          )
+        }
+      },
+      
+      // 좋아요 수가 가장 많은 막걸리 3개 조회
+      fetchTopLikedMakgeollis: {
+        guard let client = clientRef.value else {
+          throw SupabaseClientError(
+            code: .clientNotInitialized,
+            underlying: nil
+          )
+        }
+        
+        do {
+          let topReactionCounts: [MakgeolliReactionCount] = try await client
+            .from("makgeolli_reaction_counts")
+            .select()
+            .order("like_count", ascending: false)
+            .order("updated_at", ascending: false)
+            .limit(3)
+            .execute()
+            .value
+          
+          let makgeolliIds = topReactionCounts.map { $0.makgeolliId.uuidString }
+          
+          let result: [Makgeolli] = try await client
+            .from("makgeolli")
+            .select()
+            .in("id", values: makgeolliIds)
+            .execute()
+            .value
+          
+          let sortedResult = topReactionCounts.compactMap { reactionCount in
+            result.first { $0.id == reactionCount.makgeolliId }
+          }
+          
+          return sortedResult
+        } catch {
+          throw SupabaseClientError(
+            code: .failToFetch,
             underlying: error
           )
         }

@@ -29,6 +29,12 @@ public struct HomeCore {
     public var isLoadingAwards: Bool = false
     public var awards: [Award] = []
     
+    // 오늘의 랭킹
+    public var isLoadingTopLiked: Bool = false
+    public var topLikedMakgeollis: [Makgeolli] = []
+    public var topLikedImages: [UUID: URL] = [:]
+    public var topLikedFavoriteStatus: [UUID: Bool] = [:]
+    
     public init() { }
   }
   
@@ -41,6 +47,8 @@ public struct HomeCore {
     case filterItemTapped(FilterType)
     case newReleaseItemTapped(Makgeolli)
     case topicItemTapped(Award)
+    case topLikedItemTapped(Makgeolli)
+    case topLikedFavoriteButtonTapped(Makgeolli)
     
     // 신상 막걸리
     case fetchNewReleases
@@ -51,6 +59,14 @@ public struct HomeCore {
     // 수상
     case fetchAwards
     case awardsResponse(TaskResult<[Award]>)
+    
+    // 오늘의 랭킹
+    case fetchTopLikedMakgeollis
+    case topLikedMakgeollisResponse(TaskResult<[Makgeolli]>)
+    case fetchTopLikedImage(Makgeolli)
+    case topLikedImageResponse(id: UUID, TaskResult<URL>)
+    case loadTopLikedFavoriteStatus(Makgeolli)
+    case updateTopLikedFavoriteStatus(id: UUID, Bool)
     
     // 네비게이션
     case moveToFilter
@@ -65,6 +81,7 @@ public struct HomeCore {
   public init() { }
   
   @Dependency(\.supabaseClient) var supabaseClient
+  @Dependency(\.myMakgeolliClient) var myMakgeolliClient
   
   public var body: some Reducer<State, Action> {
     Reduce { state, action in
@@ -75,10 +92,11 @@ public struct HomeCore {
         }
         state.isInitialized = true
         
-        if !state.isLoadingNewReleases && !state.isLoadingAwards {
+        if !state.isLoadingNewReleases && !state.isLoadingAwards && !state.isLoadingTopLiked {
           return .merge(
             .send(.fetchNewReleases),
-            .send(.fetchAwards)
+            .send(.fetchAwards),
+            .send(.fetchTopLikedMakgeollis)
           )
         } else {
           return .none
@@ -96,6 +114,31 @@ public struct HomeCore {
         
       case let .topicItemTapped(award):
         return .send(.moveToFilterWithTopic(award.name))
+        
+      case let .topLikedItemTapped(makgeolli):
+        let imageURL = state.topLikedImages[makgeolli.id]
+        return .send(.moveToInformation(makgeolli, imageURL))
+        
+      case let .topLikedFavoriteButtonTapped(makgeolli):
+        let newFavoriteStatus = !(state.topLikedFavoriteStatus[makgeolli.id] ?? false)
+        Amp.track(event: "top_liked_favorite_clicked", properties: [
+          "makgeolli_name": makgeolli.name,
+          "favorite_status": newFavoriteStatus ? "added" : "removed"
+        ])
+        
+        let myMakgeolliClient = self.myMakgeolliClient
+        return .run { send in
+          await myMakgeolliClient.toggleFavorite(makgeolli)
+          do {
+            let isFavorite = try await myMakgeolliClient.isFavorite(makgeolli.id)
+            await send(.updateTopLikedFavoriteStatus(id: makgeolli.id, isFavorite))
+          } catch {
+            await send(.logError(HomeCoreError(
+              code: .failToUpdateFavoriteStatus,
+              underlying: error
+            )))
+          }
+        }
         
       case .fetchNewReleases:
         state.isLoadingNewReleases = true
@@ -176,6 +219,78 @@ public struct HomeCore {
           underlying: error
         )))
         
+      case .fetchTopLikedMakgeollis:
+        state.isLoadingTopLiked = true
+        let supabaseClient = self.supabaseClient
+        return .run { send in
+          do {
+            let makgeollis = try await supabaseClient.fetchTopLikedMakgeollis()
+            await send(.topLikedMakgeollisResponse(.success(makgeollis)))
+          } catch {
+            await send(.topLikedMakgeollisResponse(.failure(error)))
+          }
+        }
+        
+      case let .topLikedMakgeollisResponse(.success(makgeollis)):
+        state.isLoadingTopLiked = false
+        state.topLikedMakgeollis = makgeollis
+        return .merge(
+          makgeollis.flatMap { makgeolli in
+            [
+              .send(.fetchTopLikedImage(makgeolli)),
+              .send(.loadTopLikedFavoriteStatus(makgeolli))
+            ]
+          }
+        )
+        
+      case let .topLikedMakgeollisResponse(.failure(error)):
+        state.isLoadingTopLiked = false
+        return .send(.logError(HomeCoreError(
+          code: .failToFetchTopLiked,
+          underlying: error
+        )))
+        
+      case let .fetchTopLikedImage(makgeolli):
+        guard let imageName = makgeolli.imageName else {
+          return .none
+        }
+        
+        let supabaseClient = self.supabaseClient
+        return .run { send in
+          do {
+            let fileName = imageName.hasSuffix(".png") ? imageName : "\(imageName).png"
+            let publicURL = try await supabaseClient.getPublicURL(Bucket.MAKGEOLLIIMAGE, fileName)
+            await send(.topLikedImageResponse(id: makgeolli.id, .success(publicURL)))
+          } catch {
+            await send(.topLikedImageResponse(id: makgeolli.id, .failure(error)))
+          }
+        }
+        
+      case let .topLikedImageResponse(id, .success(url)):
+        state.topLikedImages[id] = url
+        return .none
+        
+      case let .topLikedImageResponse(_, .failure(error)):
+        return .send(.logError(HomeCoreError(
+          code: .failToFetchImage,
+          underlying: error
+        )))
+        
+      case let .loadTopLikedFavoriteStatus(makgeolli):
+        let myMakgeolliClient = self.myMakgeolliClient
+        return .run { send in
+          do {
+            let isFavorite = try await myMakgeolliClient.isFavorite(makgeolli.id)
+            await send(.updateTopLikedFavoriteStatus(id: makgeolli.id, isFavorite))
+          } catch {
+            await send(.updateTopLikedFavoriteStatus(id: makgeolli.id, false))
+          }
+        }
+        
+      case let .updateTopLikedFavoriteStatus(id, isFavorite):
+        state.topLikedFavoriteStatus[id] = isFavorite
+        return .none
+        
       case .moveToFilter:
         return .none
         
@@ -219,6 +334,10 @@ public struct HomeCore {
       return "이미지 로딩에 실패했습니다."
     case .failToFetchAwards:
       return "수상 정보를 불러오지 못했습니다."
+    case .failToFetchTopLiked:
+      return "인기 막걸리 정보를 불러오지 못했습니다."
+    case .failToUpdateFavoriteStatus:
+      return "찜 상태 변경에 실패했습니다."
     }
   }
 }
@@ -234,5 +353,7 @@ public struct HomeCoreError: JulookError, @unchecked Sendable {
     case failToGetImageUrl
     case failToFetchImage
     case failToFetchAwards
+    case failToFetchTopLiked
+    case failToUpdateFavoriteStatus
   }
 }
