@@ -83,6 +83,9 @@ public struct TabCore {
         
         return .none
         
+      case .homeTab(.updateTopLikedFavoriteStatus):
+        return .send(.myMakgeolliTab(.refreshMyMakgeollis))
+        
       case .homeTab:
         return .none
         

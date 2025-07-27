@@ -250,6 +250,14 @@ private struct TodaysRankingView: View {
                 store.send(.topLikedFavoriteButtonTapped(makgeolli))
               }
           }
+          .contentShape(Rectangle())
+          .onTapGesture {
+            Amp.track(event: "top_liked_clicked", properties: [
+              "ranking": idx + 1,
+              "makgeolli_name": makgeolli.name
+            ])
+            store.send(.topLikedItemTapped(makgeolli))
+          }
           
           if idx != 2 {
             Divider()
