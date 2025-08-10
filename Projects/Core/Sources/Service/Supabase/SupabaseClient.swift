@@ -33,6 +33,9 @@ public struct SupabaseClient: Sendable {
   public var getReactionCounts: @Sendable (UUID) async throws -> MakgeolliReactionCount?
   public var deleteReaction: @Sendable (UUID, UUID) async throws -> Void
   public var fetchTopLikedMakgeollis: @Sendable () async throws -> [Makgeolli]
+  public var getUserComment: @Sendable (UUID, UUID) async throws -> UserComment?
+  public var saveUserComment: @Sendable (UUID, UUID, String, Bool) async throws -> Void
+  public var deleteUserComment: @Sendable (UUID, UUID) async throws -> Void
 }
 
 extension SupabaseClient: DependencyKey {
@@ -457,6 +460,103 @@ extension SupabaseClient: DependencyKey {
             underlying: error
           )
         }
+      },
+      
+      // 유저 코멘트 조회
+      getUserComment: { userId, makgeolliId in
+        guard let client = clientRef.value else {
+          throw SupabaseClientError(
+            code: .clientNotInitialized,
+            underlying: nil
+          )
+        }
+        
+        do {
+          let result: [UserComment] = try await client
+            .from("user_comments")
+            .select()
+            .eq("user_id", value: userId.uuidString)
+            .eq("makgeolli_id", value: makgeolliId.uuidString)
+            .execute()
+            .value
+          
+          return result.first
+        } catch {
+          throw SupabaseClientError(
+            code: .failToFetch,
+            underlying: error
+          )
+        }
+      },
+      
+      // 유저 코멘트 저장/수정
+      saveUserComment: { userId, makgeolliId, comment, isPublic in
+        guard let client = clientRef.value else {
+          throw SupabaseClientError(
+            code: .clientNotInitialized,
+            underlying: nil
+          )
+        }
+        
+        do {
+          struct CommentPayload: Codable {
+            let userId: String
+            let makgeolliId: String
+            let comment: String
+            let isPublic: Bool
+            let updatedAt: String
+            
+            enum CodingKeys: String, CodingKey {
+              case userId = "user_id"
+              case makgeolliId = "makgeolli_id"
+              case comment
+              case isPublic = "is_public"
+              case updatedAt = "updated_at"
+            }
+          }
+          
+          let commentPayload = CommentPayload(
+            userId: userId.uuidString,
+            makgeolliId: makgeolliId.uuidString,
+            comment: comment,
+            isPublic: isPublic,
+            updatedAt: ISO8601DateFormatter().string(from: Date())
+          )
+          
+          let _: PostgrestResponse = try await client
+            .from("user_comments")
+            .upsert(commentPayload, onConflict: "user_id,makgeolli_id")
+            .execute()
+        } catch {
+          throw SupabaseClientError(
+            code: .failToSaveUserComment,
+            underlying: error
+          )
+        }
+      },
+      
+      // 유저 코멘트 삭제
+      deleteUserComment: { userId, makgeolliId in
+        guard let client = clientRef.value else {
+          throw SupabaseClientError(
+            code: .clientNotInitialized,
+            underlying: nil
+          )
+        }
+        
+        do {
+          let _: PostgrestResponse = try await client
+            .from("user_comments")
+            .delete()
+            .eq("user_id", value: userId.uuidString)
+            .eq("makgeolli_id", value: makgeolliId.uuidString)
+            .execute()
+        } catch {
+          throw SupabaseClientError(
+            code: .failToDeleteUserComment,
+            underlying: error
+          )
+        }
       }
     )
   }
@@ -491,6 +591,8 @@ public struct SupabaseClientError: JulookError, @unchecked Sendable {
     case failToSaveRequest
     case failToSaveReaction
     case failToDeleteReaction
+    case failToSaveUserComment
+    case failToDeleteUserComment
     case unknownError
   }
 }

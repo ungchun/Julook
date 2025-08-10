@@ -33,6 +33,8 @@ public struct InformationView: View {
           
           ReactionButtonsView()
           
+          MyCommentSection()
+          
           AwardsView()
           
           MakgeolliDescriptionSection()
@@ -46,6 +48,7 @@ public struct InformationView: View {
         .padding(.horizontal, 16)
       }
     }
+    .accentColor(DesignSystemAsset.Colors.primary.swiftUIColor)
     .onAppear {
       store.send(.onAppear)
     }
@@ -204,6 +207,12 @@ private extension InformationView {
     guard let value = value else { return "-" }
     return "\(value)"
   }
+  
+  func formatDate(_ date: Date) -> String {
+    let formatter = DateFormatter()
+    formatter.dateFormat = "yyyy년 M월 d일"
+    return formatter.string(from: date)
+  }
 }
 
 private extension InformationView {
@@ -227,6 +236,98 @@ private extension InformationView {
           store.send(.likeButtonTapped)
         }
       )
+    }
+    .padding(.bottom, 20)
+  }
+  
+  @ViewBuilder
+  func MyCommentSection() -> some View {
+    VStack(alignment: .leading, spacing: 8) {
+      HStack {
+        Text("내 코멘트")
+          .foregroundColor(.w85)
+          .font(.SF12B)
+        
+        Spacer()
+        
+        if let userComment = store.state.userComment {
+          Text(userComment.isPublic ? "전체공개" : "비공개")
+            .foregroundColor(.w50)
+            .font(.SF12R)
+        }
+      }
+      
+      if let userComment = store.state.userComment {
+        VStack(alignment: .leading, spacing: 12) {
+          Text(userComment.comment)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .foregroundColor(.w85)
+            .font(.SF14R)
+            .padding(16)
+            .background(Color.w10)
+            .cornerRadius(8)
+          
+          HStack {
+            Text(formatDate(userComment.updatedAt))
+              .foregroundColor(.w50)
+              .font(.SF12R)
+            
+            Spacer()
+            
+            Text("수정")
+              .foregroundColor(DesignSystemAsset.Colors.primary.swiftUIColor)
+              .font(.SF14R)
+              .onTapGesture {
+                store.send(.commentSectionTapped)
+              }
+          }
+        }
+      } else {
+        Button(action: {
+          store.send(.commentSectionTapped)
+        }) {
+          HStack {
+            Text("터치해서 코멘트를 남겨보세요!")
+              .foregroundColor(.w85)
+              .font(.SF14R)
+          }
+          .frame(maxWidth: .infinity)
+          .padding(16)
+          .background(Color.w10)
+          .cornerRadius(12)
+        }
+      }
+    }
+    .sheet(isPresented: .init(
+      get: { store.state.isShowingCommentSheet },
+      set: { store.send(.showCommentSheet($0)) }
+    )) {
+      CommentSheetView(store: store)
+    }
+    .confirmationDialog("", isPresented: .init(
+      get: { store.state.isShowingEditActionSheet },
+      set: { store.send(.showEditActionSheet($0)) }
+    )) {
+      Button("수정하기") {
+        store.send(.showCommentSheet(true))
+      }
+      Button("삭제하기", role: .destructive) {
+        store.send(.showDeleteAlert(true))
+      }
+      Button("취소하기", role: .cancel) { }
+    }
+    .alert("코멘트 삭제", isPresented: .init(
+      get: { store.state.isShowingDeleteAlert },
+      set: { store.send(.showDeleteAlert($0)) }
+    )) {
+      Button("취소", role: .cancel) {
+        store.send(.showDeleteAlert(false))
+      }
+      Button("삭제하기", role: .destructive) {
+        store.send(.confirmDelete)
+      }
+    } message: {
+      Text("코멘트를 삭제하시겠어요?")
     }
     .padding(.bottom, 40)
   }
@@ -529,6 +630,86 @@ private extension InformationView {
         }
       }
       .padding(.bottom, 40)
+    }
+  }
+}
+
+private struct CommentSheetView: View {
+  let store: StoreOf<InformationCore>
+  
+  @State private var commentText: String = ""
+  @State private var isPublic: Bool = true
+  
+  @FocusState private var isTextEditorFocused: Bool
+  
+  var body: some View {
+    VStack(alignment: .leading, spacing: 0) {
+      HStack {
+        Button("취소") {
+          store.send(.showCommentSheet(false))
+        }
+        .foregroundColor(DesignSystemAsset.Colors.primary.swiftUIColor)
+        .font(.SF17R)
+        
+        Spacer()
+        
+        Text(store.state.userComment != nil ? "코멘트 수정" : "코멘트 남기기")
+          .foregroundColor(.w)
+          .font(.SF17B)
+        
+        Spacer()
+        
+        Button("저장") {
+          store.send(.saveComment(commentText, isPublic))
+        }
+        .foregroundColor(DesignSystemAsset.Colors.primary.swiftUIColor)
+        .font(.SF17R)
+        .disabled(commentText.isEmpty)
+      }
+      .padding(16)
+      
+      Divider()
+        .padding(.bottom, 16)
+      
+      TextField("막걸리에 대한 생각을 자유롭게 적어주세요.", text: $commentText, axis: .vertical)
+        .foregroundColor(.w85)
+        .font(.SF14R)
+        .focused($isTextEditorFocused)
+        .lineLimit(10...15)
+        .onChange(of: commentText) { _, newValue in
+          if newValue.count > 200 {
+            commentText = String(newValue.prefix(200))
+          }
+        }
+        .padding(.horizontal, 16)
+      
+      Divider()
+        .padding(.vertical, 16)
+      
+      HStack(spacing: 8) {
+        Spacer()
+        
+        Text("비공개")
+          .foregroundColor(.w50)
+          .font(.SF14R)
+        
+        Button(action: {
+          isPublic.toggle()
+        }) {
+          Image(systemName: !isPublic ? "checkmark.circle.fill" : "circle")
+            .foregroundColor(!isPublic ? DesignSystemAsset.Colors.primary.swiftUIColor : .w50)
+        }
+      }
+      .padding(.horizontal, 16)
+      
+      Spacer()
+    }
+    .background(DesignSystemAsset.Colors.darkbase.swiftUIColor)
+    .onAppear {
+      if let userComment = store.state.userComment {
+        commentText = userComment.comment
+        isPublic = userComment.isPublic
+      }
     }
   }
 }

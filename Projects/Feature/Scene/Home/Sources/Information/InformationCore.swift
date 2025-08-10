@@ -25,6 +25,10 @@ public struct InformationCore: Sendable {
     public var isFavorite: Bool = false
     public var currentReaction: String? = nil
     public var reactionCounts: MakgeolliReactionCount? = nil
+    public var userComment: UserComment? = nil
+    public var isShowingCommentSheet: Bool = false
+    public var isShowingEditActionSheet: Bool = false
+    public var isShowingDeleteAlert: Bool = false
     
     public init(makgeolli: Makgeolli, makgeolliImage: URL? = nil) {
       self.makgeolli = makgeolli
@@ -50,6 +54,18 @@ public struct InformationCore: Sendable {
     
     case loadReactionCounts
     case updateReactionCounts(MakgeolliReactionCount?)
+    
+    case commentSectionTapped
+    case showCommentSheet(Bool)
+    case showEditActionSheet(Bool)
+    case showDeleteAlert(Bool)
+    case confirmDelete
+    case loadUserComment
+    case updateUserComment(UserComment?)
+    case saveComment(String, Bool)
+    case commentSaved
+    case deleteComment
+    case commentDeleted
     
     case logError(InformationCoreError)
     case showToast(String, ToastType)
@@ -83,7 +99,8 @@ public struct InformationCore: Sendable {
             }
           },
           .send(.loadReaction),
-          .send(.loadReactionCounts)
+          .send(.loadReactionCounts),
+          .send(.loadUserComment)
         )
         
       case .dismiss:
@@ -226,6 +243,104 @@ public struct InformationCore: Sendable {
         state.reactionCounts = reactionCounts
         return .none
         
+      case .commentSectionTapped:
+        Amp.track(event: "comment_section_tapped", properties: [
+          "makgeolli_name": state.makgeolli.name
+        ])
+        
+        if state.userComment != nil {
+          return .send(.showEditActionSheet(true))
+        } else {
+          return .send(.showCommentSheet(true))
+        }
+        
+      case let .showCommentSheet(isShowing):
+        state.isShowingCommentSheet = isShowing
+        return .none
+        
+      case let .showEditActionSheet(isShowing):
+        state.isShowingEditActionSheet = isShowing
+        return .none
+        
+      case let .showDeleteAlert(isShowing):
+        state.isShowingDeleteAlert = isShowing
+        return .none
+        
+      case .confirmDelete:
+        return .send(.deleteComment)
+        
+      case .loadUserComment:
+        let supabaseClient = self.supabaseClient
+        return .run { [makgeolliId = state.makgeolli.id] send in
+          do {
+            let userId = getUserID()
+            let userComment = try await supabaseClient.getUserComment(userId, makgeolliId)
+            await send(.updateUserComment(userComment))
+          } catch {
+            await send(.logError(InformationCoreError(
+              code: .failToLoadUserComment,
+              underlying: error
+            )))
+          }
+        }
+        
+      case let .updateUserComment(userComment):
+        state.userComment = userComment
+        return .none
+        
+      case let .saveComment(comment, isPublic):
+        Amp.track(event: "comment_saved", properties: [
+          "makgeolli_name": state.makgeolli.name,
+          "is_public": isPublic
+        ])
+        
+        let supabaseClient = self.supabaseClient
+        return .run { [makgeolliId = state.makgeolli.id] send in
+          do {
+            let userId = getUserID()
+            try await supabaseClient.saveUserComment(userId, makgeolliId, comment, isPublic)
+            await send(.commentSaved)
+          } catch {
+            await send(.logError(InformationCoreError(
+              code: .failToSaveUserComment,
+              underlying: error
+            )))
+          }
+        }
+        
+      case .commentSaved:
+        return .merge(
+          .send(.loadUserComment),
+          .send(.showCommentSheet(false)),
+          .send(.showEditActionSheet(false))
+        )
+        
+      case .deleteComment:
+        Amp.track(event: "comment_deleted", properties: [
+          "makgeolli_name": state.makgeolli.name
+        ])
+        
+        let supabaseClient = self.supabaseClient
+        return .run { [makgeolliId = state.makgeolli.id] send in
+          do {
+            let userId = getUserID()
+            try await supabaseClient.deleteUserComment(userId, makgeolliId)
+            await send(.commentDeleted)
+          } catch {
+            await send(.logError(InformationCoreError(
+              code: .failToDeleteUserComment,
+              underlying: error
+            )))
+          }
+        }
+        
+      case .commentDeleted:
+        return .merge(
+          .send(.loadUserComment),
+          .send(.showDeleteAlert(false)),
+          .send(.showEditActionSheet(false))
+        )
+        
       case let .logError(error):
         let message = getErrorMessage(for: error.code)
         return .merge(
@@ -307,6 +422,12 @@ private extension InformationCore {
       return "반응 저장에 실패했습니다."
     case .failToLoadReactionCounts:
       return "평가 통계를 불러오지 못했습니다."
+    case .failToLoadUserComment:
+      return "내 코멘트를 불러오지 못했습니다."
+    case .failToSaveUserComment:
+      return "코멘트 저장에 실패했습니다."
+    case .failToDeleteUserComment:
+      return "코멘트 삭제에 실패했습니다."
     }
   }
 }
@@ -330,5 +451,8 @@ public struct InformationCoreError: JulookError, @unchecked Sendable {
     case failToLoadReaction
     case failToSaveReaction
     case failToLoadReactionCounts
+    case failToLoadUserComment
+    case failToSaveUserComment
+    case failToDeleteUserComment
   }
 }
