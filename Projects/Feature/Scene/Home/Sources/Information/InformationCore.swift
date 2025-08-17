@@ -29,6 +29,8 @@ public struct InformationCore: Sendable {
     public var isShowingCommentSheet: Bool = false
     public var isShowingEditActionSheet: Bool = false
     public var isShowingDeleteAlert: Bool = false
+    public var publicComments: [UserComment] = []
+    public var userReactions: [UUID: String] = [:]
     
     public init(makgeolli: Makgeolli, makgeolliImage: URL? = nil) {
       self.makgeolli = makgeolli
@@ -67,6 +69,11 @@ public struct InformationCore: Sendable {
     case deleteComment
     case commentDeleted
     
+    case loadPublicComments
+    case updatePublicComments([UserComment])
+    case loadUserReactions([UUID])
+    case updateUserReactions([UUID: String])
+    
     case logError(InformationCoreError)
     case showToast(String, ToastType)
   }
@@ -100,7 +107,8 @@ public struct InformationCore: Sendable {
           },
           .send(.loadReaction),
           .send(.loadReactionCounts),
-          .send(.loadUserComment)
+          .send(.loadUserComment),
+          .send(.loadPublicComments)
         )
         
       case .dismiss:
@@ -311,6 +319,7 @@ public struct InformationCore: Sendable {
       case .commentSaved:
         return .merge(
           .send(.loadUserComment),
+          .send(.loadPublicComments),
           .send(.showCommentSheet(false)),
           .send(.showEditActionSheet(false))
         )
@@ -337,9 +346,51 @@ public struct InformationCore: Sendable {
       case .commentDeleted:
         return .merge(
           .send(.loadUserComment),
+          .send(.loadPublicComments),
           .send(.showDeleteAlert(false)),
           .send(.showEditActionSheet(false))
         )
+        
+      case .loadPublicComments:
+        let supabaseClient = self.supabaseClient
+        return .run { [makgeolliId = state.makgeolli.id] send in
+          do {
+            let publicComments = try await supabaseClient.getPublicComments(makgeolliId)
+            await send(.updatePublicComments(publicComments))
+          } catch {
+            await send(.logError(InformationCoreError(
+              code: .failToLoadPublicComments,
+              underlying: error
+            )))
+          }
+        }
+        
+      case let .updatePublicComments(publicComments):
+        state.publicComments = publicComments
+        let userIds = publicComments.map { $0.userId }
+        return .send(.loadUserReactions(userIds))
+        
+      case let .loadUserReactions(userIds):
+        let supabaseClient = self.supabaseClient
+        return .run { [makgeolliId = state.makgeolli.id] send in
+          var reactions: [UUID: String] = [:]
+          
+          for userId in userIds {
+            do {
+              if let reactionType = try await supabaseClient.getUserReaction(userId, makgeolliId) {
+                reactions[userId] = reactionType
+              }
+            } catch {
+              
+            }
+          }
+          
+          await send(.updateUserReactions(reactions))
+        }
+        
+      case let .updateUserReactions(userReactions):
+        state.userReactions = userReactions
+        return .none
         
       case let .logError(error):
         let message = getErrorMessage(for: error.code)
@@ -428,6 +479,8 @@ private extension InformationCore {
       return "코멘트 저장에 실패했습니다."
     case .failToDeleteUserComment:
       return "코멘트 삭제에 실패했습니다."
+    case .failToLoadPublicComments:
+      return "다른 유저의 코멘트를 불러오지 못했습니다."
     }
   }
 }
@@ -454,5 +507,6 @@ public struct InformationCoreError: JulookError, @unchecked Sendable {
     case failToLoadUserComment
     case failToSaveUserComment
     case failToDeleteUserComment
+    case failToLoadPublicComments
   }
 }

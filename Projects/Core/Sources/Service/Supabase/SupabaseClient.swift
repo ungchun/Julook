@@ -36,6 +36,8 @@ public struct SupabaseClient: Sendable {
   public var getUserComment: @Sendable (UUID, UUID) async throws -> UserComment?
   public var saveUserComment: @Sendable (UUID, UUID, String, Bool) async throws -> Void
   public var deleteUserComment: @Sendable (UUID, UUID) async throws -> Void
+  public var getPublicComments: @Sendable (UUID) async throws -> [UserComment]
+  public var getUserReaction: @Sendable (UUID, UUID) async throws -> String?
 }
 
 extension SupabaseClient: DependencyKey {
@@ -554,6 +556,61 @@ extension SupabaseClient: DependencyKey {
         } catch {
           throw SupabaseClientError(
             code: .failToDeleteUserComment,
+            underlying: error
+          )
+        }
+      },
+      
+      // 공개 코멘트 조회
+      getPublicComments: { makgeolliId in
+        guard let client = clientRef.value else {
+          throw SupabaseClientError(
+            code: .clientNotInitialized,
+            underlying: nil
+          )
+        }
+        
+        do {
+          let result: [UserComment] = try await client
+            .from("user_comments")
+            .select()
+            .eq("makgeolli_id", value: makgeolliId.uuidString)
+            .eq("is_public", value: true)
+            .order("created_at", ascending: false)
+            .execute()
+            .value
+          
+          return result
+        } catch {
+          throw SupabaseClientError(
+            code: .failToFetch,
+            underlying: error
+          )
+        }
+      },
+      
+      // 특정 유저의 특정 막걸리에 대한 반응 조회
+      getUserReaction: { userId, makgeolliId in
+        guard let client = clientRef.value else {
+          throw SupabaseClientError(
+            code: .clientNotInitialized,
+            underlying: nil
+          )
+        }
+        
+        do {
+          let result: [MakgeolliReactionRemote] = try await client
+            .from("makgeolli_reactions")
+            .select()
+            .eq("user_id", value: userId.uuidString)
+            .eq("makgeolli_id", value: makgeolliId.uuidString)
+            .execute()
+            .value
+          
+          return result.first?.reactionType
+        } catch {
+          throw SupabaseClientError(
+            code: .failToFetch,
             underlying: error
           )
         }

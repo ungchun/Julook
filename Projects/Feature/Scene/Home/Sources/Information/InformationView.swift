@@ -39,7 +39,7 @@ public struct InformationView: View {
           
           MakgeolliDescriptionSection()
           
-          MakgeolliEvaluationSection()
+          MakgeolliEvaluationAndCommentsSection()
           
           MakgeolliIngredientsSection()
           
@@ -212,6 +212,16 @@ private extension InformationView {
     let formatter = DateFormatter()
     formatter.dateFormat = "yyyy년 M월 d일"
     return formatter.string(from: date)
+  }
+  
+  func formatShortDate(_ date: Date) -> String {
+    let formatter = DateFormatter()
+    formatter.dateFormat = "M월 d일"
+    return formatter.string(from: date)
+  }
+  
+  func getUserReaction(for userId: UUID) -> String? {
+    return store.state.userReactions[userId]
   }
 }
 
@@ -473,19 +483,22 @@ private extension InformationView {
 
 private extension InformationView {
   @ViewBuilder
-  func MakgeolliEvaluationSection() -> some View {
-    if let reactionCounts = store.state.reactionCounts {
-      let likeCount = reactionCounts.likeCount
-      let dislikeCount = reactionCounts.dislikeCount
-      let totalCount = likeCount + dislikeCount
-      
-      let likePercentage = totalCount > 0 ? Double(likeCount) / Double(totalCount) * 100 : 0
-      let dislikePercentage = totalCount > 0 ? Double(dislikeCount) / Double(totalCount) * 100 : 0
-      
-      VStack(alignment: .leading, spacing: 20) {
-        Text("평가")
+  func MakgeolliEvaluationAndCommentsSection() -> some View {
+    VStack(alignment: .leading, spacing: 20) {
+      HStack {
+        Text("평가 및 코멘트")
           .foregroundColor(.w)
           .font(.SF20B)
+        Spacer()
+      }
+      
+      if let reactionCounts = store.state.reactionCounts {
+        let likeCount = reactionCounts.likeCount
+        let dislikeCount = reactionCounts.dislikeCount
+        let totalCount = likeCount + dislikeCount
+        
+        let likePercentage = totalCount > 0 ? Double(likeCount) / Double(totalCount) * 100 : 0
+        let dislikePercentage = totalCount > 0 ? Double(dislikeCount) / Double(totalCount) * 100 : 0
         
         VStack(spacing: 4) {
           HStack {
@@ -540,9 +553,89 @@ private extension InformationView {
               .font(.SF14R)
           }
         }
+      } else {
+        VStack(spacing: 4) {
+          HStack {
+            Text("- %")
+              .foregroundColor(.w)
+              .font(.SF14R)
+            
+            Spacer()
+            
+            RoundedRectangle(cornerRadius: 4)
+              .fill(Color.w10)
+              .frame(height: 5)
+            
+            Spacer()
+            
+            Text("- %")
+              .foregroundColor(.w)
+              .font(.SF14R)
+          }
+        }
       }
-      .padding(.bottom, 40)
+      
+      if !store.state.publicComments.isEmpty {
+        ScrollView(.horizontal, showsIndicators: false) {
+          LazyHStack(spacing: 12) {
+            ForEach(Array(store.state.publicComments.prefix(5)), id: \.id) { comment in
+              VStack(alignment: .leading, spacing: 8) {
+                HStack(spacing: 8) {
+                  Group {
+                    if let userReaction = getUserReaction(for: comment.userId) {
+                      if userReaction == "like" {
+                        DesignSystemAsset.Images.circleLike.swiftUIImage
+                          .resizable()
+                      } else if userReaction == "dislike" {
+                        DesignSystemAsset.Images.circleDislike.swiftUIImage
+                          .resizable()
+                      } else {
+                        DesignSystemAsset.Images.circleNone.swiftUIImage
+                          .resizable()
+                      }
+                    } else {
+                      DesignSystemAsset.Images.circleNone.swiftUIImage
+                        .resizable()
+                    }
+                  }
+                  .frame(width: 10, height: 10)
+                  
+                  Spacer()
+                }
+                
+                Text(comment.comment)
+                  .foregroundColor(.w85)
+                  .font(.SF14R)
+                  .frame(maxWidth: .infinity, alignment: .leading)
+                  .lineLimit(nil)
+                
+                Spacer()
+                
+                Text(formatShortDate(comment.createdAt))
+                  .foregroundColor(.w50)
+                  .font(.SF12R)
+              }
+              .frame(width: 120, height: 120)
+              .padding(12)
+              .background(Color.darkgray)
+              .cornerRadius(12)
+            }
+          }
+        }
+      } else {
+        VStack(alignment: .center, spacing: 8) {
+          Text("공개된 코멘트가 없어요.")
+            .foregroundColor(.w50)
+            .font(.SF12R)
+            .frame(maxWidth: .infinity)
+        }
+        .frame(width: 120, height: 120)
+        .padding(12)
+        .background(Color.darkgray)
+        .cornerRadius(12)
+      }
     }
+    .padding(.bottom, 40)
   }
 }
 
