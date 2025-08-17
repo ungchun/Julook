@@ -658,8 +658,6 @@ private struct RecentCommentsView: View {
                     
                     Group {
                       let reactionType = store.recentCommentReactions[comment.id]
-                      let _ = print("🎨 UI Debug - commentId: \(comment.id), reactionType: \(reactionType ?? "nil"), allReactions: \(store.recentCommentReactions)")
-                      
                       if let reactionType = reactionType {
                         if reactionType == "like" {
                           DesignSystemAsset.Images.circleLike.swiftUIImage
@@ -684,7 +682,6 @@ private struct RecentCommentsView: View {
                     .font(.SF14R)
                     .lineLimit(2)
                     .multilineTextAlignment(.leading)
-                  //                    .fixedSize(horizontal: false, vertical: true)
                   
                   Spacer()
                   

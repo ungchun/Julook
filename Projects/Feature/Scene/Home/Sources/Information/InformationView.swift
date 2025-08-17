@@ -49,6 +49,12 @@ public struct InformationView: View {
       }
     }
     .accentColor(DesignSystemAsset.Colors.primary.swiftUIColor)
+    .sheet(isPresented: .init(
+      get: { store.state.isShowingCommentsSheet },
+      set: { store.send(.showCommentsSheet($0)) }
+    )) {
+      AllCommentsSheetView(store: store)
+    }
     .onAppear {
       store.send(.onAppear)
     }
@@ -619,6 +625,9 @@ private extension InformationView {
               .padding(12)
               .background(Color.darkgray)
               .cornerRadius(12)
+              .onTapGesture {
+                store.send(.showCommentsSheet(true))
+              }
             }
           }
         }
@@ -804,5 +813,121 @@ private struct CommentSheetView: View {
         isPublic = userComment.isPublic
       }
     }
+  }
+}
+
+private struct AllCommentsSheetView: View {
+  let store: StoreOf<InformationCore>
+  
+  var body: some View {
+    NavigationView {
+      ZStack {
+        DesignSystemAsset.Colors.darkbase.swiftUIColor
+          .ignoresSafeArea()
+        
+        if store.state.publicComments.isEmpty {
+          VStack(spacing: 20) {
+            Text("공개된 코멘트가 없어요")
+              .foregroundColor(.w50)
+              .font(.SF17R)
+            
+            DesignSystemAsset.Images.searchJulook.swiftUIImage
+              .resizable()
+              .scaledToFit()
+              .frame(height: 140)
+          }
+          .frame(maxHeight: .infinity)
+        } else {
+          ScrollView {
+            LazyVStack(spacing: 0) {
+              ForEach(Array(store.state.publicComments.enumerated()), id: \.element.id) { idx, comment in
+                CommentItem(
+                  comment: comment,
+                  makgeolliName: store.state.makgeolli.name,
+                  reactionType: getUserReaction(for: comment.userId)
+                )
+                
+                if idx != store.state.publicComments.count - 1 {
+                  Divider()
+                    .padding(.vertical, 12)
+                }
+              }
+            }
+            .padding(.horizontal, 16)
+            .padding(.bottom, 20)
+          }
+        }
+      }
+      .navigationTitle("코멘트")
+      .navigationBarTitleDisplayMode(.inline)
+      .toolbar {
+        ToolbarItem(placement: .navigationBarTrailing) {
+          Button("닫기") {
+            store.send(.showCommentsSheet(false))
+          }
+          .foregroundColor(DesignSystemAsset.Colors.primary.swiftUIColor)
+          .font(.SF16R)
+        }
+      }
+    }
+  }
+  
+  private func getUserReaction(for userId: UUID) -> String? {
+    return store.state.userReactions[userId]
+  }
+}
+
+private struct CommentItem: View {
+  let comment: UserComment
+  let makgeolliName: String
+  let reactionType: String?
+  
+  var body: some View {
+    VStack(alignment: .leading, spacing: 12) {
+      HStack(spacing: 8) {
+        Text(makgeolliName)
+          .foregroundColor(.w)
+          .font(.SF14R)
+          .lineLimit(1)
+        
+        Group {
+          if let reactionType = reactionType {
+            if reactionType == "like" {
+              DesignSystemAsset.Images.circleLike.swiftUIImage
+                .resizable()
+            } else if reactionType == "dislike" {
+              DesignSystemAsset.Images.circleDislike.swiftUIImage
+                .resizable()
+            } else {
+              DesignSystemAsset.Images.circleNone.swiftUIImage
+                .resizable()
+            }
+          } else {
+            DesignSystemAsset.Images.circleNone.swiftUIImage
+              .resizable()
+          }
+        }
+        .frame(width: 14, height: 14)
+        
+        Spacer()
+        
+        Text(formatShortDate(comment.createdAt))
+          .foregroundColor(.w50)
+          .font(.SF12R)
+      }
+      
+      Text(comment.comment)
+        .foregroundColor(.w85)
+        .font(.SF14R)
+        .lineLimit(nil)
+        .multilineTextAlignment(.leading)
+    }
+    .padding(.vertical, 8)
+  }
+  
+  private func formatShortDate(_ date: Date) -> String {
+    let formatter = DateFormatter()
+    formatter.dateFormat = "M월 d일"
+    return formatter.string(from: date)
   }
 }

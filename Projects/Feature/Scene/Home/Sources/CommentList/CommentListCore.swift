@@ -18,10 +18,14 @@ public struct CommentListCore {
   @ObservableState
   public struct State: Equatable {
     public var isLoading: Bool = false
+    public var isLoadingMore: Bool = false
     public var commentedMakgeollis: [UserComment] = []
     public var makgeolliImages: [UUID: URL] = [:]
     public var makgeolliInfo: [UUID: Makgeolli] = [:]
     public var userReactions: [UUID: String] = [:]
+    public var currentPage: Int = 0
+    public var hasMoreData: Bool = true
+    public var pageSize: Int = 10
     
     public init() { }
   }
@@ -32,6 +36,8 @@ public struct CommentListCore {
     
     case fetchCommentedMakgeollis
     case commentedMakgeollisResponse(TaskResult<[UserComment]>)
+    case loadMoreComments
+    case loadMoreCommentsResponse(TaskResult<[UserComment]>)
     case fetchMakgeolliInfo(UserComment)
     case makgeolliInfoResponse(UserComment, TaskResult<Makgeolli?>)
     case fetchMakgeolliImage(Makgeolli)
@@ -64,10 +70,13 @@ public struct CommentListCore {
         
       case .fetchCommentedMakgeollis:
         state.isLoading = true
+        state.currentPage = 0
+        state.hasMoreData = true
         let supabaseClient = self.supabaseClient
+        let pageSize = state.pageSize
         return .run { send in
           do {
-            let comments = try await supabaseClient.getRecentComments()
+            let comments = try await supabaseClient.getRecentCommentsPaginated(pageSize, 0)
             await send(.commentedMakgeollisResponse(.success(comments)))
           } catch {
             await send(.commentedMakgeollisResponse(.failure(error)))
@@ -77,6 +86,8 @@ public struct CommentListCore {
       case let .commentedMakgeollisResponse(.success(comments)):
         state.isLoading = false
         state.commentedMakgeollis = comments
+        state.currentPage = 1
+        state.hasMoreData = comments.count == state.pageSize
         return .merge(
           comments.compactMap { comment in
             return .send(.fetchMakgeolliInfo(comment))
@@ -85,6 +96,42 @@ public struct CommentListCore {
         
       case let .commentedMakgeollisResponse(.failure(error)):
         state.isLoading = false
+        return .send(.logError(CommentListCoreError(
+          code: .failToFetchComments,
+          underlying: error
+        )))
+        
+      case .loadMoreComments:
+        guard state.hasMoreData && !state.isLoadingMore else {
+          return .none
+        }
+        
+        state.isLoadingMore = true
+        let supabaseClient = self.supabaseClient
+        let pageSize = state.pageSize
+        let offset = state.currentPage * pageSize
+        return .run { send in
+          do {
+            let comments = try await supabaseClient.getRecentCommentsPaginated(pageSize, offset)
+            await send(.loadMoreCommentsResponse(.success(comments)))
+          } catch {
+            await send(.loadMoreCommentsResponse(.failure(error)))
+          }
+        }
+        
+      case let .loadMoreCommentsResponse(.success(comments)):
+        state.isLoadingMore = false
+        state.commentedMakgeollis.append(contentsOf: comments)
+        state.currentPage += 1
+        state.hasMoreData = comments.count == state.pageSize
+        return .merge(
+          comments.compactMap { comment in
+            return .send(.fetchMakgeolliInfo(comment))
+          }
+        )
+        
+      case let .loadMoreCommentsResponse(.failure(error)):
+        state.isLoadingMore = false
         return .send(.logError(CommentListCoreError(
           code: .failToFetchComments,
           underlying: error

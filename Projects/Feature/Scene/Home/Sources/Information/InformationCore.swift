@@ -29,6 +29,7 @@ public struct InformationCore: Sendable {
     public var isShowingCommentSheet: Bool = false
     public var isShowingEditActionSheet: Bool = false
     public var isShowingDeleteAlert: Bool = false
+    public var isShowingCommentsSheet: Bool = false
     public var publicComments: [UserComment] = []
     public var userReactions: [UUID: String] = [:]
     
@@ -61,6 +62,7 @@ public struct InformationCore: Sendable {
     case showCommentSheet(Bool)
     case showEditActionSheet(Bool)
     case showDeleteAlert(Bool)
+    case showCommentsSheet(Bool)
     case confirmDelete
     case loadUserComment
     case updateUserComment(UserComment?)
@@ -272,6 +274,10 @@ public struct InformationCore: Sendable {
         
       case let .showDeleteAlert(isShowing):
         state.isShowingDeleteAlert = isShowing
+        return .none
+        
+      case let .showCommentsSheet(isShowing):
+        state.isShowingCommentsSheet = isShowing
         return .none
         
       case .confirmDelete:

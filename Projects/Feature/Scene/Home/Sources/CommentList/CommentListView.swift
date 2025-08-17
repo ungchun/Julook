@@ -92,6 +92,17 @@ private extension CommentListView {
   }
   
   @ViewBuilder
+  func LoadingMoreView() -> some View {
+    HStack(spacing: 8) {
+      ProgressView()
+        .progressViewStyle(CircularProgressViewStyle(tint: .w))
+        .scaleEffect(0.8)
+    }
+    .frame(maxWidth: .infinity)
+    .padding(.vertical, 16)
+  }
+  
+  @ViewBuilder
   func CommentListContentView() -> some View {
     ScrollView(showsIndicators: false) {
       LazyVStack(spacing: 0) {
@@ -109,12 +120,22 @@ private extension CommentListView {
               ])
               store.send(.commentItemTapped(comment))
             }
+            .onAppear {
+              if idx == store.commentedMakgeollis.count - 3 && store.hasMoreData && !store.isLoadingMore {
+                store.send(.loadMoreComments)
+              }
+            }
             
             if idx != store.commentedMakgeollis.count - 1 {
               Divider()
                 .padding(.vertical, 12)
             }
           }
+        }
+        
+        if store.isLoadingMore {
+          LoadingMoreView()
+            .padding(.top, 20)
         }
       }
       .padding(.horizontal, 16)
