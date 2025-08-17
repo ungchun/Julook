@@ -17,6 +17,7 @@ public enum MainScreen {
   case tabs(TabCore)
   case filter(FilterCore)
   case information(InformationCore)
+  case commentList(CommentListCore)
 }
 
 @Reducer
@@ -58,6 +59,10 @@ public struct MainCoordinatorCore {
           .init(makgeolli: makgeolli, makgeolliImage: imageURL)))
         return .none
         
+      case .router(.routeAction(id: _, action: .tabs(.homeTab(.moveToCommentList)))):
+        state.routes.push(.commentList(.init()))
+        return .none
+        
       case let .router(.routeAction(
         id: _, action: .filter(.moveToInformation(makgeolli, imageURL)))):
         state.routes.presentCover(.information(
@@ -87,6 +92,16 @@ public struct MainCoordinatorCore {
       case .router(.routeAction(id: _, action: .information(.reactionStatusChanged))):
         return .send(.router(.routeAction(
           id: 0, action: .tabs(.myMakgeolliTab(.refreshMyMakgeollis)))))
+        
+      case let .router(.routeAction(
+        id: _, action: .commentList(.moveToInformation(makgeolli, imageURL)))):
+        state.routes.presentCover(.information(
+          .init(makgeolli: makgeolli, makgeolliImage: imageURL)))
+        return .none
+        
+      case .router(.routeAction(id: _, action: .commentList(.dismiss))):
+        state.routes.goBack()
+        return .none
         
       default:
         break

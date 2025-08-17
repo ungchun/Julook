@@ -321,7 +321,15 @@ public struct InformationCore: Sendable {
           .send(.loadUserComment),
           .send(.loadPublicComments),
           .send(.showCommentSheet(false)),
-          .send(.showEditActionSheet(false))
+          .send(.showEditActionSheet(false)),
+          .run { _ in
+            await MainActor.run {
+              NotificationCenter.default.post(
+                name: .myMakgeolliDataChanged,
+                object: nil
+              )
+            }
+          }
         )
         
       case .deleteComment:
@@ -348,7 +356,15 @@ public struct InformationCore: Sendable {
           .send(.loadUserComment),
           .send(.loadPublicComments),
           .send(.showDeleteAlert(false)),
-          .send(.showEditActionSheet(false))
+          .send(.showEditActionSheet(false)),
+          .run { _ in
+            await MainActor.run {
+              NotificationCenter.default.post(
+                name: .myMakgeolliDataChanged,
+                object: nil
+              )
+            }
+          }
         )
         
       case .loadPublicComments:

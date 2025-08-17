@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import Security
 
 import Core
 import DesignSystem
@@ -18,6 +19,7 @@ public enum MyMakgeolliFilterTab: String, CaseIterable, Equatable {
   case like = "좋았어요"
   case dislike = "아쉬워요"
   case favorite = "찜"
+  case comment = "코멘트"
 }
 
 @Reducer
@@ -31,6 +33,7 @@ public struct MyMakgeolliCore: Sendable{
     public var likedMakgeollis: [MyMakgeolliEntity] = []
     public var dislikedMakgeollis: [MyMakgeolliEntity] = []
     public var favoriteMakgeollis: [MyMakgeolliEntity] = []
+    public var commentMakgeollis: [MyMakgeolliEntity] = []
     public var makgeolliImages: [UUID: URL] = [:]
     public var myMakgeollis: [MyMakgeolliEntity] {
       switch selectedTab {
@@ -42,6 +45,8 @@ public struct MyMakgeolliCore: Sendable{
         return dislikedMakgeollis
       case .favorite:
         return favoriteMakgeollis
+      case .comment:
+        return commentMakgeollis
       }
     }
     
@@ -54,8 +59,9 @@ public struct MyMakgeolliCore: Sendable{
     case tabSelected(MyMakgeolliFilterTab)
     case refreshMyMakgeollis
     case loadReactionData
+    case myMakgeolliDataChanged
     case updateAllData(
-      [MyMakgeolliEntity], [MyMakgeolliEntity], [MyMakgeolliEntity], [MyMakgeolliEntity]
+      [MyMakgeolliEntity], [MyMakgeolliEntity], [MyMakgeolliEntity], [MyMakgeolliEntity], [MyMakgeolliEntity]
     )
     case loadMakgeolliImages([MyMakgeolliEntity])
     case loadNewMakgeolliImages([MyMakgeolliEntity])
@@ -75,6 +81,54 @@ public struct MyMakgeolliCore: Sendable{
   @Dependency(\.makgeolliReactionClient) var makgeolliReactionClient
   @Dependency(\.supabaseClient) var supabaseClient
   
+  private func getUserID() -> UUID {
+    let service = "com.azhy.julook"
+    let account = "user_id"
+    
+    if let existingID = getKeychainValue(service: service, account: account),
+       let uuid = UUID(uuidString: existingID) {
+      return uuid
+    }
+    
+    let newId = UUID()
+    setKeychainValue(service: service, account: account, value: newId.uuidString)
+    return newId
+  }
+  
+  private func getKeychainValue(service: String, account: String) -> String? {
+    let query: [String: Any] = [
+      kSecClass as String: kSecClassGenericPassword,
+      kSecAttrService as String: service,
+      kSecAttrAccount as String: account,
+      kSecReturnData as String: true
+    ]
+    
+    var result: CFTypeRef?
+    let status = SecItemCopyMatching(query as CFDictionary, &result)
+    
+    guard status == errSecSuccess,
+          let data = result as? Data,
+          let value = String(data: data, encoding: .utf8) else {
+      return nil
+    }
+    
+    return value
+  }
+  
+  private func setKeychainValue(service: String, account: String, value: String) {
+    let data = value.data(using: .utf8)!
+    
+    let query: [String: Any] = [
+      kSecClass as String: kSecClassGenericPassword,
+      kSecAttrService as String: service,
+      kSecAttrAccount as String: account,
+      kSecValueData as String: data
+    ]
+    
+    SecItemDelete(query as CFDictionary)
+    SecItemAdd(query as CFDictionary, nil)
+  }
+  
   public var body: some Reducer<State, Action> {
     Reduce { state, action in
       switch action {
@@ -93,14 +147,22 @@ public struct MyMakgeolliCore: Sendable{
       case .refreshMyMakgeollis:
         return .send(.loadReactionData)
         
+      case .myMakgeolliDataChanged:
+        return .send(.loadReactionData)
+        
       case .loadReactionData:
         return .run { send in
           do {
             let favoriteMakgeollis = try await myMakgeolliClient.getMyMakgeollis()
             let allReactions = try await makgeolliReactionClient.getAllReactions()
             
+            // 유저 코멘트가 있는 막걸리들 조회
+            let userId = getUserID()
+            let userComments = try await supabaseClient.getUserComments(userId)
+            
             var likedMakgeollis: [MyMakgeolliEntity] = []
             var dislikedMakgeollis: [MyMakgeolliEntity] = []
+            var commentMakgeollis: [MyMakgeolliEntity] = []
             var allMakgeollisMap: [UUID: MyMakgeolliEntity] = [:]
             
             for makgeolli in favoriteMakgeollis {
@@ -146,6 +208,35 @@ public struct MyMakgeolliCore: Sendable{
               }
             }
             
+            // 코멘트가 있는 막걸리들 추가
+            for comment in userComments {
+              if let existingMakgeolli = allMakgeollisMap[comment.makgeolliId] {
+                commentMakgeollis.append(existingMakgeolli)
+              } else {
+                do {
+                  if let makgeolliInfo = try await supabaseClient.fetchMakgeolliById(
+                    comment.makgeolliId
+                  ) {
+                    let makgeolliEntity = MyMakgeolliEntity(
+                      id: makgeolliInfo.id,
+                      name: makgeolliInfo.name,
+                      imageName: makgeolliInfo.imageName,
+                      feedback: nil,
+                      isFavorite: false,
+                      comment: comment.comment,
+                      createdAt: comment.createdAt,
+                      updatedAt: comment.updatedAt
+                    )
+                    
+                    commentMakgeollis.append(makgeolliEntity)
+                    allMakgeollisMap[comment.makgeolliId] = makgeolliEntity
+                  }
+                } catch {
+                  
+                }
+              }
+            }
+            
             let sortedAllMakgeollis = Array(allMakgeollisMap.values).sorted {
               $0.updatedAt > $1.updatedAt
             }
@@ -158,12 +249,16 @@ public struct MyMakgeolliCore: Sendable{
             let sortedFavoriteMakgeollis = favoriteMakgeollis.sorted {
               $0.updatedAt > $1.updatedAt
             }
+            let sortedCommentMakgeollis = commentMakgeollis.sorted {
+              $0.updatedAt > $1.updatedAt
+            }
             
             await send(.updateAllData(
               sortedAllMakgeollis,
               sortedLikedMakgeollis,
               sortedDislikedMakgeollis,
-              sortedFavoriteMakgeollis)
+              sortedFavoriteMakgeollis,
+              sortedCommentMakgeollis)
             )
           } catch {
             await send(.logError(MyMakgeolliCoreError(
@@ -173,11 +268,12 @@ public struct MyMakgeolliCore: Sendable{
           }
         }
         
-      case let .updateAllData(allData, likedData, dislikedData, favoriteData):
+      case let .updateAllData(allData, likedData, dislikedData, favoriteData, commentData):
         state.allMyMakgeollis = allData
         state.likedMakgeollis = likedData
         state.dislikedMakgeollis = dislikedData
         state.favoriteMakgeollis = favoriteData
+        state.commentMakgeollis = commentData
         state.isLoading = false
         
         var allUniqueMakgeollis = Set<MyMakgeolliEntity>()
@@ -185,6 +281,7 @@ public struct MyMakgeolliCore: Sendable{
         allUniqueMakgeollis.formUnion(likedData)
         allUniqueMakgeollis.formUnion(dislikedData)
         allUniqueMakgeollis.formUnion(favoriteData)
+        allUniqueMakgeollis.formUnion(commentData)
         
         let uniqueMakgeollisList = Array(allUniqueMakgeollis)
         

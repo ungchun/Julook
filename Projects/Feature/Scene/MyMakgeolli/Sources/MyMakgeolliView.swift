@@ -59,7 +59,8 @@ public struct MyMakgeolliView: View {
                       MyMakgeolliGridItem(
                         makgeolli: makgeolli,
                         imageURL: store.state.makgeolliImages[makgeolli.id],
-                        reactionType: getReactionType(for: makgeolli, state: store.state)
+                        reactionType: getReactionType(for: makgeolli, state: store.state),
+                        hasComment: hasComment(for: makgeolli, state: store.state)
                       )
                       .frame(width: (geometry.size.width - 32 - 32) / 3)
                       .background(
@@ -84,6 +85,9 @@ public struct MyMakgeolliView: View {
     }
     .onAppear {
       store.send(.viewAppeared)
+    }
+    .onReceive(NotificationCenter.default.publisher(for: .myMakgeolliDataChanged)) { _ in
+      store.send(.myMakgeolliDataChanged)
     }
   }
 }
@@ -141,7 +145,7 @@ private extension MyMakgeolliView {
               .frame(height: 3)
               .animation(.easeInOut(duration: 0.2), value: store.state.selectedTab)
           }
-          .frame(width: geometry.size.width / 4)
+          .frame(width: geometry.size.width / 5)
         }
       }
     }
@@ -174,7 +178,22 @@ private extension MyMakgeolliView {
       } else {
         return nil
       }
+    case .comment:
+      if state.likedMakgeollis.contains(where: { $0.id == makgeolli.id }) {
+        return "like"
+      } else if state.dislikedMakgeollis.contains(where: { $0.id == makgeolli.id }) {
+        return "dislike"
+      } else {
+        return nil
+      }
     }
+  }
+  
+  private func hasComment(
+    for makgeolli: MyMakgeolliEntity,
+    state: MyMakgeolliCore.State
+  ) -> Bool {
+    return state.commentMakgeollis.contains(where: { $0.id == makgeolli.id })
   }
 }
 
@@ -203,6 +222,7 @@ private struct MyMakgeolliGridItem: View {
   let makgeolli: MyMakgeolliEntity
   let imageURL: URL?
   let reactionType: String?
+  let hasComment: Bool
   
   var body: some View {
     VStack(spacing: 12) {
@@ -258,6 +278,17 @@ private struct MyMakgeolliGridItem: View {
               .resizable()
           } else {
             DesignSystemAsset.Images.circleNone.swiftUIImage
+              .resizable()
+          }
+        }
+        .frame(width: 16, height: 16)
+        
+        Group {
+          if hasComment {
+            DesignSystemAsset.Images.commentFill.swiftUIImage
+              .resizable()
+          } else {
+            DesignSystemAsset.Images.commentNone.swiftUIImage
               .resizable()
           }
         }

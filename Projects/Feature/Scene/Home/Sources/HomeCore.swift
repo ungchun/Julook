@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import Security
 
 import Core
 import DesignSystem
@@ -34,6 +35,13 @@ public struct HomeCore {
     public var topLikedMakgeollis: [Makgeolli] = []
     public var topLikedImages: [UUID: URL] = [:]
     public var topLikedFavoriteStatus: [UUID: Bool] = [:]
+    
+    // 최근 코멘트
+    public var isLoadingRecentComments: Bool = false
+    public var recentComments: [UserComment] = []
+    public var recentCommentMakgeollis: [UUID: Makgeolli] = [:]
+    public var recentCommentImages: [UUID: URL] = [:]
+    public var recentCommentReactions: [UUID: String] = [:]
     
     public init() { }
   }
@@ -68,11 +76,23 @@ public struct HomeCore {
     case loadTopLikedFavoriteStatus(Makgeolli)
     case updateTopLikedFavoriteStatus(id: UUID, Bool)
     
+    // 최근 코멘트
+    case fetchRecentComments
+    case recentCommentsResponse(TaskResult<[UserComment]>)
+    case fetchRecentCommentMakgeolli(UserComment)
+    case recentCommentMakgeolliResponse(UserComment, TaskResult<Makgeolli?>)
+    case fetchRecentCommentImage(Makgeolli)
+    case recentCommentImageResponse(id: UUID, TaskResult<URL>)
+    case loadRecentCommentReaction(UserComment)
+    case updateRecentCommentReaction(commentId: UUID, String?)
+    case recentCommentItemTapped(UserComment)
+    
     // 네비게이션
     case moveToFilter
     case moveToFilterWithSelection(FilterType)
     case moveToFilterWithTopic(String)
     case moveToInformation(Makgeolli, URL?)
+    case moveToCommentList
     
     case logError(HomeCoreError)
     case showToast(String, ToastType)
@@ -92,11 +112,12 @@ public struct HomeCore {
         }
         state.isInitialized = true
         
-        if !state.isLoadingNewReleases && !state.isLoadingAwards && !state.isLoadingTopLiked {
+        if !state.isLoadingNewReleases && !state.isLoadingAwards && !state.isLoadingTopLiked && !state.isLoadingRecentComments {
           return .merge(
             .send(.fetchNewReleases),
             .send(.fetchAwards),
-            .send(.fetchTopLikedMakgeollis)
+            .send(.fetchTopLikedMakgeollis),
+            .send(.fetchRecentComments)
           )
         } else {
           return .none
@@ -291,6 +312,107 @@ public struct HomeCore {
         state.topLikedFavoriteStatus[id] = isFavorite
         return .none
         
+      case .fetchRecentComments:
+        state.isLoadingRecentComments = true
+        let supabaseClient = self.supabaseClient
+        return .run { send in
+          do {
+            let comments = try await supabaseClient.getRecentComments()
+            await send(.recentCommentsResponse(.success(comments)))
+          } catch {
+            await send(.recentCommentsResponse(.failure(error)))
+          }
+        }
+        
+      case let .recentCommentsResponse(.success(comments)):
+        state.isLoadingRecentComments = false
+        state.recentComments = comments
+        return .merge(
+          comments.compactMap { comment in
+            return .send(.fetchRecentCommentMakgeolli(comment))
+          }
+        )
+        
+      case let .recentCommentsResponse(.failure(error)):
+        state.isLoadingRecentComments = false
+        return .send(.logError(HomeCoreError(
+          code: .failToFetchRecentComments,
+          underlying: error
+        )))
+        
+      case let .fetchRecentCommentMakgeolli(comment):
+        let supabaseClient = self.supabaseClient
+        return .run { send in
+          do {
+            let makgeolli = try await supabaseClient.fetchMakgeolliById(comment.makgeolliId)
+            await send(.recentCommentMakgeolliResponse(comment, .success(makgeolli)))
+          } catch {
+            await send(.recentCommentMakgeolliResponse(comment, .failure(error)))
+          }
+        }
+        
+      case let .recentCommentMakgeolliResponse(comment, .success(makgeolli)):
+        guard let makgeolli = makgeolli else { return .none }
+        state.recentCommentMakgeollis[comment.makgeolliId] = makgeolli
+        return .merge(
+          .send(.fetchRecentCommentImage(makgeolli)),
+          .send(.loadRecentCommentReaction(comment))
+        )
+        
+      case let .recentCommentMakgeolliResponse(_, .failure(error)):
+        return .send(.logError(HomeCoreError(
+          code: .failToFetchRecentComments,
+          underlying: error
+        )))
+        
+      case let .fetchRecentCommentImage(makgeolli):
+        guard let imageName = makgeolli.imageName else {
+          return .none
+        }
+        
+        let supabaseClient = self.supabaseClient
+        return .run { send in
+          do {
+            let fileName = imageName.hasSuffix(".png") ? imageName : "\(imageName).png"
+            let publicURL = try await supabaseClient.getPublicURL(Bucket.MAKGEOLLIIMAGE, fileName)
+            await send(.recentCommentImageResponse(id: makgeolli.id, .success(publicURL)))
+          } catch {
+            await send(.recentCommentImageResponse(id: makgeolli.id, .failure(error)))
+          }
+        }
+        
+      case let .recentCommentImageResponse(id, .success(url)):
+        state.recentCommentImages[id] = url
+        return .none
+        
+      case let .recentCommentImageResponse(_, .failure(error)):
+        return .send(.logError(HomeCoreError(
+          code: .failToFetchImage,
+          underlying: error
+        )))
+        
+      case let .loadRecentCommentReaction(comment):
+        let supabaseClient = self.supabaseClient
+        return .run { send in
+          do {
+            let reactionType = try await supabaseClient.getUserReaction(comment.userId, comment.makgeolliId)
+            await send(.updateRecentCommentReaction(commentId: comment.id, reactionType))
+          } catch {
+            await send(.updateRecentCommentReaction(commentId: comment.id, nil))
+          }
+        }
+        
+      case let .updateRecentCommentReaction(commentId, reactionType):
+        state.recentCommentReactions[commentId] = reactionType
+        return .none
+        
+      case let .recentCommentItemTapped(comment):
+        guard let makgeolli = state.recentCommentMakgeollis[comment.makgeolliId] else {
+          return .none
+        }
+        let imageURL = state.recentCommentImages[makgeolli.id]
+        return .send(.moveToInformation(makgeolli, imageURL))
+        
       case .moveToFilter:
         return .none
         
@@ -301,6 +423,9 @@ public struct HomeCore {
         return .none
         
       case .moveToInformation:
+        return .none
+        
+      case .moveToCommentList:
         return .none
         
       case let .logError(error):
@@ -321,8 +446,58 @@ public struct HomeCore {
       }
     }
   }
+}
+
+private extension HomeCore {
+  func getUserID() -> UUID {
+    let service = "com.azhy.julook"
+    let account = "user_id"
+    
+    if let existingID = getKeychainValue(service: service, account: account),
+       let uuid = UUID(uuidString: existingID) {
+      return uuid
+    }
+    
+    let newId = UUID()
+    setKeychainValue(service: service, account: account, value: newId.uuidString)
+    return newId
+  }
   
-  private func getErrorMessage(for code: HomeCoreError.Code) -> String {
+  func getKeychainValue(service: String, account: String) -> String? {
+    let query: [String: Any] = [
+      kSecClass as String: kSecClassGenericPassword,
+      kSecAttrService as String: service,
+      kSecAttrAccount as String: account,
+      kSecReturnData as String: true
+    ]
+    
+    var result: CFTypeRef?
+    let status = SecItemCopyMatching(query as CFDictionary, &result)
+    
+    guard status == errSecSuccess,
+          let data = result as? Data,
+          let value = String(data: data, encoding: .utf8) else {
+      return nil
+    }
+    
+    return value
+  }
+  
+  func setKeychainValue(service: String, account: String, value: String) {
+    let data = value.data(using: .utf8)!
+    
+    let query: [String: Any] = [
+      kSecClass as String: kSecClassGenericPassword,
+      kSecAttrService as String: service,
+      kSecAttrAccount as String: account,
+      kSecValueData as String: data
+    ]
+    
+    SecItemDelete(query as CFDictionary)
+    SecItemAdd(query as CFDictionary, nil)
+  }
+  
+  func getErrorMessage(for code: HomeCoreError.Code) -> String {
     switch code {
     case .failToSupabaseClientInitialized:
       return "서비스 연결에 실패했습니다."
@@ -338,6 +513,8 @@ public struct HomeCore {
       return "인기 막걸리 정보를 불러오지 못했습니다."
     case .failToUpdateFavoriteStatus:
       return "찜 상태 변경에 실패했습니다."
+    case .failToFetchRecentComments:
+      return "최근 코멘트를 불러오지 못했습니다."
     }
   }
 }
@@ -355,5 +532,6 @@ public struct HomeCoreError: JulookError, @unchecked Sendable {
     case failToFetchAwards
     case failToFetchTopLiked
     case failToUpdateFavoriteStatus
+    case failToFetchRecentComments
   }
 }

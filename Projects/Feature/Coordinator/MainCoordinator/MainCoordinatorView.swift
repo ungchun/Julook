@@ -31,6 +31,8 @@ public struct MainCoordinatorView: View {
           FilterView(store: store)
         case let .information(store):
           InformationView(store: store)
+        case let .commentList(store):
+          CommentListView(store: store)
         }
       }
     }

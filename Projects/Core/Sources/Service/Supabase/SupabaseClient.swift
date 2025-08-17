@@ -38,6 +38,8 @@ public struct SupabaseClient: Sendable {
   public var deleteUserComment: @Sendable (UUID, UUID) async throws -> Void
   public var getPublicComments: @Sendable (UUID) async throws -> [UserComment]
   public var getUserReaction: @Sendable (UUID, UUID) async throws -> String?
+  public var getUserComments: @Sendable (UUID) async throws -> [UserComment]
+  public var getRecentComments: @Sendable () async throws -> [UserComment]
 }
 
 extension SupabaseClient: DependencyKey {
@@ -608,6 +610,61 @@ extension SupabaseClient: DependencyKey {
             .value
           
           return result.first?.reactionType
+        } catch {
+          throw SupabaseClientError(
+            code: .failToFetch,
+            underlying: error
+          )
+        }
+      },
+      
+      // 특정 유저의 모든 코멘트 조회
+      getUserComments: { userId in
+        guard let client = clientRef.value else {
+          throw SupabaseClientError(
+            code: .clientNotInitialized,
+            underlying: nil
+          )
+        }
+        
+        do {
+          let result: [UserComment] = try await client
+            .from("user_comments")
+            .select()
+            .eq("user_id", value: userId.uuidString)
+            .order("updated_at", ascending: false)
+            .execute()
+            .value
+          
+          return result
+        } catch {
+          throw SupabaseClientError(
+            code: .failToFetch,
+            underlying: error
+          )
+        }
+      },
+      
+      // 최근 코멘트 4개 조회 (공개된 것만)
+      getRecentComments: {
+        guard let client = clientRef.value else {
+          throw SupabaseClientError(
+            code: .clientNotInitialized,
+            underlying: nil
+          )
+        }
+        
+        do {
+          let result: [UserComment] = try await client
+            .from("user_comments")
+            .select()
+            .eq("is_public", value: true)
+            .order("created_at", ascending: false)
+            .limit(4)
+            .execute()
+            .value
+          
+          return result
         } catch {
           throw SupabaseClientError(
             code: .failToFetch,
