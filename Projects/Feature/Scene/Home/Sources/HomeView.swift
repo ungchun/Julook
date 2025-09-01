@@ -689,8 +689,6 @@ private struct RecentCommentsView: View {
                     .foregroundColor(.w50)
                     .font(.SF12R)
                 }
-                
-                Spacer()
               }
               .contentShape(Rectangle())
               .onTapGesture {
