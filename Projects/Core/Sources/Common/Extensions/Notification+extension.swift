@@ -11,4 +11,5 @@ import Foundation
 extension Notification.Name {
   public static let showToast = Notification.Name("showToast")
   public static let myMakgeolliDataChanged = Notification.Name("myMakgeolliDataChanged")
+  public static let recentCommentsChanged = Notification.Name("recentCommentsChanged")
 }

@@ -94,6 +94,9 @@ public struct HomeCore {
     case moveToInformation(Makgeolli, URL?)
     case moveToCommentList
     
+    // 알림
+    case recentCommentsChangedNotification
+    
     case logError(HomeCoreError)
     case showToast(String, ToastType)
   }
@@ -112,12 +115,22 @@ public struct HomeCore {
         }
         state.isInitialized = true
         
-        if !state.isLoadingNewReleases && !state.isLoadingAwards && !state.isLoadingTopLiked && !state.isLoadingRecentComments {
+        if !state.isLoadingNewReleases
+            && !state.isLoadingAwards
+            && !state.isLoadingTopLiked
+            && !state.isLoadingRecentComments {
           return .merge(
             .send(.fetchNewReleases),
             .send(.fetchAwards),
             .send(.fetchTopLikedMakgeollis),
-            .send(.fetchRecentComments)
+            .send(.fetchRecentComments),
+            .run { send in
+              for await _ in NotificationCenter.default.notifications(
+                named: .recentCommentsChanged
+              ) {
+                await send(.recentCommentsChangedNotification)
+              }
+            }
           )
         } else {
           return .none
@@ -427,6 +440,9 @@ public struct HomeCore {
         
       case .moveToCommentList:
         return .none
+        
+      case .recentCommentsChangedNotification:
+        return .send(.fetchRecentComments)
         
       case let .logError(error):
         let message = getErrorMessage(for: error.code)

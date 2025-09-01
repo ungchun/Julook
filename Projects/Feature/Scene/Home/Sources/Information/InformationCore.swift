@@ -334,6 +334,10 @@ public struct InformationCore: Sendable {
                 name: .myMakgeolliDataChanged,
                 object: nil
               )
+              NotificationCenter.default.post(
+                name: .recentCommentsChanged,
+                object: nil
+              )
             }
           }
         )
@@ -367,6 +371,10 @@ public struct InformationCore: Sendable {
             await MainActor.run {
               NotificationCenter.default.post(
                 name: .myMakgeolliDataChanged,
+                object: nil
+              )
+              NotificationCenter.default.post(
+                name: .recentCommentsChanged,
                 object: nil
               )
             }
