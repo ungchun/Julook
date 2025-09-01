@@ -197,10 +197,6 @@ private struct CommentListItem: View {
           .frame(width: 12, height: 12)
           
           Spacer()
-          
-          Text(formatDate(comment.createdAt))
-            .foregroundColor(.w50)
-            .font(.SF12R)
         }
         
         Text(comment.comment)
@@ -209,12 +205,20 @@ private struct CommentListItem: View {
           .lineLimit(nil)
           .multilineTextAlignment(.leading)
           .padding(.top, 4)
+        
+        Spacer()
+        
+        Text(formatDate(comment.createdAt))
+          .foregroundColor(.w50)
+          .font(.SF12R)
       }
     }
     .contentShape(Rectangle())
   }
-  
-  private func makeImageView(for phase: AsyncImagePhase) -> some View {
+}
+
+private extension CommentListItem {
+  func makeImageView(for phase: AsyncImagePhase) -> some View {
     switch phase {
     case .empty:
       return AnyView(
@@ -236,16 +240,16 @@ private struct CommentListItem: View {
     }
   }
   
-  private func defaultMakgeolliImage() -> some View {
+  func defaultMakgeolliImage() -> some View {
     DesignSystemAsset.Images.defaultMakgeolli.swiftUIImage
       .resizable()
       .aspectRatio(contentMode: .fit)
       .frame(width: 40, height: 80)
   }
   
-  private func formatDate(_ date: Date) -> String {
+  func formatDate(_ date: Date) -> String {
     let formatter = DateFormatter()
-    formatter.dateFormat = "M월 d일"
+    formatter.dateFormat = "yyyy년 M월 d일"
     return formatter.string(from: date)
   }
 }

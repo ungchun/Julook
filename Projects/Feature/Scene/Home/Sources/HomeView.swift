@@ -689,7 +689,6 @@ private struct RecentCommentsView: View {
                     .foregroundColor(.w50)
                     .font(.SF12R)
                 }
-                //                .frame(height: 70)
                 
                 Spacer()
               }
