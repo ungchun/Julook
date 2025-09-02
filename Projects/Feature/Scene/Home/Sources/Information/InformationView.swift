@@ -503,8 +503,10 @@ private extension InformationView {
         let dislikeCount = reactionCounts.dislikeCount
         let totalCount = likeCount + dislikeCount
         
-        let likePercentage = totalCount > 0 ? Double(likeCount) / Double(totalCount) * 100 : 0
-        let dislikePercentage = totalCount > 0 ? Double(dislikeCount) / Double(totalCount) * 100 : 0
+        let likePercentage = totalCount > 0
+        ? Double(likeCount) / Double(totalCount) * 100 : 0
+        let dislikePercentage = totalCount > 0
+        ? Double(dislikeCount) / Double(totalCount) * 100 : 0
         
         VStack(spacing: 4) {
           HStack {
@@ -612,8 +614,10 @@ private extension InformationView {
                 Text(comment.comment)
                   .foregroundColor(.w85)
                   .font(.SF14R)
-                  .frame(maxWidth: .infinity, alignment: .leading)
-                  .lineLimit(nil)
+                  .lineLimit(4)
+                  .multilineTextAlignment(.leading)
+                  .fixedSize(horizontal: false, vertical: true)
+                  .clipped()
                 
                 Spacer()
                 
