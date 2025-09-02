@@ -764,7 +764,10 @@ private struct CommentSheetView: View {
         Button("저장") {
           store.send(.saveComment(commentText, isPublic))
         }
-        .foregroundColor(DesignSystemAsset.Colors.primary.swiftUIColor)
+        .foregroundColor(
+          commentText.isEmpty
+          ? .w50 : DesignSystemAsset.Colors.primary.swiftUIColor
+        )
         .font(.SF17R)
         .disabled(commentText.isEmpty)
       }
