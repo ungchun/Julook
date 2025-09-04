@@ -636,9 +636,9 @@ private struct RecentCommentsView: View {
                     AsyncImage(url: imageUrl) { phase in
                       makeImageView(for: phase)
                     }
+                    .id("\(makgeolli.id)_\(imageUrl.absoluteString)")
                   } else {
-                    ProgressView()
-                      .frame(width: 30, height: 60)
+                    defaultMakgeolliImage()
                   }
                 }
                 .padding(.vertical, 12)
@@ -739,7 +739,7 @@ private extension RecentCommentsView {
     DesignSystemAsset.Images.defaultMakgeolli.swiftUIImage
       .resizable()
       .aspectRatio(contentMode: .fit)
-      .frame(width: 60, height: 60)
+      .frame(width: 30, height: 60)
   }
   
   func formatDate(_ date: Date) -> String {

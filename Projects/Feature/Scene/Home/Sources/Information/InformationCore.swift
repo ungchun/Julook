@@ -334,6 +334,11 @@ public struct InformationCore: Sendable {
                 name: .myMakgeolliDataChanged,
                 object: nil
               )
+            }
+            
+            try await Task.sleep(for: .milliseconds(500))
+            
+            await MainActor.run {
               NotificationCenter.default.post(
                 name: .recentCommentsChanged,
                 object: nil
