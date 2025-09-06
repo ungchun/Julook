@@ -387,13 +387,13 @@ private extension MakgeolliSearchResultRow {
             .aspectRatio(contentMode: .fit)
             .frame(width: 24, height: 24)
         default:
-          DesignSystemAsset.Images._0Score.swiftUIImage
+          DesignSystemAsset.Images.nillScore.swiftUIImage
             .resizable()
             .aspectRatio(contentMode: .fit)
             .frame(width: 24, height: 24)
         }
       } else {
-        DesignSystemAsset.Images._0Score.swiftUIImage
+        DesignSystemAsset.Images.nillScore.swiftUIImage
           .resizable()
           .aspectRatio(contentMode: .fit)
           .frame(width: 24, height: 24)
