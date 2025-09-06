@@ -5,7 +5,7 @@
 	<key>AMPLITUDE_KEY</key>
 	<string>$(AMPLITUDE_KEY)</string>
 	<key>CFBundleVersion</key>
-	<string>2</string>
+	<string>3</string>
 	<key>CFBundleDisplayName</key>
 	<string>주룩</string>
 	<key>CFBundleDevelopmentRegion</key>
