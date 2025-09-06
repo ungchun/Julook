@@ -299,7 +299,7 @@ private struct MakgeolliSearchResultRow: View {
             DesignSystemAsset.Images.defaultMakgeolli.swiftUIImage
               .resizable()
               .aspectRatio(contentMode: .fit)
-              .frame(height: 60)
+              .frame(width: 30, height: 60)
           }
         }
         .padding(.vertical, 10)
