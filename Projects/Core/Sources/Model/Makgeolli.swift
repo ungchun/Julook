@@ -19,10 +19,6 @@ public struct Makgeolli: Codable, Identifiable, Equatable, Sendable {
   public let website: String?
   /// 수상 내역 목록
   public let awards: [String]?
-  /// 가격
-  public let price: Int?
-  /// 구매 링크 URL
-  public let purchaseLink: String?
   /// 단맛 정도
   public let sweetness: Int?
   /// 신맛 정도
@@ -37,10 +33,6 @@ public struct Makgeolli: Codable, Identifiable, Equatable, Sendable {
   public let ingredients: [String]?
   /// 알콜 도수
   public let alcoholPercentage: Double?
-  /// 용량
-  public let volume: Int?
-  /// 상세 설명
-  public let description: String?
   /// 이미지 파일명
   public let imageName: String?
   /// 데이터 생성 시간
@@ -54,8 +46,6 @@ public struct Makgeolli: Codable, Identifiable, Equatable, Sendable {
     case brewery
     case website
     case awards
-    case price
-    case purchaseLink = "purchase_link"
     case sweetness
     case sourness
     case thickness
@@ -63,8 +53,6 @@ public struct Makgeolli: Codable, Identifiable, Equatable, Sendable {
     case carbonation
     case ingredients
     case alcoholPercentage = "alcohol_percentage"
-    case volume
-    case description
     case imageName = "image_name"
     case createdAt = "created_at"
     case updatedAt = "updated_at"

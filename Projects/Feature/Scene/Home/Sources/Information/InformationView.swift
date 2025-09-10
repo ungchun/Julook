@@ -37,13 +37,11 @@ public struct InformationView: View {
           
           AwardsView()
           
-          MakgeolliDescriptionSection()
-          
           MakgeolliEvaluationAndCommentsSection()
           
           MakgeolliIngredientsSection()
           
-          MakgeolliInformationSection()
+          BreweryWebsiteSection()
         }
         .padding(.horizontal, 16)
       }
@@ -129,12 +127,17 @@ private extension InformationView {
         .font(.SF24B)
         .lineLimit(1)
       
-      Text(
-        "\(formatValue(store.state.makgeolli.alcoholPercentage))도 ･ \(formatValue(store.state.makgeolli.volume))ml ･ \(formatValue(store.state.makgeolli.price))원"
-      )
-      .foregroundColor(.w50)
-      .font(.SF15R)
-      .lineLimit(1)
+      if let brewery = store.makgeolli.brewery {
+        Text("\(brewery) ･ \(formatValue(store.state.makgeolli.alcoholPercentage))도")
+        .foregroundColor(.w50)
+        .font(.SF15R)
+        .lineLimit(1)
+      } else {
+        Text("\(formatValue(store.state.makgeolli.alcoholPercentage))도")
+        .foregroundColor(.w50)
+        .font(.SF15R)
+        .lineLimit(1)
+      }
     }
     .padding(.bottom, 16)
     
@@ -470,25 +473,6 @@ private extension InformationView {
 
 private extension InformationView {
   @ViewBuilder
-  func MakgeolliDescriptionSection() -> some View {
-    if let description = store.makgeolli.description {
-      HStack {
-        VStack(alignment: .leading, spacing: 20) {
-          Text("소개")
-            .font(.SF20B)
-          
-          Text(description)
-            .font(.SF14R)
-        }
-        Spacer()
-      }
-      .padding(.bottom, 40)
-    }
-  }
-}
-
-private extension InformationView {
-  @ViewBuilder
   func MakgeolliEvaluationAndCommentsSection() -> some View {
     VStack(alignment: .leading, spacing: 20) {
       HStack {
@@ -682,22 +666,17 @@ private extension InformationView {
 
 private extension InformationView {
   @ViewBuilder
-  func MakgeolliInformationSection() -> some View {
-    if store.makgeolli.brewery != nil ||
-        store.makgeolli.website != nil ||
-        store.makgeolli.purchaseLink != nil {
-      VStack(alignment: .leading, spacing: 0) {
-        Text("정보")
-          .foregroundColor(.w)
-          .font(.SF20B)
-          .padding(.bottom, 20)
-        
-        if let brewery = store.makgeolli.brewery {
-          HStack {
-            Text("양조장")
-              .foregroundColor(.w85)
-              .font(.SF14R)
-            Spacer()
+  func BreweryWebsiteSection() -> some View {
+    if store.makgeolli.brewery != nil
+        && store.makgeolli.website != nil {
+      HStack {
+        VStack(alignment: .leading, spacing: 0) {
+          Text("양조장 링크")
+            .foregroundColor(.w)
+            .font(.SF20B)
+            .padding(.bottom, 20)
+          
+          if let brewery = store.makgeolli.brewery {
             if let website = store.makgeolli.website {
               Text(brewery)
                 .foregroundColor(DesignSystemAsset.Colors.primary.swiftUIColor)
@@ -714,26 +693,7 @@ private extension InformationView {
             }
           }
         }
-        
-        Divider()
-          .padding(.vertical, 12)
-        
-        if let purchaseLink = store.makgeolli.purchaseLink {
-          HStack {
-            Text("판매링크")
-              .foregroundColor(.w85)
-              .font(.SF14R)
-            Spacer()
-            Text("공식몰")
-              .foregroundColor(DesignSystemAsset.Colors.primary.swiftUIColor)
-              .font(.SF14R)
-              .onTapGesture {
-                if let url = URL(string: purchaseLink) {
-                  UIApplication.shared.open(url)
-                }
-              }
-          }
-        }
+        Spacer()
       }
       .padding(.bottom, 40)
     }

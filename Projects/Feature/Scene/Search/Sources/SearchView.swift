@@ -313,10 +313,17 @@ private struct MakgeolliSearchResultRow: View {
             .font(.SF14R)
             .lineLimit(1)
           
-          Text("\(formatValue(makgeolli.alcoholPercentage))도 ･ \(formatValue(makgeolli.volume))ml ･ \(formatValue(makgeolli.price))원")
-            .foregroundColor(.w50)
-            .font(.SF10B)
-            .lineLimit(1)
+          if let brewery = makgeolli.brewery {
+            Text("\(brewery) ･ \(formatValue(makgeolli.alcoholPercentage))도")
+              .foregroundColor(.w50)
+              .font(.SF10B)
+              .lineLimit(1)
+          } else {
+            Text("\(formatValue(makgeolli.alcoholPercentage))도")
+              .foregroundColor(.w50)
+              .font(.SF10B)
+              .lineLimit(1)
+          }
         }
         .padding(.horizontal, 16)
         
