@@ -31,7 +31,7 @@ public final class SharedModelContainer: @unchecked Sendable {
               return
             }
             
-            let schema = Schema([MyMakgeolliLocal.self, MakgeolliReactionLocal.self])
+            let schema = Schema([MyMakgeolliLocal.self, MakgeolliReactionLocal.self, UserLocal.self])
             let configuration = ModelConfiguration(
               schema: schema,
               isStoredInMemoryOnly: false,

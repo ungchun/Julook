@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import SwiftData
 
 import Core
 
@@ -15,6 +16,8 @@ import ComposableArchitecture
 @Reducer
 public struct SplashCore {
   public init() { }
+
+  @Dependency(\.userClient) var userClient
   
   @ObservableState
   public struct State: Equatable {
@@ -26,6 +29,7 @@ public struct SplashCore {
   
   public enum Action {
     case onAppear
+    case initializeUser
     
     case updateImageIndex
     case timerTick
@@ -48,11 +52,24 @@ public struct SplashCore {
         state.currentImageIndex = 0
         state.isAnimating = true
         
-        return .run { send in
-          for await _ in Timer.publish(
-            every: 1/18, on: .main, in: .common
-          ).autoconnect().values {
-            await send(.timerTick)
+        return .merge(
+          .send(.initializeUser),
+          .run { send in
+            for await _ in Timer.publish(
+              every: 1/18, on: .main, in: .common
+            ).autoconnect().values {
+              await send(.timerTick)
+            }
+          }
+        )
+        
+      case .initializeUser:
+        let userClient = self.userClient
+        return .run { _ in
+          do {
+            _ = try await userClient.initializeUserProfile()
+          } catch {
+            // error
           }
         }
         

@@ -9,6 +9,7 @@
 import FeatureHome
 import FeatureSearch
 import FeatureMyMakgeolli
+import FeatureSetting
 
 import ComposableArchitecture
 import Core
@@ -17,6 +18,7 @@ public enum Tab: String, Equatable {
   case home = "home"
   case search = "search"
   case myMakgeolli = "my_makgeolli"
+  case setting = "setting"
 }
 
 @Reducer
@@ -30,19 +32,22 @@ public struct TabCore {
     var homeTab: HomeCore.State
     var searchTab: SearchCore.State
     var myMakgeolliTab: MyMakgeolliCore.State
+    var settingTab: SettingCore.State
     
     public init(
       selectedTab: Tab = .home,
-      
+
       homeTab: HomeCore.State = .init(),
       searchTab: SearchCore.State = .init(),
-      myMakgeolliTab: MyMakgeolliCore.State = .init()
+      myMakgeolliTab: MyMakgeolliCore.State = .init(),
+      settingTab: SettingCore.State = .init()
     ) {
       self.selectedTab = selectedTab
-      
+
       self.homeTab = homeTab
       self.searchTab = searchTab
       self.myMakgeolliTab = myMakgeolliTab
+      self.settingTab = settingTab
     }
   }
   
@@ -52,6 +57,7 @@ public struct TabCore {
     case homeTab (HomeCore.Action)
     case searchTab (SearchCore.Action)
     case myMakgeolliTab (MyMakgeolliCore.Action)
+    case settingTab (SettingCore.Action)
   }
   
   public var body: some ReducerOf<Self> {
@@ -66,6 +72,10 @@ public struct TabCore {
     Scope(state: \.myMakgeolliTab, action: \.myMakgeolliTab) {
       MyMakgeolliCore()
     }
+
+    Scope(state: \.settingTab, action: \.settingTab) {
+      SettingCore()
+    }
     
     Reduce { state, action in
       switch action {
@@ -79,6 +89,8 @@ public struct TabCore {
           Amp.track(event: "search_tab_selected")
         case .myMakgeolli:
           Amp.track(event: "my_makgeolli_tab_selected")
+        case .setting:
+          Amp.track(event: "setting_tab_selected")
         }
         
         return .none
@@ -93,6 +105,9 @@ public struct TabCore {
         return .none
         
       case .myMakgeolliTab:
+        return .none
+
+      case .settingTab:
         return .none
       }
     }
