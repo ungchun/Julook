@@ -10,6 +10,7 @@ import SwiftUI
 
 import FeatureTabs
 import FeatureHome
+import FeatureSetting
 
 import ComposableArchitecture
 import TCACoordinators
@@ -33,6 +34,8 @@ public struct MainCoordinatorView: View {
           InformationView(store: store)
         case let .commentList(store):
           CommentListView(store: store)
+        case let .profileImagePicker(store):
+          ProfileImagePickerView(store: store)
         }
       }
     }

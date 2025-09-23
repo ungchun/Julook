@@ -19,7 +19,7 @@ public struct SettingCore {
   public struct State: Equatable {
     public var user: UserEntity?
     public var isLoadingUser: Bool = false
-    
+
     public init() { }
   }
   
@@ -32,6 +32,8 @@ public struct SettingCore {
     case privacyTapped
     case loadUser
     case userLoaded(UserEntity?)
+    case profileImageTapped
+    case moveToProfileImagePicker(String)
   }
   
   public init() { }
@@ -43,9 +45,13 @@ public struct SettingCore {
       switch action {
       case .onAppear:
         return .send(.loadUser)
-        
+
       case .dismiss:
         return .none
+
+      case .profileImageTapped:
+        let currentProfileImage = state.user?.profileImage ?? "p1"
+        return .send(.moveToProfileImagePicker(currentProfileImage))
         
       case .loadUser:
         state.isLoadingUser = true
@@ -62,6 +68,9 @@ public struct SettingCore {
       case let .userLoaded(user):
         state.isLoadingUser = false
         state.user = user
+        return .none
+
+      case .moveToProfileImagePicker:
         return .none
         
       case .contactTapped:

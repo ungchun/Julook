@@ -41,8 +41,12 @@ public struct SettingView: View {
                 .progressViewStyle(CircularProgressViewStyle(tint: .white))
             } else if let user = store.user {
               VStack(spacing: 24) {
-                profileImageView(for: user.profileImage)
-                  .frame(width: 70, height: 70)
+                Button(action: {
+                  store.send(.profileImageTapped)
+                }) {
+                  profileImageView(for: user.profileImage)
+                    .frame(width: 70, height: 70)
+                }
                 
                 Text(user.nickname.isEmpty ? "닉네임을 설정해주세요" : user.nickname)
                   .foregroundColor(user.nickname.isEmpty ? .w85 : .w)
