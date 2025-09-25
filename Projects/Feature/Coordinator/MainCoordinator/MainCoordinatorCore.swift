@@ -104,22 +104,26 @@ public struct MainCoordinatorCore {
       case .router(.routeAction(id: _, action: .commentList(.dismiss))):
         state.routes.goBack()
         return .none
-
+        
       case let .router(.routeAction(
         id: _, action: .tabs(.settingTab(.moveToProfileImagePicker(currentProfileImage))))):
         state.routes.presentCover(.profileImagePicker(
           .init(currentProfileImage: currentProfileImage)))
         return .none
-
+        
       case .router(.routeAction(id: _, action: .profileImagePicker(.dismiss))):
         state.routes.dismiss()
         return .none
-
+        
       case .router(.routeAction(id: _, action: .profileImagePicker(.profileImageUpdated))):
         state.routes.dismiss()
-        return .send(.router(.routeAction(
-          id: 0, action: .tabs(.settingTab(.loadUser)))))
-
+        return .merge(
+          .send(.router(.routeAction(
+            id: 0, action: .tabs(.settingTab(.loadUser))))),
+          .send(.router(.routeAction(
+            id: 0, action: .tabs(.homeTab(.loadUserProfile)))))
+        )
+        
       default:
         break
       }
