@@ -34,6 +34,8 @@ public struct SettingCore {
     case userLoaded(UserEntity?)
     case profileImageTapped
     case moveToProfileImagePicker(String)
+    case nicknameChangeTapped
+    case moveToNicknameChange(String)
   }
   
   public init() { }
@@ -71,6 +73,13 @@ public struct SettingCore {
         return .none
 
       case .moveToProfileImagePicker:
+        return .none
+
+      case .nicknameChangeTapped:
+        let currentNickname = state.user?.nickname ?? ""
+        return .send(.moveToNicknameChange(currentNickname))
+
+      case .moveToNicknameChange:
         return .none
         
       case .contactTapped:

@@ -677,6 +677,12 @@ private struct RecentCommentsView: View {
                       }
                     }
                     .frame(width: 12, height: 12)
+                    
+                    Spacer()
+                    
+                    Text(store.recentCommentUserNicknames[comment.id] ?? "")
+                      .foregroundColor(.w25)
+                      .font(.SF14R)
                   }
                   
                   Text(comment.comment)

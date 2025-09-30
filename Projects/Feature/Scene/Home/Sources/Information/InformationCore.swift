@@ -32,6 +32,7 @@ public struct InformationCore: Sendable {
     public var isShowingCommentsSheet: Bool = false
     public var publicComments: [UserComment] = []
     public var userReactions: [UUID: String] = [:]
+    public var commentUserNicknames: [UUID: String] = [:]
     
     public init(makgeolli: Makgeolli, makgeolliImage: URL? = nil) {
       self.makgeolli = makgeolli
@@ -75,6 +76,8 @@ public struct InformationCore: Sendable {
     case updatePublicComments([UserComment])
     case loadUserReactions([UUID])
     case updateUserReactions([UUID: String])
+    case loadCommentUserNicknames([UUID])
+    case updateCommentUserNicknames([UUID: String])
     
     case logError(InformationCoreError)
     case showToast(String, ToastType)
@@ -403,7 +406,10 @@ public struct InformationCore: Sendable {
       case let .updatePublicComments(publicComments):
         state.publicComments = publicComments
         let userIds = publicComments.map { $0.userId }
-        return .send(.loadUserReactions(userIds))
+        return .merge(
+          .send(.loadUserReactions(userIds)),
+          .send(.loadCommentUserNicknames(userIds))
+        )
         
       case let .loadUserReactions(userIds):
         let supabaseClient = self.supabaseClient
@@ -425,6 +431,27 @@ public struct InformationCore: Sendable {
         
       case let .updateUserReactions(userReactions):
         state.userReactions = userReactions
+        return .none
+        
+      case let .loadCommentUserNicknames(userIds):
+        let supabaseClient = self.supabaseClient
+        return .run { send in
+          var nicknames: [UUID: String] = [:]
+          
+          for userId in userIds {
+            do {
+              let nickname = try await supabaseClient.getUserNickname(userId)
+              nicknames[userId] = nickname ?? ""
+            } catch {
+              nicknames[userId] = ""
+            }
+          }
+          
+          await send(.updateCommentUserNicknames(nicknames))
+        }
+        
+      case let .updateCommentUserNicknames(commentUserNicknames):
+        state.commentUserNicknames = commentUserNicknames
         return .none
         
       case let .logError(error):

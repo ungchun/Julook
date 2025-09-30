@@ -42,6 +42,7 @@ public struct HomeCore {
     public var recentCommentMakgeollis: [UUID: Makgeolli] = [:]
     public var recentCommentImages: [UUID: URL] = [:]
     public var recentCommentReactions: [UUID: String] = [:]
+    public var recentCommentUserNicknames: [UUID: String] = [:]
 
     // 사용자 프로필
     public var userProfileImage: String = ""
@@ -92,6 +93,8 @@ public struct HomeCore {
     case recentCommentImageResponse(id: UUID, TaskResult<URL>)
     case loadRecentCommentReaction(UserComment)
     case updateRecentCommentReaction(commentId: UUID, String?)
+    case fetchRecentCommentUserNickname(UserComment)
+    case recentCommentUserNicknameResponse(UserComment, TaskResult<String?>)
     case recentCommentItemTapped(UserComment)
     
     // 네비게이션
@@ -359,6 +362,7 @@ public struct HomeCore {
         state.recentCommentImages = [:]
         state.recentCommentMakgeollis = [:]
         state.recentCommentReactions = [:]
+        state.recentCommentUserNicknames = [:]
         let supabaseClient = self.supabaseClient
         return .run { send in
           do {
@@ -373,8 +377,11 @@ public struct HomeCore {
         state.isLoadingRecentComments = false
         state.recentComments = comments
         return .merge(
-          comments.compactMap { comment in
-            return .send(.fetchRecentCommentMakgeolli(comment))
+          comments.flatMap { comment in
+            [
+              .send(.fetchRecentCommentMakgeolli(comment)),
+              .send(.fetchRecentCommentUserNickname(comment))
+            ]
           }
         )
         
@@ -452,6 +459,25 @@ public struct HomeCore {
         
       case let .updateRecentCommentReaction(commentId, reactionType):
         state.recentCommentReactions[commentId] = reactionType
+        return .none
+
+      case let .fetchRecentCommentUserNickname(comment):
+        let supabaseClient = self.supabaseClient
+        return .run { send in
+          do {
+            let nickname = try await supabaseClient.getUserNickname(comment.userId)
+            await send(.recentCommentUserNicknameResponse(comment, .success(nickname)))
+          } catch {
+            await send(.recentCommentUserNicknameResponse(comment, .failure(error)))
+          }
+        }
+
+      case let .recentCommentUserNicknameResponse(comment, .success(nickname)):
+        state.recentCommentUserNicknames[comment.id] = nickname ?? ""
+        return .none
+
+      case let .recentCommentUserNicknameResponse(comment, .failure(_)):
+        state.recentCommentUserNicknames[comment.id] = ""
         return .none
         
       case let .recentCommentItemTapped(comment):

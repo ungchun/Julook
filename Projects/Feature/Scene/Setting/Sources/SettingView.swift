@@ -53,7 +53,7 @@ public struct SettingView: View {
                   .font(user.nickname.isEmpty ? .SF17B : .SF20B)
                 
                 Button(action: {
-                  // TODO: 닉네임 변경 액션
+                  store.send(.nicknameChangeTapped)
                 }) {
                   Text("닉네임 변경")
                     .foregroundColor(.w85)

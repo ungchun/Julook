@@ -36,6 +36,8 @@ public struct MainCoordinatorView: View {
           CommentListView(store: store)
         case let .profileImagePicker(store):
           ProfileImagePickerView(store: store)
+        case let .nicknameChange(store):
+          NicknameChangeView(store: store)
         }
       }
     }

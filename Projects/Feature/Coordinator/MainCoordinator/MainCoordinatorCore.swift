@@ -20,6 +20,7 @@ public enum MainScreen {
   case information(InformationCore)
   case commentList(CommentListCore)
   case profileImagePicker(ProfileImagePickerCore)
+  case nicknameChange(NicknameChangeCore)
 }
 
 @Reducer
@@ -123,6 +124,21 @@ public struct MainCoordinatorCore {
           .send(.router(.routeAction(
             id: 0, action: .tabs(.homeTab(.loadUserProfile)))))
         )
+
+      case let .router(.routeAction(
+        id: _, action: .tabs(.settingTab(.moveToNicknameChange(currentNickname))))):
+        state.routes.presentCover(.nicknameChange(
+          .init(currentNickname: currentNickname)))
+        return .none
+
+      case .router(.routeAction(id: _, action: .nicknameChange(.dismiss))):
+        state.routes.dismiss()
+        return .none
+
+      case .router(.routeAction(id: _, action: .nicknameChange(.nicknameUpdated))):
+        state.routes.dismiss()
+        return .send(.router(.routeAction(
+          id: 0, action: .tabs(.settingTab(.loadUser)))))
         
       default:
         break
