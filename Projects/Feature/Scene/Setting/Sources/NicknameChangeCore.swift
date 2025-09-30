@@ -86,15 +86,11 @@ public struct NicknameChangeCore {
         let newNickname = state.newNickname
         let userClient = self.userClient
         let supabaseClient = self.supabaseClient
+        let userId = getUserID()
         return .run { send in
           do {
-            // SwiftData에 저장
             try await userClient.updateNickname(newNickname)
-            
-            // Supabase에도 저장
-            let userId = getUserID()
             try await supabaseClient.updateUserNickname(userId, newNickname)
-            
             await send(.nicknameUpdated)
           } catch {
             await send(.nicknameUpdateFailed)
