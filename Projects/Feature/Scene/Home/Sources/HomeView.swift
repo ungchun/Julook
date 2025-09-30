@@ -26,7 +26,7 @@ public struct HomeView: View {
       
       ScrollView(showsIndicators: false) {
         VStack(spacing: 20) {
-          HeaderView()
+          HeaderView(store: store)
           
           MakgeolliFilterView(store: store)
           
@@ -47,10 +47,10 @@ public struct HomeView: View {
 // MARK: - HeaderView
 
 private struct HeaderView: View {
-  private let randomProfileIndex: Int
-  
-  fileprivate init() {
-    self.randomProfileIndex = Int.random(in: 1...8)
+  let store: StoreOf<HomeCore>
+
+  fileprivate init(store: StoreOf<HomeCore>) {
+    self.store = store
   }
   
   fileprivate var body: some View {
@@ -61,7 +61,7 @@ private struct HeaderView: View {
       
       Spacer()
       
-      randomProfileImage
+      profileImage
         .resizable()
         .aspectRatio(contentMode: .fit)
         .frame(width: 30, height: 30)
@@ -71,16 +71,18 @@ private struct HeaderView: View {
     .padding(.top, 20)
   }
   
-  private var randomProfileImage: Image {
-    switch randomProfileIndex {
-    case 1: return DesignSystemAsset.Images.p1.swiftUIImage
-    case 2: return DesignSystemAsset.Images.p2.swiftUIImage
-    case 3: return DesignSystemAsset.Images.p3.swiftUIImage
-    case 4: return DesignSystemAsset.Images.p4.swiftUIImage
-    case 5: return DesignSystemAsset.Images.p5.swiftUIImage
-    case 6: return DesignSystemAsset.Images.p6.swiftUIImage
-    case 7: return DesignSystemAsset.Images.p7.swiftUIImage
-    case 8: return DesignSystemAsset.Images.p8.swiftUIImage
+  private var profileImage: Image {
+    let imageName = store.userProfileImage.isEmpty ? "p1" : store.userProfileImage
+
+    switch imageName {
+    case "p1": return DesignSystemAsset.Images.p1.swiftUIImage
+    case "p2": return DesignSystemAsset.Images.p2.swiftUIImage
+    case "p3": return DesignSystemAsset.Images.p3.swiftUIImage
+    case "p4": return DesignSystemAsset.Images.p4.swiftUIImage
+    case "p5": return DesignSystemAsset.Images.p5.swiftUIImage
+    case "p6": return DesignSystemAsset.Images.p6.swiftUIImage
+    case "p7": return DesignSystemAsset.Images.p7.swiftUIImage
+    case "p8": return DesignSystemAsset.Images.p8.swiftUIImage
     default: return DesignSystemAsset.Images.p1.swiftUIImage
     }
   }
@@ -675,6 +677,12 @@ private struct RecentCommentsView: View {
                       }
                     }
                     .frame(width: 12, height: 12)
+                    
+                    Spacer()
+                    
+                    Text(store.recentCommentUserNicknames[comment.id] ?? "")
+                      .foregroundColor(.w25)
+                      .font(.SF14R)
                   }
                   
                   Text(comment.comment)

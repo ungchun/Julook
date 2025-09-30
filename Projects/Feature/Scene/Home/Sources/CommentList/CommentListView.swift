@@ -112,7 +112,8 @@ private extension CommentListView {
               comment: comment,
               makgeolli: makgeolli,
               imageURL: store.makgeolliImages[makgeolli.id],
-              reactionType: store.userReactions[comment.id]
+              reactionType: store.userReactions[comment.id],
+              nickname: store.userNicknames[comment.id]
             )
             .onTapGesture {
               Amp.track(event: "comment_list_item_clicked", properties: [
@@ -149,6 +150,7 @@ private struct CommentListItem: View {
   let makgeolli: Makgeolli
   let imageURL: URL?
   let reactionType: String?
+  let nickname: String?
   
   var body: some View {
     HStack(alignment: .top, spacing: 16) {
@@ -197,6 +199,10 @@ private struct CommentListItem: View {
           .frame(width: 12, height: 12)
           
           Spacer()
+          
+          Text(nickname ?? "")
+            .foregroundColor(.w25)
+            .font(.SF14R)
         }
         
         Text(comment.comment)

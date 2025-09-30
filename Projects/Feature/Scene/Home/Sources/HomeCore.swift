@@ -42,14 +42,22 @@ public struct HomeCore {
     public var recentCommentMakgeollis: [UUID: Makgeolli] = [:]
     public var recentCommentImages: [UUID: URL] = [:]
     public var recentCommentReactions: [UUID: String] = [:]
-    
+    public var recentCommentUserNicknames: [UUID: String] = [:]
+
+    // 사용자 프로필
+    public var userProfileImage: String = ""
+
     public init() { }
   }
   
   public enum Action {
     // 라이프사이클
     case onAppear
-    
+
+    // 사용자 프로필
+    case loadUserProfile
+    case userProfileLoaded(String)
+
     // 사용자 액션
     case filterButtonTapped
     case filterItemTapped(FilterType)
@@ -85,6 +93,8 @@ public struct HomeCore {
     case recentCommentImageResponse(id: UUID, TaskResult<URL>)
     case loadRecentCommentReaction(UserComment)
     case updateRecentCommentReaction(commentId: UUID, String?)
+    case fetchRecentCommentUserNickname(UserComment)
+    case recentCommentUserNicknameResponse(UserComment, TaskResult<String?>)
     case recentCommentItemTapped(UserComment)
     
     // 네비게이션
@@ -105,6 +115,7 @@ public struct HomeCore {
   
   @Dependency(\.supabaseClient) var supabaseClient
   @Dependency(\.myMakgeolliClient) var myMakgeolliClient
+  @Dependency(\.userClient) var userClient
   
   public var body: some Reducer<State, Action> {
     Reduce { state, action in
@@ -120,6 +131,7 @@ public struct HomeCore {
             && !state.isLoadingTopLiked
             && !state.isLoadingRecentComments {
           return .merge(
+            .send(.loadUserProfile),
             .send(.fetchNewReleases),
             .send(.fetchAwards),
             .send(.fetchTopLikedMakgeollis),
@@ -135,7 +147,26 @@ public struct HomeCore {
         } else {
           return .none
         }
-        
+
+      case .loadUserProfile:
+        let userClient = self.userClient
+        return .run { send in
+          do {
+            if let user = try await userClient.getUser() {
+              await send(.userProfileLoaded(user.profileImage))
+            } else {
+              // 사용자가 없으면 기본값 설정
+              await send(.userProfileLoaded("p1"))
+            }
+          } catch {
+            await send(.userProfileLoaded("p1"))
+          }
+        }
+
+      case let .userProfileLoaded(profileImage):
+        state.userProfileImage = profileImage
+        return .none
+
       case .filterButtonTapped:
         return .send(.moveToFilter)
         
@@ -331,6 +362,7 @@ public struct HomeCore {
         state.recentCommentImages = [:]
         state.recentCommentMakgeollis = [:]
         state.recentCommentReactions = [:]
+        state.recentCommentUserNicknames = [:]
         let supabaseClient = self.supabaseClient
         return .run { send in
           do {
@@ -345,8 +377,11 @@ public struct HomeCore {
         state.isLoadingRecentComments = false
         state.recentComments = comments
         return .merge(
-          comments.compactMap { comment in
-            return .send(.fetchRecentCommentMakgeolli(comment))
+          comments.flatMap { comment in
+            [
+              .send(.fetchRecentCommentMakgeolli(comment)),
+              .send(.fetchRecentCommentUserNickname(comment))
+            ]
           }
         )
         
@@ -424,6 +459,25 @@ public struct HomeCore {
         
       case let .updateRecentCommentReaction(commentId, reactionType):
         state.recentCommentReactions[commentId] = reactionType
+        return .none
+
+      case let .fetchRecentCommentUserNickname(comment):
+        let supabaseClient = self.supabaseClient
+        return .run { send in
+          do {
+            let nickname = try await supabaseClient.getUserNickname(comment.userId)
+            await send(.recentCommentUserNicknameResponse(comment, .success(nickname)))
+          } catch {
+            await send(.recentCommentUserNicknameResponse(comment, .failure(error)))
+          }
+        }
+
+      case let .recentCommentUserNicknameResponse(comment, .success(nickname)):
+        state.recentCommentUserNicknames[comment.id] = nickname ?? ""
+        return .none
+
+      case let .recentCommentUserNicknameResponse(comment, .failure(_)):
+        state.recentCommentUserNicknames[comment.id] = ""
         return .none
         
       case let .recentCommentItemTapped(comment):

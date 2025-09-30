@@ -23,6 +23,7 @@ public struct CommentListCore {
     public var makgeolliImages: [UUID: URL] = [:]
     public var makgeolliInfo: [UUID: Makgeolli] = [:]
     public var userReactions: [UUID: String] = [:]
+    public var userNicknames: [UUID: String] = [:]
     public var currentPage: Int = 0
     public var hasMoreData: Bool = true
     public var pageSize: Int = 10
@@ -44,7 +45,9 @@ public struct CommentListCore {
     case makgeolliImageResponse(id: UUID, TaskResult<URL>)
     case loadUserReaction(UserComment)
     case updateUserReaction(commentId: UUID, String?)
-    
+    case fetchUserNickname(UserComment)
+    case userNicknameResponse(UserComment, TaskResult<String?>)
+
     case commentItemTapped(UserComment)
     case moveToInformation(Makgeolli, URL?)
     
@@ -89,8 +92,11 @@ public struct CommentListCore {
         state.currentPage = 1
         state.hasMoreData = comments.count == state.pageSize
         return .merge(
-          comments.compactMap { comment in
-            return .send(.fetchMakgeolliInfo(comment))
+          comments.flatMap { comment in
+            [
+              .send(.fetchMakgeolliInfo(comment)),
+              .send(.fetchUserNickname(comment))
+            ]
           }
         )
         
@@ -125,8 +131,11 @@ public struct CommentListCore {
         state.currentPage += 1
         state.hasMoreData = comments.count == state.pageSize
         return .merge(
-          comments.compactMap { comment in
-            return .send(.fetchMakgeolliInfo(comment))
+          comments.flatMap { comment in
+            [
+              .send(.fetchMakgeolliInfo(comment)),
+              .send(.fetchUserNickname(comment))
+            ]
           }
         )
         
@@ -202,7 +211,26 @@ public struct CommentListCore {
       case let .updateUserReaction(commentId, reactionType):
         state.userReactions[commentId] = reactionType
         return .none
-        
+
+      case let .fetchUserNickname(comment):
+        let supabaseClient = self.supabaseClient
+        return .run { send in
+          do {
+            let nickname = try await supabaseClient.getUserNickname(comment.userId)
+            await send(.userNicknameResponse(comment, .success(nickname)))
+          } catch {
+            await send(.userNicknameResponse(comment, .failure(error)))
+          }
+        }
+
+      case let .userNicknameResponse(comment, .success(nickname)):
+        state.userNicknames[comment.id] = nickname ?? ""
+        return .none
+
+      case let .userNicknameResponse(comment, .failure(_)):
+        state.userNicknames[comment.id] = ""
+        return .none
+
       case let .commentItemTapped(comment):
         guard let makgeolli = state.makgeolliInfo[comment.makgeolliId] else {
           return .none

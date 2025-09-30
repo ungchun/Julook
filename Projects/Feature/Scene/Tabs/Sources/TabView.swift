@@ -11,6 +11,7 @@ import SwiftUI
 import FeatureHome
 import FeatureSearch
 import FeatureMyMakgeolli
+import FeatureSetting
 import DesignSystem
 
 import ComposableArchitecture
@@ -58,6 +59,16 @@ public struct TabsView: View {
           .font(.style(.SF10B))
       }
       .tag(Tab.myMakgeolli)
+
+      SettingView(store: store.scope(
+        state: \.settingTab,
+        action: \.settingTab))
+      .tabItem {
+        Image(systemName: "person.fill")
+        Text("내 정보")
+          .font(.style(.SF10B))
+      }
+      .tag(Tab.setting)
     }
     .accentColor(DesignSystemAsset.Colors.primary.swiftUIColor)
   }

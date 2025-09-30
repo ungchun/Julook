@@ -41,6 +41,9 @@ public struct SupabaseClient: Sendable {
   public var getUserComments: @Sendable (UUID) async throws -> [UserComment]
   public var getRecentComments: @Sendable () async throws -> [UserComment]
   public var getRecentCommentsPaginated: @Sendable (Int, Int) async throws -> [UserComment]
+  public var checkNicknameDuplicate: @Sendable (String) async throws -> Bool
+  public var updateUserNickname: @Sendable (UUID, String) async throws -> Void
+  public var getUserNickname: @Sendable (UUID) async throws -> String?
 }
 
 extension SupabaseClient: DependencyKey {
@@ -694,6 +697,105 @@ extension SupabaseClient: DependencyKey {
             .value
           
           return result
+        } catch {
+          throw SupabaseClientError(
+            code: .failToFetch,
+            underlying: error
+          )
+        }
+      },
+      
+      checkNicknameDuplicate: { nickname in
+        guard let client = clientRef.value else {
+          throw SupabaseClientError(
+            code: .clientNotInitialized,
+            underlying: nil
+          )
+        }
+        
+        do {
+          struct UserNickname: Codable {
+            let nickname: String
+          }
+          
+          let result: [UserNickname] = try await client
+            .from("user")
+            .select("nickname")
+            .eq("nickname", value: nickname)
+            .limit(1)
+            .execute()
+            .value
+          
+          return result.isEmpty
+        } catch {
+          throw SupabaseClientError(
+            code: .failToFetch,
+            underlying: error
+          )
+        }
+      },
+      
+      updateUserNickname: { userId, nickname in
+        guard let client = clientRef.value else {
+          throw SupabaseClientError(
+            code: .clientNotInitialized,
+            underlying: nil
+          )
+        }
+        
+        do {
+          struct UserPayload: Codable {
+            let id: String
+            let nickname: String
+            let updatedAt: String
+            
+            enum CodingKeys: String, CodingKey {
+              case id
+              case nickname
+              case updatedAt = "updated_at"
+            }
+          }
+          
+          let userPayload = UserPayload(
+            id: userId.uuidString,
+            nickname: nickname,
+            updatedAt: ISO8601DateFormatter().string(from: Date())
+          )
+          
+          let _: PostgrestResponse = try await client
+            .from("user")
+            .upsert(userPayload, onConflict: "id")
+            .execute()
+        } catch {
+          throw SupabaseClientError(
+            code: .failToFetch,
+            underlying: error
+          )
+        }
+      },
+      
+      getUserNickname: { userId in
+        guard let client = clientRef.value else {
+          throw SupabaseClientError(
+            code: .clientNotInitialized,
+            underlying: nil
+          )
+        }
+        
+        do {
+          struct UserNickname: Codable {
+            let nickname: String
+          }
+          
+          let result: [UserNickname] = try await client
+            .from("user")
+            .select("nickname")
+            .eq("id", value: userId.uuidString)
+            .limit(1)
+            .execute()
+            .value
+          
+          return result.first?.nickname
         } catch {
           throw SupabaseClientError(
             code: .failToFetch,

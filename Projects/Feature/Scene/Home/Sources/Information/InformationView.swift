@@ -572,7 +572,7 @@ private extension InformationView {
           LazyHStack(spacing: 12) {
             ForEach(Array(store.state.publicComments.prefix(5)), id: \.id) { comment in
               VStack(alignment: .leading, spacing: 8) {
-                HStack(spacing: 8) {
+                HStack(spacing: 4) {
                   Group {
                     if let userReaction = getUserReaction(for: comment.userId) {
                       if userReaction == "like" {
@@ -591,6 +591,10 @@ private extension InformationView {
                     }
                   }
                   .frame(width: 10, height: 10)
+                  
+                  Text(store.commentUserNicknames[comment.userId] ?? "")
+                    .foregroundColor(.w50)
+                    .font(.SF14R)
                   
                   Spacer()
                 }
@@ -811,7 +815,8 @@ private struct AllCommentsSheetView: View {
                 CommentItem(
                   comment: comment,
                   makgeolliName: store.state.makgeolli.name,
-                  reactionType: getUserReaction(for: comment.userId)
+                  reactionType: getUserReaction(for: comment.userId),
+                  nickname: store.commentUserNicknames[comment.userId]
                 )
                 
                 if idx != store.state.publicComments.count - 1 {
@@ -848,15 +853,11 @@ private struct CommentItem: View {
   let comment: UserComment
   let makgeolliName: String
   let reactionType: String?
+  let nickname: String?
   
   var body: some View {
     VStack(alignment: .leading, spacing: 12) {
       HStack(spacing: 8) {
-        Text(makgeolliName)
-          .foregroundColor(.w)
-          .font(.SF14R)
-          .lineLimit(1)
-        
         Group {
           if let reactionType = reactionType {
             if reactionType == "like" {
@@ -875,6 +876,10 @@ private struct CommentItem: View {
           }
         }
         .frame(width: 14, height: 14)
+
+        Text(nickname ?? "")
+          .foregroundColor(.w50)
+          .font(.SF14R)
         
         Spacer()
         
