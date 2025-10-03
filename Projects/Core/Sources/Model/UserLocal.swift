@@ -13,46 +13,13 @@ import Security
 @Model
 public class UserLocal {
   public var userId: UUID = UUID()
-  public var nickname: String = ""
-  public var profileImage: String = ""
   public var createdAt: Date = Date()
   public var updatedAt: Date = Date()
 
-  public init(
-    userId: UUID? = nil,
-    nickname: String = "",
-    profileImage: String = ""
-  ) {
+  public init(userId: UUID? = nil) {
     self.userId = userId ?? Self.getOrCreateUserID()
-    self.nickname = nickname
-    self.profileImage = profileImage.isEmpty ? Self.getRandomProfileImage() : profileImage
     self.createdAt = Date()
     self.updatedAt = Date()
-  }
-
-  public func updateNickname(_ nickname: String) {
-    self.nickname = nickname
-    self.updatedAt = Date()
-  }
-
-  public func updateProfileImage(_ profileImage: String) {
-    self.profileImage = profileImage
-    self.updatedAt = Date()
-  }
-
-  public func setRandomProfileImageIfEmpty() {
-    if self.profileImage.isEmpty {
-      let randomIndex = Int.random(in: 1...8)
-      self.profileImage = "p\(randomIndex)"
-      self.updatedAt = Date()
-    }
-  }
-
-  // MARK: - Profile Image
-
-  private static func getRandomProfileImage() -> String {
-    let randomIndex = Int.random(in: 1...8)
-    return "p\(randomIndex)"
   }
 
   // MARK: - Keychain Integration

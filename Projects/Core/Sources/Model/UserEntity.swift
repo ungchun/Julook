@@ -14,7 +14,7 @@ public struct UserEntity: Sendable, Equatable, Hashable {
   public let profileImage: String
   public let createdAt: Date
   public let updatedAt: Date
-
+  
   public init(
     userId: UUID,
     nickname: String,
@@ -32,10 +32,17 @@ public struct UserEntity: Sendable, Equatable, Hashable {
 
 extension UserLocal {
   public func toEntity() -> UserEntity {
+    let nickname = NSUbiquitousKeyValueStore.default.string(
+      forKey: "user_nickname"
+    ) ?? ""
+    let profileImage = NSUbiquitousKeyValueStore.default.string(
+      forKey: "user_profile_image"
+    ) ?? "p1"
+    
     return UserEntity(
       userId: self.userId,
-      nickname: self.nickname,
-      profileImage: self.profileImage,
+      nickname: nickname,
+      profileImage: profileImage,
       createdAt: self.createdAt,
       updatedAt: self.updatedAt
     )
