@@ -39,19 +39,22 @@ public struct SettingView: View {
             if store.isLoadingUser {
               ProgressView()
                 .progressViewStyle(CircularProgressViewStyle(tint: .white))
-            } else if let user = store.user {
+            } else {
+              let profileImage = store.user?.profileImage ?? "p\(Int.random(in: 1...8))"
+              let nickname = store.user?.nickname ?? ""
+
               VStack(spacing: 24) {
                 Button(action: {
                   store.send(.profileImageTapped)
                 }) {
-                  profileImageView(for: user.profileImage)
+                  profileImageView(for: profileImage)
                     .frame(width: 70, height: 70)
                 }
-                
-                Text(user.nickname.isEmpty ? "닉네임을 설정해주세요" : user.nickname)
-                  .foregroundColor(user.nickname.isEmpty ? .w85 : .w)
-                  .font(user.nickname.isEmpty ? .SF17B : .SF20B)
-                
+
+                Text(nickname.isEmpty ? "닉네임을 설정해주세요" : nickname)
+                  .foregroundColor(nickname.isEmpty ? .w85 : .w)
+                  .font(nickname.isEmpty ? .SF17B : .SF20B)
+
                 Button(action: {
                   store.send(.nicknameChangeTapped)
                 }) {
