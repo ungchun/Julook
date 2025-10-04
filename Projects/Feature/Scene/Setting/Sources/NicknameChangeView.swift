@@ -151,13 +151,33 @@ private struct NicknameInputView: View {
   
   var body: some View {
     ZStack {
-      RoundedRectangle(cornerRadius: 12)
-        .stroke(getBorderColor(), lineWidth: 2)
-        .background(
-          RoundedRectangle(cornerRadius: 12)
-            .fill(DesignSystemAsset.Colors.darkgray.swiftUIColor)
-        )
-        .frame(height: 56)
+      if isAvailable == true {
+        RoundedRectangle(cornerRadius: 12)
+          .stroke(
+            LinearGradient(
+              gradient: Gradient(colors: [
+                DesignSystemAsset.Colors.goldenyellow.swiftUIColor,
+                DesignSystemAsset.Colors.lilac.swiftUIColor
+              ]),
+              startPoint: .top,
+              endPoint: .bottom
+            ),
+            lineWidth: 2
+          )
+          .background(
+            RoundedRectangle(cornerRadius: 12)
+              .fill(DesignSystemAsset.Colors.darkgray.swiftUIColor)
+          )
+          .frame(height: 56)
+      } else {
+        RoundedRectangle(cornerRadius: 12)
+          .stroke(getBorderColor(), lineWidth: 2)
+          .background(
+            RoundedRectangle(cornerRadius: 12)
+              .fill(DesignSystemAsset.Colors.darkgray.swiftUIColor)
+          )
+          .frame(height: 56)
+      }
       
       HStack(spacing: 0) {
         ForEach(0..<maxLength, id: \.self) { index in

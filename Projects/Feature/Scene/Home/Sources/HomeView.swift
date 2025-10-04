@@ -48,7 +48,7 @@ public struct HomeView: View {
 
 private struct HeaderView: View {
   let store: StoreOf<HomeCore>
-
+  
   fileprivate init(store: StoreOf<HomeCore>) {
     self.store = store
   }
@@ -73,7 +73,7 @@ private struct HeaderView: View {
   
   private var profileImage: Image {
     let imageName = store.userProfileImage.isEmpty ? "p1" : store.userProfileImage
-
+    
     switch imageName {
     case "p1": return DesignSystemAsset.Images.p1.swiftUIImage
     case "p2": return DesignSystemAsset.Images.p2.swiftUIImage
@@ -246,13 +246,15 @@ private struct TodaysRankingView: View {
             
             Spacer()
             
-            Image(systemName: (store.topLikedFavoriteStatus[makgeolli.id] ?? false) ? "heart.fill" : "heart")
-              .font(.SF24B)
-              .foregroundColor((store.topLikedFavoriteStatus[makgeolli.id] ?? false) ? .red : .w25)
-              .frame(width: 24, height: 24)
-              .onTapGesture {
-                store.send(.topLikedFavoriteButtonTapped(makgeolli))
-              }
+            Image(systemName: (store.topLikedFavoriteStatus[makgeolli.id] ?? false)
+                  ? "heart.fill" : "heart")
+            .font(.SF24B)
+            .foregroundColor((store.topLikedFavoriteStatus[makgeolli.id] ?? false)
+                             ? .red : .w25)
+            .frame(width: 24, height: 24)
+            .onTapGesture {
+              store.send(.topLikedFavoriteButtonTapped(makgeolli))
+            }
           }
           .contentShape(Rectangle())
           .onTapGesture {
@@ -302,7 +304,7 @@ private extension TodaysRankingView {
     DesignSystemAsset.Images.defaultMakgeolli.swiftUIImage
       .resizable()
       .aspectRatio(contentMode: .fit)
-      .frame(width: 60, height: 80)
+      .frame(width: 30, height: 60)
   }
   
   func getScoreImage(for score: Int?) -> Image {
