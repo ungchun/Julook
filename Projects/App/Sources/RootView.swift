@@ -2,6 +2,7 @@ import SwiftUI
 
 import MainCoordinator
 import FeatureSplash
+import FeatureSetting
 import DesignSystem
 
 import ComposableArchitecture
@@ -22,6 +23,13 @@ struct RootView: View {
           action: \.destination.splash
         ) {
           SplashView(store: store)
+        }
+        
+        if let store = store.scope(
+          state: \.destination?.nicknameChange,
+          action: \.destination.nicknameChange
+        ) {
+          NicknameChangeView(store: store)
         }
         
         if let store = store.scope(

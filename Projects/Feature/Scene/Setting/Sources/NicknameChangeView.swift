@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import UIKit
 
 import DesignSystem
 import Core
@@ -26,20 +27,22 @@ public struct NicknameChangeView: View {
         .ignoresSafeArea(.all)
       
       VStack(spacing: 0) {
-        HStack {
-          Spacer()
-          
-          Button(action: {
-            store.send(.dismiss)
-          }) {
-            DesignSystemAsset.Images.close.swiftUIImage
-              .resizable()
-              .aspectRatio(contentMode: .fit)
-              .frame(height: 26)
+        if !store.currentNickname.isEmpty {
+          HStack {
+            Spacer()
+            
+            Button(action: {
+              store.send(.dismiss)
+            }) {
+              DesignSystemAsset.Images.close.swiftUIImage
+                .resizable()
+                .aspectRatio(contentMode: .fit)
+                .frame(height: 26)
+            }
           }
+          .padding(.horizontal, 16)
+          .padding(.top, 16)
         }
-        .padding(.horizontal, 16)
-        .padding(.top, 16)
         
         Spacer()
         
@@ -74,6 +77,38 @@ public struct NicknameChangeView: View {
         }
         
         Spacer()
+        
+        if store.currentNickname.isEmpty && store.isNicknameAvailable == true {
+          HStack(spacing: 0) {
+            Text("이용약관")
+              .foregroundColor(.primary2)
+              .font(.SF12B)
+              .onTapGesture {
+                if let url = URL(string: "https://yawner.notion.site/1c792ec2705581ec8b98d5b25d5d94ab") {
+                  UIApplication.shared.open(url)
+                }
+              }
+            Text("과 ")
+              .foregroundColor(.w50)
+              .font(.SF12B)
+            Text("개인정보처리방침")
+              .foregroundColor(.primary2)
+              .font(.SF12B)
+              .onTapGesture {
+                if let url = URL(string: "https://yawner.notion.site/1c792ec270558160a0f0c57392e4d1de") {
+                  UIApplication.shared.open(url)
+                }
+              }
+            Text("에")
+              .foregroundColor(.w50)
+              .font(.SF12B)
+            
+            Text(" 동의하고 시작합니다.")
+              .foregroundColor(.w50)
+              .font(.SF12B)
+          }
+          .padding(.bottom, 16)
+        }
         
         Button(action: {
           if !store.newNickname.isEmpty {

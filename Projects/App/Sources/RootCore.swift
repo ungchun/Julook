@@ -7,12 +7,14 @@
 //
 
 import SwiftUI
+import Security
 
 import Core
 import DesignSystem
 import MainCoordinator
 import FeatureTabs
 import FeatureSplash
+import FeatureSetting
 
 import ComposableArchitecture
 
@@ -21,6 +23,7 @@ public struct RootCore {
   @Reducer
   public enum Destination {
     case splash(SplashCore)
+    case nicknameChange(NicknameChangeCore)
     case mainCoordinator(MainCoordinatorCore)
   }
   
@@ -47,6 +50,8 @@ public struct RootCore {
     case onAppear
     
     case splashCompleted
+    case checkNickname
+    case nicknameCheckResult(String?)
     case checkForUpdatesResponse(TaskResult<String>)
     case updateButtonTapped
     case dismissUpdateAlert
@@ -60,6 +65,8 @@ public struct RootCore {
   
   @Dependency(\.bundleClient) var bundleClient
   @Dependency(\.versionCheckClient) var versionCheckClient
+  @Dependency(\.userClient) var userClient
+  @Dependency(\.supabaseClient) var supabaseClient
   
   public var body: some Reducer<State, Action> {
     BindingReducer()
@@ -131,12 +138,32 @@ public struct RootCore {
         
       case .splashCompleted:
         if !state.isCheckingForUpdates && !state.showUpdateAlert {
+          return .send(.checkNickname)
+        }
+        return .none
+        
+      case .checkNickname:
+        let supabaseClient = self.supabaseClient
+        let userId = getUserID()
+        return .run { send in
+          do {
+            let nickname = try await supabaseClient.getUserNickname(userId)
+            await send(.nicknameCheckResult(nickname))
+          } catch {
+            await send(.nicknameCheckResult(nil))
+          }
+        }
+        
+      case let .nicknameCheckResult(nickname):
+        if let nickname = nickname, !nickname.isEmpty {
           state.destination = .mainCoordinator(
             MainCoordinatorCore.State(
               routes: [.root(.tabs(TabCore.State()),
                              embedInNavigationView: true)]
             )
           )
+        } else {
+          state.destination = .nicknameChange(NicknameChangeCore.State())
         }
         return .none
         
@@ -153,10 +180,78 @@ public struct RootCore {
       case .binding:
         return .none
         
+      case .destination(.presented(.nicknameChange(.dismiss))):
+        state.destination = .mainCoordinator(
+          MainCoordinatorCore.State(
+            routes: [.root(.tabs(TabCore.State()),
+                           embedInNavigationView: true)]
+          )
+        )
+        return .none
+        
+      case .destination(.presented(.nicknameChange(.nicknameUpdated))):
+        state.destination = .mainCoordinator(
+          MainCoordinatorCore.State(
+            routes: [.root(.tabs(TabCore.State()),
+                           embedInNavigationView: true)]
+          )
+        )
+        return .none
+        
       case .destination:
         return .none
       }
     }
     .ifLet(\.$destination, action: \.destination)
+  }
+}
+
+private extension RootCore {
+  func getUserID() -> UUID {
+    let service = "com.azhy.julook"
+    let account = "user_id"
+    
+    if let existingID = getKeychainValue(service: service, account: account),
+       let uuid = UUID(uuidString: existingID) {
+      return uuid
+    }
+    
+    let newId = UUID()
+    setKeychainValue(service: service, account: account, value: newId.uuidString)
+    return newId
+  }
+  
+  func getKeychainValue(service: String, account: String) -> String? {
+    let query: [String: Any] = [
+      kSecClass as String: kSecClassGenericPassword,
+      kSecAttrService as String: service,
+      kSecAttrAccount as String: account,
+      kSecReturnData as String: true
+    ]
+    
+    var result: CFTypeRef?
+    let status = SecItemCopyMatching(query as CFDictionary, &result)
+    
+    guard status == errSecSuccess,
+          let data = result as? Data,
+          let value = String(data: data, encoding: .utf8) else {
+      return nil
+    }
+    
+    return value
+  }
+  
+  func setKeychainValue(service: String, account: String, value: String) {
+    let data = value.data(using: .utf8)!
+    
+    let query: [String: Any] = [
+      kSecClass as String: kSecClassGenericPassword,
+      kSecAttrService as String: service,
+      kSecAttrAccount as String: account,
+      kSecValueData as String: data
+    ]
+    
+    SecItemDelete(query as CFDictionary)
+    SecItemAdd(query as CFDictionary, nil)
   }
 }
