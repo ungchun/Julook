@@ -852,11 +852,6 @@ private struct CommentItem: View {
   var body: some View {
     VStack(alignment: .leading, spacing: 12) {
       HStack(spacing: 8) {
-        Text(makgeolliName)
-          .foregroundColor(.w)
-          .font(.SF14R)
-          .lineLimit(1)
-        
         Group {
           if let reactionType = reactionType {
             if reactionType == "like" {
