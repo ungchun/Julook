@@ -300,7 +300,7 @@ private extension TodaysRankingView {
     DesignSystemAsset.Images.defaultMakgeolli.swiftUIImage
       .resizable()
       .aspectRatio(contentMode: .fit)
-      .frame(width: 60, height: 80)
+      .frame(width: 30, height: 60)
   }
   
   func getScoreImage(for score: Int?) -> Image {
