@@ -690,6 +690,7 @@ private struct RecentCommentsView: View {
                     .font(.SF12R)
                 }
               }
+              .frame(maxWidth: .infinity, alignment: .leading)
               .contentShape(Rectangle())
               .onTapGesture {
                 Amp.track(event: "recent_comment_clicked", properties: [
