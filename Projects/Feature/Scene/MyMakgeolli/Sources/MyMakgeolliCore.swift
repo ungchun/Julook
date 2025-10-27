@@ -151,7 +151,7 @@ public struct MyMakgeolliCore: Sendable{
         return .send(.loadReactionData)
         
       case .loadReactionData:
-        return .run { send in
+        return .run { [myMakgeolliClient, makgeolliReactionClient, supabaseClient] send in
           do {
             let favoriteMakgeollis = try await myMakgeolliClient.getMyMakgeollis()
             let allReactions = try await makgeolliReactionClient.getAllReactions()
@@ -160,8 +160,6 @@ public struct MyMakgeolliCore: Sendable{
             let userId = getUserID()
             let userComments = try await supabaseClient.getUserComments(userId)
             
-            var likedMakgeollis: [MyMakgeolliEntity] = []
-            var dislikedMakgeollis: [MyMakgeolliEntity] = []
             var commentMakgeollis: [MyMakgeolliEntity] = []
             var allMakgeollisMap: [UUID: MyMakgeolliEntity] = [:]
             
@@ -169,19 +167,47 @@ public struct MyMakgeolliCore: Sendable{
               allMakgeollisMap[makgeolli.id] = makgeolli
             }
             
+            // 각 막걸리의 가장 최신 reaction만 사용
+            var latestReactions: [UUID: MakgeolliReactionEntity] = [:]
             for reaction in allReactions {
+              if let existingReaction = latestReactions[reaction.makgeolliId] {
+                if reaction.updatedAt > existingReaction.updatedAt {
+                  latestReactions[reaction.makgeolliId] = reaction
+                }
+              } else {
+                latestReactions[reaction.makgeolliId] = reaction
+              }
+            }
+            
+            var likedMakgeollisMap: [UUID: MyMakgeolliEntity] = [:]
+            var dislikedMakgeollisMap: [UUID: MyMakgeolliEntity] = [:]
+            
+            for (makgeolliId, reaction) in latestReactions {
               guard let reactionType = reaction.reactionType else { continue }
               
-              if let favoriteMakgeolli = allMakgeollisMap[reaction.makgeolliId] {
+              if let favoriteMakgeolli = allMakgeollisMap[makgeolliId] {
+                // reaction의 updatedAt을 사용하도록 entity 업데이트
+                let updatedEntity = MyMakgeolliEntity(
+                  id: favoriteMakgeolli.id,
+                  name: favoriteMakgeolli.name,
+                  imageName: favoriteMakgeolli.imageName,
+                  feedback: favoriteMakgeolli.feedback,
+                  isFavorite: favoriteMakgeolli.isFavorite,
+                  comment: favoriteMakgeolli.comment,
+                  createdAt: reaction.createdAt,
+                  updatedAt: reaction.updatedAt
+                )
+                allMakgeollisMap[makgeolliId] = updatedEntity
+                
                 if reactionType == "like" {
-                  likedMakgeollis.append(favoriteMakgeolli)
+                  likedMakgeollisMap[makgeolliId] = updatedEntity
                 } else if reactionType == "dislike" {
-                  dislikedMakgeollis.append(favoriteMakgeolli)
+                  dislikedMakgeollisMap[makgeolliId] = updatedEntity
                 }
               } else {
                 do {
                   if let makgeolliInfo = try await supabaseClient.fetchMakgeolliById(
-                    reaction.makgeolliId
+                    makgeolliId
                   ) {
                     let makgeolliEntity = MyMakgeolliEntity(
                       id: makgeolliInfo.id,
@@ -194,12 +220,12 @@ public struct MyMakgeolliCore: Sendable{
                       updatedAt: reaction.updatedAt
                     )
                     
-                    allMakgeollisMap[reaction.makgeolliId] = makgeolliEntity
+                    allMakgeollisMap[makgeolliId] = makgeolliEntity
                     
                     if reactionType == "like" {
-                      likedMakgeollis.append(makgeolliEntity)
+                      likedMakgeollisMap[makgeolliId] = makgeolliEntity
                     } else if reactionType == "dislike" {
-                      dislikedMakgeollis.append(makgeolliEntity)
+                      dislikedMakgeollisMap[makgeolliId] = makgeolliEntity
                     }
                   }
                 } catch {
@@ -207,6 +233,9 @@ public struct MyMakgeolliCore: Sendable{
                 }
               }
             }
+            
+            let likedMakgeollis = Array(likedMakgeollisMap.values)
+            let dislikedMakgeollis = Array(dislikedMakgeollisMap.values)
             
             // 코멘트가 있는 막걸리들 추가
             for comment in userComments {
@@ -252,6 +281,10 @@ public struct MyMakgeolliCore: Sendable{
             let sortedCommentMakgeollis = commentMakgeollis.sorted {
               $0.updatedAt > $1.updatedAt
             }
+            
+            print("🔍 [MyMakgeolli] 전체: \(sortedAllMakgeollis.map { "\($0.name) - \($0.updatedAt)" })")
+            print("🔍 [MyMakgeolli] 좋았어요: \(sortedLikedMakgeollis.map { "\($0.name) - \($0.updatedAt)" })")
+            print("🔍 [MyMakgeolli] 아쉬워요: \(sortedDislikedMakgeollis.map { "\($0.name) - \($0.updatedAt)" })")
             
             await send(.updateAllData(
               sortedAllMakgeollis,
