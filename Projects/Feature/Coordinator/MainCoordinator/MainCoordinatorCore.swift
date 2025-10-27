@@ -90,8 +90,12 @@ public struct MainCoordinatorCore {
           id: 0, action: .tabs(.myMakgeolliTab(.refreshMyMakgeollis)))))
         
       case .router(.routeAction(id: _, action: .information(.reactionStatusChanged))):
-        return .send(.router(.routeAction(
-          id: 0, action: .tabs(.myMakgeolliTab(.refreshMyMakgeollis)))))
+        return .merge(
+          .send(.router(.routeAction(
+            id: 0, action: .tabs(.myMakgeolliTab(.refreshMyMakgeollis))))),
+          .send(.router(.routeAction(
+            id: 0, action: .tabs(.homeTab(.refreshRecentCommentReactions)))))
+        )
         
       case let .router(.routeAction(
         id: _, action: .commentList(.moveToInformation(makgeolli, imageURL)))):

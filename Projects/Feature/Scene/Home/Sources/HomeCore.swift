@@ -85,6 +85,7 @@ public struct HomeCore {
     case recentCommentImageResponse(id: UUID, TaskResult<URL>)
     case loadRecentCommentReaction(UserComment)
     case updateRecentCommentReaction(commentId: UUID, String?)
+    case refreshRecentCommentReactions
     case recentCommentItemTapped(UserComment)
     
     // 네비게이션
@@ -420,7 +421,14 @@ public struct HomeCore {
       case let .updateRecentCommentReaction(commentId, reactionType):
         state.recentCommentReactions[commentId] = reactionType
         return .none
-        
+
+      case .refreshRecentCommentReactions:
+        return .merge(
+          state.recentComments.map { comment in
+            return .send(.loadRecentCommentReaction(comment))
+          }
+        )
+
       case let .recentCommentItemTapped(comment):
         guard let makgeolli = state.recentCommentMakgeollis[comment.makgeolliId] else {
           return .none
