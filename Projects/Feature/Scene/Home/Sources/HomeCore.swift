@@ -327,10 +327,6 @@ public struct HomeCore {
         
       case .fetchRecentComments:
         state.isLoadingRecentComments = true
-        state.recentComments = []
-        state.recentCommentImages = [:]
-        state.recentCommentMakgeollis = [:]
-        state.recentCommentReactions = [:]
         let supabaseClient = self.supabaseClient
         return .run { send in
           do {
@@ -371,8 +367,10 @@ public struct HomeCore {
       case let .recentCommentMakgeolliResponse(comment, .success(makgeolli)):
         guard let makgeolli = makgeolli else { return .none }
         state.recentCommentMakgeollis[comment.makgeolliId] = makgeolli
+
+        let shouldFetchImage = state.recentCommentImages[makgeolli.id] == nil
         return .merge(
-          .send(.fetchRecentCommentImage(makgeolli)),
+          shouldFetchImage ? .send(.fetchRecentCommentImage(makgeolli)) : .none,
           .send(.loadRecentCommentReaction(comment))
         )
         
@@ -399,10 +397,7 @@ public struct HomeCore {
         }
         
       case let .recentCommentImageResponse(id, .success(url)):
-        var urlComponents = URLComponents(url: url, resolvingAgainstBaseURL: false)
-        urlComponents?.queryItems = [URLQueryItem(name: "t", value: "\(Date().timeIntervalSince1970)")]
-        let finalURL = urlComponents?.url ?? url
-        state.recentCommentImages[id] = finalURL
+        state.recentCommentImages[id] = url
         return .none
         
       case let .recentCommentImageResponse(_, .failure(error)):

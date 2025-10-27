@@ -244,13 +244,17 @@ private struct TodaysRankingView: View {
             
             Spacer()
             
-            Image(systemName: (store.topLikedFavoriteStatus[makgeolli.id] ?? false) ? "heart.fill" : "heart")
-              .font(.SF24B)
-              .foregroundColor((store.topLikedFavoriteStatus[makgeolli.id] ?? false) ? .red : .w25)
-              .frame(width: 24, height: 24)
-              .onTapGesture {
-                store.send(.topLikedFavoriteButtonTapped(makgeolli))
-              }
+            Image(systemName: (
+              store.topLikedFavoriteStatus[makgeolli.id] ?? false
+            ) ? "heart.fill" : "heart")
+            .font(.SF24B)
+            .foregroundColor(
+              (store.topLikedFavoriteStatus[makgeolli.id] ?? false) ? .red : .w25
+            )
+            .frame(width: 24, height: 24)
+            .onTapGesture {
+              store.send(.topLikedFavoriteButtonTapped(makgeolli))
+            }
           }
           .contentShape(Rectangle())
           .onTapGesture {
@@ -630,79 +634,20 @@ private struct RecentCommentsView: View {
         VStack(alignment: .leading, spacing: 0) {
           ForEach(Array(store.recentComments.enumerated()), id: \.element.id) { idx, comment in
             if let makgeolli = store.recentCommentMakgeollis[comment.makgeolliId] {
-              HStack(alignment: .top, spacing: 16) {
-                Group {
-                  if let imageUrl = store.recentCommentImages[makgeolli.id] {
-                    AsyncImage(url: imageUrl) { phase in
-                      makeImageView(for: phase)
-                    }
-                    .id("\(makgeolli.id)_\(imageUrl.absoluteString)")
-                  } else {
-                    defaultMakgeolliImage()
-                  }
+              RecentCommentItemView(
+                comment: comment,
+                makgeolli: makgeolli,
+                imageUrl: store.recentCommentImages[makgeolli.id],
+                reactionType: store.recentCommentReactions[comment.id],
+                isLast: idx == store.recentComments.count - 1,
+                onTap: {
+                  Amp.track(event: "recent_comment_clicked", properties: [
+                    "makgeolli_name": makgeolli.name
+                  ])
+                  store.send(.recentCommentItemTapped(comment))
                 }
-                .padding(.vertical, 12)
-                .padding(.horizontal, 16)
-                .background(
-                  Rectangle()
-                    .fill(DesignSystemAsset.Colors.darkgray.swiftUIColor)
-                    .cornerRadius(12)
-                )
-                
-                VStack(alignment: .leading, spacing: 4) {
-                  HStack(spacing: 8) {
-                    Text(makgeolli.name)
-                      .foregroundColor(.w)
-                      .font(.SF14R)
-                      .lineLimit(1)
-                    
-                    Group {
-                      let reactionType = store.recentCommentReactions[comment.id]
-                      if let reactionType = reactionType {
-                        if reactionType == "like" {
-                          DesignSystemAsset.Images.circleLike.swiftUIImage
-                            .resizable()
-                        } else if reactionType == "dislike" {
-                          DesignSystemAsset.Images.circleDislike.swiftUIImage
-                            .resizable()
-                        } else {
-                          DesignSystemAsset.Images.circleNone.swiftUIImage
-                            .resizable()
-                        }
-                      } else {
-                        DesignSystemAsset.Images.circleNone.swiftUIImage
-                          .resizable()
-                      }
-                    }
-                    .frame(width: 12, height: 12)
-                  }
-                  
-                  Text(comment.comment)
-                    .foregroundColor(.w85)
-                    .font(.SF14R)
-                    .lineLimit(2)
-                    .multilineTextAlignment(.leading)
-                  
-                  Spacer()
-                  
-                  Text(formatDate(comment.createdAt))
-                    .foregroundColor(.w50)
-                    .font(.SF12R)
-                }
-              }
-              .frame(maxWidth: .infinity, alignment: .leading)
-              .contentShape(Rectangle())
-              .onTapGesture {
-                Amp.track(event: "recent_comment_clicked", properties: [
-                  "makgeolli_name": makgeolli.name
-                ])
-                store.send(.recentCommentItemTapped(comment))
-              }
-              
-              if idx != store.recentComments.count - 1 {
-                Divider()
-                  .padding(.vertical, 12)
-              }
+              )
+              .equatable()
             }
           }
         }
@@ -747,5 +692,143 @@ private extension RecentCommentsView {
     let formatter = DateFormatter()
     formatter.dateFormat = "yyyy년 M월 d일"
     return formatter.string(from: date)
+  }
+}
+
+private struct RecentCommentItemView: View, Equatable {
+  let comment: UserComment
+  let makgeolli: Makgeolli
+  let imageUrl: URL?
+  let reactionType: String?
+  let isLast: Bool
+  let onTap: () -> Void
+  
+  nonisolated static func == (lhs: RecentCommentItemView, rhs: RecentCommentItemView) -> Bool {
+    lhs.comment.id == rhs.comment.id &&
+    lhs.makgeolli.id == rhs.makgeolli.id &&
+    lhs.imageUrl?.absoluteString == rhs.imageUrl?.absoluteString &&
+    lhs.reactionType == rhs.reactionType &&
+    lhs.isLast == rhs.isLast
+  }
+  
+  var body: some View {
+    VStack(spacing: 0) {
+      HStack(alignment: .top, spacing: 16) {
+        RecentCommentImageView(imageUrl: imageUrl)
+          .padding(.vertical, 12)
+          .padding(.horizontal, 16)
+          .background(
+            Rectangle()
+              .fill(DesignSystemAsset.Colors.darkgray.swiftUIColor)
+              .cornerRadius(12)
+          )
+        
+        VStack(alignment: .leading, spacing: 4) {
+          HStack(spacing: 8) {
+            Text(makgeolli.name)
+              .foregroundColor(.w)
+              .font(.SF14R)
+              .lineLimit(1)
+            
+            Group {
+              if let reactionType = reactionType {
+                if reactionType == "like" {
+                  DesignSystemAsset.Images.circleLike.swiftUIImage
+                    .resizable()
+                } else if reactionType == "dislike" {
+                  DesignSystemAsset.Images.circleDislike.swiftUIImage
+                    .resizable()
+                } else {
+                  DesignSystemAsset.Images.circleNone.swiftUIImage
+                    .resizable()
+                }
+              } else {
+                DesignSystemAsset.Images.circleNone.swiftUIImage
+                  .resizable()
+              }
+            }
+            .frame(width: 12, height: 12)
+          }
+          
+          Text(comment.comment)
+            .foregroundColor(.w85)
+            .font(.SF14R)
+            .lineLimit(2)
+            .multilineTextAlignment(.leading)
+          
+          Spacer()
+          
+          Text(formatDate(comment.createdAt))
+            .foregroundColor(.w50)
+            .font(.SF12R)
+        }
+      }
+      .frame(maxWidth: .infinity, alignment: .leading)
+      .contentShape(Rectangle())
+      .onTapGesture {
+        onTap()
+      }
+      
+      if !isLast {
+        Divider()
+          .padding(.vertical, 12)
+      }
+    }
+  }
+  
+  private func formatDate(_ date: Date) -> String {
+    let formatter = DateFormatter()
+    formatter.dateFormat = "yyyy년 M월 d일"
+    return formatter.string(from: date)
+  }
+}
+
+private struct RecentCommentImageView: View {
+  let imageUrl: URL?
+  
+  @State private var loadedImage: UIImage?
+  @State private var isLoading = false
+  @State private var hasFailed = false
+  
+  var body: some View {
+    Group {
+      if let loadedImage = loadedImage {
+        Image(uiImage: loadedImage)
+          .resizable()
+          .aspectRatio(contentMode: .fit)
+          .frame(width: 30, height: 60)
+      } else if hasFailed {
+        defaultMakgeolliImage()
+      } else {
+        ProgressView()
+          .frame(width: 30, height: 60)
+      }
+    }
+    .task(id: imageUrl?.absoluteString) {
+      guard let imageUrl = imageUrl, loadedImage == nil, !isLoading else { return }
+      
+      isLoading = true
+      hasFailed = false
+      
+      do {
+        let (data, _) = try await URLSession.shared.data(from: imageUrl)
+        if let image = UIImage(data: data) {
+          loadedImage = image
+        } else {
+          hasFailed = true
+        }
+      } catch {
+        hasFailed = true
+      }
+      
+      isLoading = false
+    }
+  }
+  
+  private func defaultMakgeolliImage() -> some View {
+    DesignSystemAsset.Images.defaultMakgeolli.swiftUIImage
+      .resizable()
+      .aspectRatio(contentMode: .fit)
+      .frame(width: 30, height: 60)
   }
 }
