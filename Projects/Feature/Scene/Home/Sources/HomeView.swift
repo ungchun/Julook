@@ -30,13 +30,13 @@ public struct HomeView: View {
           
           MakgeolliFilterView(store: store)
           
-          TodaysRankingView(store: store)
+          RecentCommentsView(store: store)
           
           NewReleasesView(store: store)
           
           MakgeolliTopicView(store: store)
           
-          RecentCommentsView(store: store)
+          TodaysRankingView(store: store)
         }
       }
     }
