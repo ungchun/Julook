@@ -21,7 +21,14 @@ public struct TabsView: View {
   public init(store: StoreOf<TabCore>) {
     self.store = store
     
-    UITabBar.appearance().backgroundColor = DesignSystemAsset.Colors.darkbase.color
+    if #available(iOS 26.0, *) {
+      let appearance = UITabBarAppearance()
+      appearance.configureWithTransparentBackground()
+      UITabBar.appearance().standardAppearance = appearance
+      UITabBar.appearance().scrollEdgeAppearance = appearance
+    } else {
+      UITabBar.appearance().backgroundColor = DesignSystemAsset.Colors.darkbase.color
+    }
   }
   
   public var body: some View {
