@@ -282,10 +282,6 @@ public struct MyMakgeolliCore: Sendable{
               $0.updatedAt > $1.updatedAt
             }
             
-            print("🔍 [MyMakgeolli] 전체: \(sortedAllMakgeollis.map { "\($0.name) - \($0.updatedAt)" })")
-            print("🔍 [MyMakgeolli] 좋았어요: \(sortedLikedMakgeollis.map { "\($0.name) - \($0.updatedAt)" })")
-            print("🔍 [MyMakgeolli] 아쉬워요: \(sortedDislikedMakgeollis.map { "\($0.name) - \($0.updatedAt)" })")
-            
             await send(.updateAllData(
               sortedAllMakgeollis,
               sortedLikedMakgeollis,
