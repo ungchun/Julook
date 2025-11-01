@@ -25,7 +25,12 @@ public struct HomeCore {
     public var isLoadingNewReleases: Bool = false
     public var newReleases: [Makgeolli] = []
     public var newReleasesImages: [UUID: URL] = [:]
-    
+
+    // 랜덤 막걸리
+    public var isLoadingRandomMakgeollis: Bool = false
+    public var randomMakgeollis: [Makgeolli] = []
+    public var randomMakgeolliImages: [UUID: URL] = [:]
+
     // 수상
     public var isLoadingAwards: Bool = false
     public var awards: [Award] = []
@@ -54,15 +59,22 @@ public struct HomeCore {
     case filterButtonTapped
     case filterItemTapped(FilterType)
     case newReleaseItemTapped(Makgeolli)
+    case randomMakgeolliItemTapped(Makgeolli)
     case topicItemTapped(Award)
     case topLikedItemTapped(Makgeolli)
     case topLikedFavoriteButtonTapped(Makgeolli)
-    
+
     // 신상 막걸리
     case fetchNewReleases
     case newReleasesResponse(TaskResult<[Makgeolli]>)
     case fetchNewReleasesImage(Makgeolli)
     case newReleasesImageResponse(id: UUID, TaskResult<URL>)
+
+    // 랜덤 막걸리
+    case fetchRandomMakgeollis
+    case randomMakgeollisResponse(TaskResult<[Makgeolli]>)
+    case fetchRandomMakgeolliImage(Makgeolli)
+    case randomMakgeolliImageResponse(id: UUID, TaskResult<URL>)
     
     // 수상
     case fetchAwards
@@ -115,13 +127,15 @@ public struct HomeCore {
           return .none
         }
         state.isInitialized = true
-        
+
         if !state.isLoadingNewReleases
+            && !state.isLoadingRandomMakgeollis
             && !state.isLoadingAwards
             && !state.isLoadingTopLiked
             && !state.isLoadingRecentComments {
           return .merge(
             .send(.fetchNewReleases),
+            .send(.fetchRandomMakgeollis),
             .send(.fetchAwards),
             .send(.fetchTopLikedMakgeollis),
             .send(.fetchRecentComments),
@@ -146,7 +160,11 @@ public struct HomeCore {
       case let .newReleaseItemTapped(makgeolli):
         let imageURL = state.newReleasesImages[makgeolli.id]
         return .send(.moveToInformation(makgeolli, imageURL))
-        
+
+      case let .randomMakgeolliItemTapped(makgeolli):
+        let imageURL = state.randomMakgeolliImages[makgeolli.id]
+        return .send(.moveToInformation(makgeolli, imageURL))
+
       case let .topicItemTapped(award):
         return .send(.moveToFilterWithTopic(award.name))
         
@@ -228,7 +246,61 @@ public struct HomeCore {
           code: .failToFetchImage,
           underlying: error
         )))
-        
+
+      case .fetchRandomMakgeollis:
+        state.isLoadingRandomMakgeollis = true
+        let supabaseClient = self.supabaseClient
+        return .run { send in
+          do {
+            let makgeollis = try await supabaseClient.fetchRandomMakgeollis()
+            await send(.randomMakgeollisResponse(.success(makgeollis)))
+          } catch {
+            await send(.randomMakgeollisResponse(.failure(error)))
+          }
+        }
+
+      case let .randomMakgeollisResponse(.success(makgeollis)):
+        state.isLoadingRandomMakgeollis = false
+        state.randomMakgeollis = makgeollis
+        return .merge(
+          makgeollis.compactMap { makgeolli in
+            return .send(.fetchRandomMakgeolliImage(makgeolli))
+          }
+        )
+
+      case let .randomMakgeollisResponse(.failure(error)):
+        state.isLoadingRandomMakgeollis = false
+        return .send(.logError(HomeCoreError(
+          code: .failToFetchRandomMakgeollis,
+          underlying: error
+        )))
+
+      case let .fetchRandomMakgeolliImage(makgeolli):
+        guard let imageName = makgeolli.imageName else {
+          return .none
+        }
+
+        let supabaseClient = self.supabaseClient
+        return .run { send in
+          do {
+            let fileName = imageName.hasSuffix(".png") ? imageName : "\(imageName).png"
+            let publicURL = try await supabaseClient.getPublicURL(Bucket.MAKGEOLLIIMAGE, fileName)
+            await send(.randomMakgeolliImageResponse(id: makgeolli.id, .success(publicURL)))
+          } catch {
+            await send(.randomMakgeolliImageResponse(id: makgeolli.id, .failure(error)))
+          }
+        }
+
+      case let .randomMakgeolliImageResponse(id, .success(url)):
+        state.randomMakgeolliImages[id] = url
+        return .none
+
+      case let .randomMakgeolliImageResponse(_, .failure(error)):
+        return .send(.logError(HomeCoreError(
+          code: .failToFetchImage,
+          underlying: error
+        )))
+
       case .fetchAwards:
         state.isLoadingAwards = true
         let supabaseClient = self.supabaseClient
@@ -529,6 +601,8 @@ private extension HomeCore {
       return "서비스 연결에 실패했습니다."
     case .failToFetchNewReleases:
       return "새로운 막걸리 정보를 불러오지 못했습니다."
+    case .failToFetchRandomMakgeollis:
+      return "추천 막걸리 정보를 불러오지 못했습니다."
     case .failToGetImageUrl:
       return "이미지를 불러오지 못했습니다."
     case .failToFetchImage:
@@ -553,6 +627,7 @@ public struct HomeCoreError: JulookError, @unchecked Sendable {
   public enum Code: Int, Sendable {
     case failToSupabaseClientInitialized
     case failToFetchNewReleases
+    case failToFetchRandomMakgeollis
     case failToGetImageUrl
     case failToFetchImage
     case failToFetchAwards

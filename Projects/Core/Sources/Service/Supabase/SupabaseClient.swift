@@ -20,6 +20,7 @@ public struct SupabaseClient: Sendable {
   public var initialize: @Sendable () async -> Void
   
   public var fetchNewReleases: @Sendable () async throws -> [Makgeolli]
+  public var fetchRandomMakgeollis: @Sendable () async throws -> [Makgeolli]
   public var fetchAwards: @Sendable () async throws -> [Award]
   public var fetchMakgeollis: @Sendable (Int, Int) async throws -> [Makgeolli]
   public var fetchFilteredMakgeollis: @Sendable (Int, Int, Set<FilterType>) async throws -> [Makgeolli]
@@ -83,7 +84,7 @@ extension SupabaseClient: DependencyKey {
             underlying: nil
           )
         }
-        
+
         let result: [Makgeolli] = try await client
           .from("makgeolli")
           .select()
@@ -93,7 +94,24 @@ extension SupabaseClient: DependencyKey {
           .value
         return result
       },
-      
+
+      fetchRandomMakgeollis: {
+        guard let client = clientRef.value else {
+          throw SupabaseClientError(
+            code: .clientNotInitialized,
+            underlying: nil
+          )
+        }
+
+        let allMakgeollis: [Makgeolli] = try await client
+          .from("makgeolli")
+          .select()
+          .execute()
+          .value
+
+        return Array(allMakgeollis.shuffled().prefix(5))
+      },
+
       fetchAwards: {
         guard let client = clientRef.value else {
           throw SupabaseClientError(
