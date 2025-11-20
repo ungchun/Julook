@@ -21,40 +21,98 @@ public struct InformationView: View {
   }
   
   public var body: some View {
-    ZStack {
-      DesignSystemAsset.Colors.darkbase.swiftUIColor
-        .ignoresSafeArea()
-      
-      ScrollView {
-        VStack(spacing: 0) {
-          NavigationBar()
+    if #available(iOS 26.0, *) {
+      NavigationView {
+        ZStack {
+          DesignSystemAsset.Colors.darkbase.swiftUIColor
+            .ignoresSafeArea()
           
-          MakgeolliDetailSectionView()
-          
-          ReactionButtonsView()
-          
-          MyCommentSection()
-          
-          AwardsView()
-          
-          MakgeolliEvaluationAndCommentsSection()
-          
-          MakgeolliIngredientsSection()
-          
-          BreweryWebsiteSection()
+          ScrollView {
+            VStack(spacing: 0) {
+              MakgeolliDetailSectionView()
+              
+              ReactionButtonsView()
+              
+              MyCommentSection()
+              
+              AwardsView()
+              
+              MakgeolliEvaluationAndCommentsSection()
+              
+              MakgeolliIngredientsSection()
+              
+              BreweryWebsiteSection()
+            }
+            .padding(.horizontal, 16)
+          }
         }
-        .padding(.horizontal, 16)
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+          ToolbarItem(placement: .navigationBarLeading) {
+            Image(systemName: store.state.isFavorite ? "heart.fill" : "heart")
+              .font(.SF17B)
+              .foregroundColor(store.state.isFavorite ? .red : .w25)
+              .onTapGesture {
+                store.send(.favoriteButtonTapped)
+              }
+          }
+          
+          ToolbarItem(placement: .navigationBarTrailing) {
+            Image(systemName: "xmark")
+              .foregroundColor(.w)
+              .font(.system(size: 16, weight: .bold))
+              .onTapGesture {
+                store.send(.dismiss)
+              }
+          }
+        }
+        .accentColor(DesignSystemAsset.Colors.primary.swiftUIColor)
       }
-    }
-    .accentColor(DesignSystemAsset.Colors.primary.swiftUIColor)
-    .sheet(isPresented: .init(
-      get: { store.state.isShowingCommentsSheet },
-      set: { store.send(.showCommentsSheet($0)) }
-    )) {
-      AllCommentsSheetView(store: store)
-    }
-    .onAppear {
-      store.send(.onAppear)
+      .sheet(isPresented: .init(
+        get: { store.state.isShowingCommentsSheet },
+        set: { store.send(.showCommentsSheet($0)) }
+      )) {
+        AllCommentsSheetView(store: store)
+      }
+      .onAppear {
+        store.send(.onAppear)
+      }
+    } else {
+      ZStack {
+        DesignSystemAsset.Colors.darkbase.swiftUIColor
+          .ignoresSafeArea()
+        
+        ScrollView {
+          VStack(spacing: 0) {
+            NavigationBar()
+            
+            MakgeolliDetailSectionView()
+            
+            ReactionButtonsView()
+            
+            MyCommentSection()
+            
+            AwardsView()
+            
+            MakgeolliEvaluationAndCommentsSection()
+            
+            MakgeolliIngredientsSection()
+            
+            BreweryWebsiteSection()
+          }
+          .padding(.horizontal, 16)
+        }
+      }
+      .accentColor(DesignSystemAsset.Colors.primary.swiftUIColor)
+      .sheet(isPresented: .init(
+        get: { store.state.isShowingCommentsSheet },
+        set: { store.send(.showCommentsSheet($0)) }
+      )) {
+        AllCommentsSheetView(store: store)
+      }
+      .onAppear {
+        store.send(.onAppear)
+      }
     }
   }
 }
@@ -129,14 +187,14 @@ private extension InformationView {
       
       if let brewery = store.makgeolli.brewery {
         Text("\(brewery) ･ \(formatValue(store.state.makgeolli.alcoholPercentage))도")
-        .foregroundColor(.w50)
-        .font(.SF15R)
-        .lineLimit(1)
+          .foregroundColor(.w50)
+          .font(.SF15R)
+          .lineLimit(1)
       } else {
         Text("\(formatValue(store.state.makgeolli.alcoholPercentage))도")
-        .foregroundColor(.w50)
-        .font(.SF15R)
-        .lineLimit(1)
+          .foregroundColor(.w50)
+          .font(.SF15R)
+          .lineLimit(1)
       }
     }
     .padding(.bottom, 16)
@@ -807,7 +865,8 @@ private struct AllCommentsSheetView: View {
         } else {
           ScrollView {
             LazyVStack(spacing: 0) {
-              ForEach(Array(store.state.publicComments.enumerated()), id: \.element.id) { idx, comment in
+              ForEach(Array(store.state.publicComments.enumerated()), id: \.element.id) {
+                idx, comment in
                 CommentItem(
                   comment: comment,
                   makgeolliName: store.state.makgeolli.name,
@@ -827,15 +886,6 @@ private struct AllCommentsSheetView: View {
       }
       .navigationTitle("코멘트")
       .navigationBarTitleDisplayMode(.inline)
-      .toolbar {
-        ToolbarItem(placement: .navigationBarTrailing) {
-          Button("닫기") {
-            store.send(.showCommentsSheet(false))
-          }
-          .foregroundColor(DesignSystemAsset.Colors.primary.swiftUIColor)
-          .font(.SF16R)
-        }
-      }
     }
   }
   

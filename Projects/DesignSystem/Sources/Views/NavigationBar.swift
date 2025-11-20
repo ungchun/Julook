@@ -15,10 +15,16 @@ struct BackButton: View {
     Button {
       dismiss()
     } label: {
-      DesignSystemAsset.Images.back.swiftUIImage
-        .resizable()
-        .aspectRatio(contentMode: .fit)
-        .frame(height: 24)
+      if #available(iOS 26.0, *) {
+        Image(systemName: "chevron.left")
+          .foregroundColor(.w)
+          .font(.system(size: 16, weight: .bold))
+      } else {
+        DesignSystemAsset.Images.back.swiftUIImage
+          .resizable()
+          .aspectRatio(contentMode: .fit)
+          .frame(height: 24)
+      }
     }
   }
 }
