@@ -995,14 +995,12 @@ private struct SettingsSheetView: View {
   
   var body: some View {
     VStack(spacing: 0) {
-      // Sheet Indicator
       Capsule()
         .fill(Color.w10)
         .frame(width: 36, height: 5)
         .padding(.top, 8)
         .padding(.bottom, 20)
       
-      // 문의하기
       SettingRowView(title: "문의하기", showArrow: true) {
         Amp.track(event: "settings_inquiry_clicked")
         if let url = URL(string: "mailto:leedool3003@gmail.com") {
@@ -1014,7 +1012,6 @@ private struct SettingsSheetView: View {
         .background(Color.w25)
         .padding(.horizontal, 16)
       
-      // 리뷰 남기기
       SettingRowView(title: "리뷰 남기기", showArrow: true) {
         Amp.track(event: "settings_review_clicked")
         let reviewURL = "https://apps.apple.com/app/id6743315707?action=write-review"
@@ -1027,7 +1024,6 @@ private struct SettingsSheetView: View {
         .background(Color.w25)
         .padding(.horizontal, 16)
       
-      // 이용약관
       SettingRowView(title: "이용약관", showArrow: true) {
         Amp.track(event: "settings_terms_clicked")
         if let url = URL(
@@ -1041,7 +1037,6 @@ private struct SettingsSheetView: View {
         .background(Color.w25)
         .padding(.horizontal, 16)
       
-      // 개인정보처리방침
       SettingRowView(title: "개인정보처리방침", showArrow: true) {
         Amp.track(event: "settings_privacy_clicked")
         if let url = URL(
@@ -1055,7 +1050,6 @@ private struct SettingsSheetView: View {
         .background(Color.w25)
         .padding(.horizontal, 16)
       
-      // 버전 정보
       HStack {
         Text("버전 정보")
           .foregroundColor(.w)
