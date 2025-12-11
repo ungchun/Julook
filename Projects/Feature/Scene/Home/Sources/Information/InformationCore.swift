@@ -8,6 +8,7 @@
 
 import Foundation
 import Security
+import StoreKit
 
 import Core
 import DesignSystem
@@ -76,6 +77,8 @@ public struct InformationCore: Sendable {
     case loadUserReactions([UUID])
     case updateUserReactions([UUID: String])
     
+    case requestAppReviewIfNeeded
+    
     case logError(InformationCoreError)
     case showToast(String, ToastType)
   }
@@ -85,6 +88,7 @@ public struct InformationCore: Sendable {
   @Dependency(\.myMakgeolliClient) var myMakgeolliClient
   @Dependency(\.makgeolliReactionClient) var makgeolliReactionClient
   @Dependency(\.supabaseClient) var supabaseClient
+  @Dependency(\.userDefaultsClient) var userDefaultsClient
   
   public var body: some Reducer<State, Action> {
     Reduce { state, action in
@@ -162,7 +166,7 @@ public struct InformationCore: Sendable {
         return .none
         
       case .favoriteStatusChanged:
-        return .none
+        return .send(.requestAppReviewIfNeeded)
         
       case .loadReaction:
         return .run { [makgeolliId = state.makgeolli.id] send in
@@ -230,7 +234,10 @@ public struct InformationCore: Sendable {
         return .none
         
       case .reactionSaved:
-        return .send(.reactionStatusChanged)
+        return .merge(
+          .send(.reactionStatusChanged),
+          .send(.requestAppReviewIfNeeded)
+        )
         
       case .reactionStatusChanged:
         return .none
@@ -328,6 +335,7 @@ public struct InformationCore: Sendable {
           .send(.loadPublicComments),
           .send(.showCommentSheet(false)),
           .send(.showEditActionSheet(false)),
+          .send(.requestAppReviewIfNeeded),
           .run { _ in
             await MainActor.run {
               NotificationCenter.default.post(
@@ -439,6 +447,25 @@ public struct InformationCore: Sendable {
             )
           }
         )
+        
+      case .requestAppReviewIfNeeded:
+        let hasRequested = (try? userDefaultsClient.bool(.hasRequestedAppReview)) ?? false
+        
+        guard !hasRequested else {
+          return .none
+        }
+        
+        return .run { [userDefaultsClient] _ in
+          await MainActor.run {
+            userDefaultsClient.set(.hasRequestedAppReview, true)
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+              if let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene {
+                SKStoreReviewController.requestReview(in: scene)
+              }
+            }
+          }
+        }
         
       case .showToast(_, _):
         return .none
