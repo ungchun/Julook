@@ -27,8 +27,8 @@ public struct Makgeolli: Codable, Identifiable, Equatable, Sendable {
   public let thickness: Int?
   /// 탄산 정도
   public let carbonation: Int?
-  /// 아스파탐 유무
-  public let hasAspartame: Bool?
+  /// 감미료 유무
+  public let hasSweetener: Bool?
   /// 원재료 목록
   public let ingredients: [String]?
   /// 알콜 도수
@@ -49,7 +49,7 @@ public struct Makgeolli: Codable, Identifiable, Equatable, Sendable {
     case sweetness
     case sourness
     case thickness
-    case hasAspartame = "has_aspartame"
+    case hasSweetener = "has_sweetener"
     case carbonation
     case ingredients
     case alcoholPercentage = "alcohol_percentage"
