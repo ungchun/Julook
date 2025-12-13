@@ -169,8 +169,8 @@ extension SupabaseClient: DependencyKey {
             query = query.gte("thickness", value: 3)
           case .carbonated:
             query = query.gte("carbonation", value: 3)
-          case .noAspartame:
-            query = query.eq("has_aspartame", value: false)
+          case .noSweetener:
+            query = query.eq("has_sweetener", value: false)
           }
         }
         
