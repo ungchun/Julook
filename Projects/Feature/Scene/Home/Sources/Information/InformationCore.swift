@@ -166,7 +166,7 @@ public struct InformationCore: Sendable {
         return .none
         
       case .favoriteStatusChanged:
-        return .send(.requestAppReviewIfNeeded)
+        return .none
         
       case .loadReaction:
         return .run { [makgeolliId = state.makgeolli.id] send in
@@ -450,18 +450,24 @@ public struct InformationCore: Sendable {
         
       case .requestAppReviewIfNeeded:
         let hasRequested = (try? userDefaultsClient.bool(.hasRequestedAppReview)) ?? false
-        
+
         guard !hasRequested else {
           return .none
         }
-        
+
         return .run { [userDefaultsClient] _ in
           await MainActor.run {
-            userDefaultsClient.set(.hasRequestedAppReview, true)
-            
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-              if let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene {
-                SKStoreReviewController.requestReview(in: scene)
+            let currentCount = (try? userDefaultsClient.integer(.interactionCount)) ?? 0
+            let newCount = currentCount + 1
+            userDefaultsClient.set(.interactionCount, newCount)
+
+            if newCount >= 10 {
+              userDefaultsClient.set(.hasRequestedAppReview, true)
+
+              DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                if let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene {
+                  SKStoreReviewController.requestReview(in: scene)
+                }
               }
             }
           }

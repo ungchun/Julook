@@ -91,6 +91,7 @@ extension UserDefaultsClient {
   public enum Key: String {
     case recentSearches
     case hasRequestedAppReview
+    case interactionCount
   }
 }
 
