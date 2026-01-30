@@ -10,6 +10,7 @@ import Foundation
 
 import ComposableArchitecture
 import Supabase
+import Functions
 
 public enum Bucket {
   public static let MAKGEOLLIIMAGE = "makgeolli_image"
@@ -42,6 +43,7 @@ public struct SupabaseClient: Sendable {
   public var getUserComments: @Sendable (UUID) async throws -> [UserComment]
   public var getRecentComments: @Sendable () async throws -> [UserComment]
   public var getRecentCommentsPaginated: @Sendable (Int, Int) async throws -> [UserComment]
+  public var analyzeLabelImage: @Sendable (Data) async throws -> LabelAnalysisResult
 }
 
 extension SupabaseClient: DependencyKey {
@@ -248,16 +250,14 @@ extension SupabaseClient: DependencyKey {
             underlying: nil
           )
         }
-        
+
         do {
-          let lowercasedQuery = query.lowercased()
+          // 공백을 무시하고 검색하는 RPC 함수 사용
           let result: [Makgeolli] = try await client
-            .from("makgeolli")
-            .select()
-            .or("name.ilike.%\(lowercasedQuery)%,brewery.ilike.%\(lowercasedQuery)%")
+            .rpc("search_makgeolli_flexible", params: ["search_query": query])
             .execute()
             .value
-          
+
           return result
         } catch {
           throw SupabaseClientError(
@@ -266,7 +266,7 @@ extension SupabaseClient: DependencyKey {
           )
         }
       },
-      
+
       requestRegisterMakgeolli: { searchText in
         guard let client = clientRef.value else {
           throw SupabaseClientError(
@@ -700,7 +700,7 @@ extension SupabaseClient: DependencyKey {
             underlying: nil
           )
         }
-        
+
         do {
           let result: [UserComment] = try await client
             .from("user_comments")
@@ -710,11 +710,48 @@ extension SupabaseClient: DependencyKey {
             .range(from: offset, to: offset + limit - 1)
             .execute()
             .value
-          
+
           return result
         } catch {
           throw SupabaseClientError(
             code: .failToFetch,
+            underlying: error
+          )
+        }
+      },
+
+      // 라벨 이미지 분석 (Gemini API)
+      analyzeLabelImage: { imageData in
+        guard let client = clientRef.value else {
+          throw SupabaseClientError(
+            code: .clientNotInitialized,
+            underlying: nil
+          )
+        }
+
+        let base64String = imageData.base64EncodedString()
+
+        do {
+          let result: LabelAnalysisResult = try await client.functions.invoke(
+            "analyze-label",
+            options: FunctionInvokeOptions(
+              body: ["image": base64String]
+            )
+          )
+          return result
+        } catch let error as FunctionsError {
+          // 에러 상세 정보 로깅
+          if case let .httpError(code, data) = error {
+            let errorMessage = String(data: data, encoding: .utf8) ?? "Unknown error"
+            Log.debug("[SupabaseClient] Edge Function 에러 - 코드: \(code), 메시지: \(errorMessage)")
+          }
+          throw SupabaseClientError(
+            code: .failToAnalyzeLabel,
+            underlying: error
+          )
+        } catch {
+          throw SupabaseClientError(
+            code: .failToAnalyzeLabel,
             underlying: error
           )
         }
@@ -754,6 +791,26 @@ public struct SupabaseClientError: JulookError, @unchecked Sendable {
     case failToDeleteReaction
     case failToSaveUserComment
     case failToDeleteUserComment
+    case failToAnalyzeLabel
     case unknownError
+  }
+}
+
+// MARK: - LabelAnalysisResult
+
+public struct LabelAnalysisDebug: Codable, Equatable, Sendable {
+  public let rawResponse: String?
+  public let parsedJson: String?
+}
+
+public struct LabelAnalysisResult: Codable, Equatable, Sendable {
+  public let name: String?
+  public let brewery: String?
+  public let debug: LabelAnalysisDebug?
+
+  public init(name: String?, brewery: String?, debug: LabelAnalysisDebug? = nil) {
+    self.name = name
+    self.brewery = brewery
+    self.debug = debug
   }
 }
