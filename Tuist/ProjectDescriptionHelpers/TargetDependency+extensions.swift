@@ -33,6 +33,7 @@ public enum TargetName: String {
   case search = "FeatureSearch"
   case myMakgeolli = "FeatureMyMakgeolli"
   case splash = "FeatureSplash"
+  case labelScan = "FeatureLabelScan"
   case mainCoordinator = "MainCoordinator"
 }
 
