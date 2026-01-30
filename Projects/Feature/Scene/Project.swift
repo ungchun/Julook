@@ -13,6 +13,7 @@ let project = Project.make(
         .project(target: .home, projectPath: .scene),
         .project(target: .search, projectPath: .scene),
         .project(target: .myMakgeolli, projectPath: .scene),
+        .project(target: .labelScan, projectPath: .scene),
         .project(target: .core, projectPath: .core),
         .project(target: .designSystem, projectPath: .designSystem),
         .external(externalDependency: .composableArchitecture),
@@ -72,6 +73,21 @@ let project = Project.make(
       product: .framework,
       bundleId: "com.azhy.julook.splash",
       sources: ["Splash/Sources/**"],
+      dependencies: [
+        .project(target: .core, projectPath: .core),
+        .project(target: .designSystem, projectPath: .designSystem),
+        .external(externalDependency: .composableArchitecture),
+        .external(externalDependency: .amplitude)
+      ],
+      settings: .settings(
+        base: ["SWIFT_VERSION": "6.0"]
+      )
+    ),
+    .make(
+      name: "FeatureLabelScan",
+      product: .framework,
+      bundleId: "com.azhy.julook.labelScan",
+      sources: ["LabelScan/Sources/**"],
       dependencies: [
         .project(target: .core, projectPath: .core),
         .project(target: .designSystem, projectPath: .designSystem),
