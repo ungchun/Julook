@@ -106,11 +106,17 @@ public struct MainCoordinatorCore {
       case .router(.routeAction(id: _, action: .commentList(.dismiss))):
         state.routes.goBack()
         return .none
-        
+
+      // MARK: - LabelScan 라우팅
+
+      case let .router(.routeAction(id: _, action: .tabs(.labelScanTab(.moveToInformation(makgeolli, imageURL))))):
+        state.routes.presentCover(.information(.init(makgeolli: makgeolli, makgeolliImage: imageURL)))
+        return .none
+
       default:
         break
       }
-      
+
       return .none
     }
     .forEachRoute(\.routes, action: \.router)

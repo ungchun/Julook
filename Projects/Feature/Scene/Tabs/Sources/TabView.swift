@@ -10,6 +10,7 @@ import SwiftUI
 
 import FeatureHome
 import FeatureSearch
+import FeatureLabelScan
 import FeatureMyMakgeolli
 import DesignSystem
 
@@ -55,7 +56,17 @@ public struct TabsView: View {
           .font(.style(.SF10B))
       }
       .tag(Tab.search)
-      
+
+      LabelScanView(store: store.scope(
+        state: \.labelScanTab,
+        action: \.labelScanTab))
+      .tabItem {
+        Image(systemName: "camera.fill")
+        Text("라벨스캔")
+          .font(.style(.SF10B))
+      }
+      .tag(Tab.labelScan)
+
       MyMakgeolliView(store: store.scope(
         state: \.myMakgeolliTab,
         action: \.myMakgeolliTab))
