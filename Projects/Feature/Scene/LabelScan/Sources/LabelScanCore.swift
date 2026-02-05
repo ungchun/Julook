@@ -207,6 +207,35 @@ public struct LabelScanCore {
             // 에러 메시지용 이름 결정
             let displayName = primaryName ?? fullName ?? "알 수 없는"
             
+            // 레벤슈타인 거리 계산 함수 (오타 허용)
+            func levenshteinDistance(_ s1: String, _ s2: String) -> Int {
+              let s1Array = Array(s1)
+              let s2Array = Array(s2)
+              let s1Count = s1Array.count
+              let s2Count = s2Array.count
+              
+              if s1Count == 0 { return s2Count }
+              if s2Count == 0 { return s1Count }
+              
+              var matrix = [[Int]](repeating: [Int](repeating: 0, count: s2Count + 1),
+                                   count: s1Count + 1)
+              
+              for i in 0...s1Count { matrix[i][0] = i }
+              for j in 0...s2Count { matrix[0][j] = j }
+              
+              for i in 1...s1Count {
+                for j in 1...s2Count {
+                  let cost = s1Array[i - 1] == s2Array[j - 1] ? 0 : 1
+                  matrix[i][j] = min(
+                    matrix[i - 1][j] + 1,      // 삭제
+                    matrix[i][j - 1] + 1,      // 삽입
+                    matrix[i - 1][j - 1] + cost // 교체
+                  )
+                }
+              }
+              return matrix[s1Count][s2Count]
+            }
+            
             // 유사도 계산 함수
             func calculateSimilarity(searchQuery: String, makgeolliName: String) -> Double {
               let query = searchQuery.replacingOccurrences(of: " ", with: "").lowercased()
@@ -217,10 +246,22 @@ public struct LabelScanCore {
               
               // 검색어가 이름에 포함되거나 이름이 검색어에 포함
               if name.contains(query) {
-                return Double(query.count) / Double(name.count)
+                return 0.9 + (Double(query.count) / Double(name.count)) * 0.1
               }
               if query.contains(name) {
-                return Double(name.count) / Double(query.count)
+                return 0.85 + (Double(name.count) / Double(query.count)) * 0.1
+              }
+              
+              // 레벤슈타인 거리 기반 유사도 (오타 허용)
+              let distance = levenshteinDistance(query, name)
+              let maxLen = max(query.count, name.count)
+              
+              // 거리가 2 이하면 오타로 간주하고 유사도 계산
+              if distance <= 2 {
+                let similarity = 1.0 - (Double(distance) / Double(maxLen))
+                if similarity >= 0.7 {
+                  return similarity
+                }
               }
               
               return 0.0
@@ -311,7 +352,9 @@ public struct LabelScanCore {
             if let imageName = makgeolli.imageName {
               do {
                 let fileName = imageName.hasSuffix(".png") ? imageName : "\(imageName).png"
-                let url = try await supabaseClient.getPublicURL(Bucket.MAKGEOLLIIMAGE, fileName)
+                let url = try await supabaseClient.getPublicURL(
+                  Bucket.MAKGEOLLIIMAGE, fileName
+                )
                 images[makgeolli.id] = url
               } catch { }
             }
