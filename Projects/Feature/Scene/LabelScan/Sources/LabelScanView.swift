@@ -151,9 +151,6 @@ private struct CameraPreviewContainer: View {
         store.send(.photoCaptured(image))
       }
     }
-    .onDisappear {
-      cameraManager.stopSession()
-    }
     .onChange(of: store.capturedImage) { _, newImage in
       if newImage != nil {
         cameraManager.pauseSession()
@@ -227,6 +224,10 @@ private final class CameraManager: NSObject, ObservableObject, @unchecked Sendab
   nonisolated(unsafe) private var photoOutput = AVCapturePhotoOutput()
   private var photoCaptureDelegate: PhotoCaptureDelegate?
   var onPhotoCaptured: ((UIImage) -> Void)?
+  
+  deinit {
+    session.stopRunning()
+  }
   
   func checkPermissionAndSetup() {
     switch AVCaptureDevice.authorizationStatus(for: .video) {
