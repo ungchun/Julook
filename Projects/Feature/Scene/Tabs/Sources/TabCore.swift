@@ -80,6 +80,10 @@ public struct TabCore {
     Reduce { state, action in
       switch action {
       case let .tabSeoected(tab):
+        if state.labelScanTab.isAnalyzing {
+          return .none
+        }
+
         state.selectedTab = tab
 
         switch tab {

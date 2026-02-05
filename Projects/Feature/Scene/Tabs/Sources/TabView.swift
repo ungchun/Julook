@@ -33,50 +33,62 @@ public struct TabsView: View {
   }
   
   public var body: some View {
-    TabView(selection: Binding(
-      get: { store.selectedTab },
-      set: { store.send(.tabSeoected($0)) }
-    )) {
-      HomeView(store: store.scope(
-        state: \.homeTab,
-        action: \.homeTab))
-      .tabItem {
-        DesignSystemAsset.Images.homeTab.swiftUIImage
-        Text("모아보기")
-          .font(.style(.SF10B))
+    ZStack {
+      TabView(selection: Binding(
+        get: { store.selectedTab },
+        set: { store.send(.tabSeoected($0)) }
+      )) {
+        HomeView(store: store.scope(
+          state: \.homeTab,
+          action: \.homeTab))
+        .tabItem {
+          DesignSystemAsset.Images.homeTab.swiftUIImage
+          Text("모아보기")
+            .font(.style(.SF10B))
+        }
+        .tag(Tab.home)
+        
+        SearchView(store: store.scope(
+          state: \.searchTab,
+          action: \.searchTab))
+        .tabItem {
+          DesignSystemAsset.Images.searchTab.swiftUIImage
+          Text("검색")
+            .font(.style(.SF10B))
+        }
+        .tag(Tab.search)
+        
+        LabelScanView(store: store.scope(
+          state: \.labelScanTab,
+          action: \.labelScanTab))
+        .tabItem {
+          Image(systemName: "camera.fill")
+          Text("라벨스캔")
+            .font(.style(.SF10B))
+        }
+        .tag(Tab.labelScan)
+        
+        MyMakgeolliView(store: store.scope(
+          state: \.myMakgeolliTab,
+          action: \.myMakgeolliTab))
+        .tabItem {
+          Image(systemName: "heart.fill")
+          Text("내 막걸리")
+            .font(.style(.SF10B))
+        }
+        .tag(Tab.myMakgeolli)
       }
-      .tag(Tab.home)
+      .accentColor(DesignSystemAsset.Colors.primary.swiftUIColor)
       
-      SearchView(store: store.scope(
-        state: \.searchTab,
-        action: \.searchTab))
-      .tabItem {
-        DesignSystemAsset.Images.searchTab.swiftUIImage
-        Text("검색")
-          .font(.style(.SF10B))
+      if store.labelScanTab.isAnalyzing {
+        VStack {
+          Spacer()
+          Color.clear
+            .frame(height: 100)
+            .contentShape(Rectangle())
+        }
+        .allowsHitTesting(true)
       }
-      .tag(Tab.search)
-
-      LabelScanView(store: store.scope(
-        state: \.labelScanTab,
-        action: \.labelScanTab))
-      .tabItem {
-        Image(systemName: "camera.fill")
-        Text("라벨스캔")
-          .font(.style(.SF10B))
-      }
-      .tag(Tab.labelScan)
-
-      MyMakgeolliView(store: store.scope(
-        state: \.myMakgeolliTab,
-        action: \.myMakgeolliTab))
-      .tabItem {
-        Image(systemName: "heart.fill")
-        Text("내 막걸리")
-          .font(.style(.SF10B))
-      }
-      .tag(Tab.myMakgeolli)
     }
-    .accentColor(DesignSystemAsset.Colors.primary.swiftUIColor)
   }
 }
