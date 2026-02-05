@@ -8,12 +8,20 @@ tuist install
 tuist generate
 ```
 
+의존성 캐시 삭제가 필요한 경우:
+
+```bash
+tuist clean dependencies
+```
+
 ## SwiftData 동기화 이슈
-- iCloud 로그인 확인
-- CloudKit 권한 확인
-- 앱 재시작
+
+1. iCloud 로그인 확인
+2. CloudKit 권한 확인
+3. 앱 재시작
 
 ## Supabase 연결 실패
-- 네트워크 연결 확인
-- API 키 확인
-- Supabase 서비스 상태 확인
+
+1. 네트워크 연결 확인
+2. API 키 확인 (`Info.plist`)
+3. Supabase 서비스 상태 확인
