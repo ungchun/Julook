@@ -804,13 +804,23 @@ public struct LabelAnalysisDebug: Codable, Equatable, Sendable {
 }
 
 public struct LabelAnalysisResult: Codable, Equatable, Sendable {
-  public let name: String?
+  public let primaryName: String?  // 핵심 브랜드명 (검색 우선 사용)
+  public let name: String?         // 전체 제품명
   public let brewery: String?
+  public let region: String?       // 지역명
   public let debug: LabelAnalysisDebug?
 
-  public init(name: String?, brewery: String?, debug: LabelAnalysisDebug? = nil) {
+  public init(
+    primaryName: String? = nil,
+    name: String?,
+    brewery: String?,
+    region: String? = nil,
+    debug: LabelAnalysisDebug? = nil
+  ) {
+    self.primaryName = primaryName
     self.name = name
     self.brewery = brewery
+    self.region = region
     self.debug = debug
   }
 }

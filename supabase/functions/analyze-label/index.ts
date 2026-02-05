@@ -13,8 +13,10 @@ interface AnalyzeRequest {
 }
 
 interface AnalyzeResponse {
-  name: string | null;
+  primaryName: string | null;  // 핵심 브랜드명 (2-4글자)
+  name: string | null;         // 전체 제품명 (하위 호환)
   brewery: string | null;
+  region: string | null;       // 지역명
   debug?: {
     rawResponse: string;
     parsedJson: string;
@@ -45,14 +47,20 @@ serve(async (req) => {
 
 응답 형식 (JSON만 반환, 다른 텍스트 없이):
 {
-  "name": "막걸리 제품명",
-  "brewery": "양조장명 또는 null"
+  "primaryName": "핵심 브랜드명",
+  "name": "전체 제품명",
+  "brewery": "양조장명 또는 null",
+  "region": "지역명 또는 null"
 }
 
 규칙:
-- name은 라벨에서 가장 크게 표시된 브랜드/제품명입니다
-- brewery는 제조사/양조장명입니다 (없으면 null)
-- 막걸리가 아니거나 텍스트를 읽을 수 없으면 {"name": null, "brewery": null} 반환
+- primaryName: 라벨에서 가장 크고 눈에 띄는 핵심 브랜드 단어 (예: "한라산", "복순도가", "지평", "느린마을")
+  - "막걸리", "생", "탁주", "프리미엄", "전통", "명품" 같은 일반 단어는 제외
+  - 보통 2~5글자의 고유한 브랜드명
+- name: 라벨에 적힌 전체 제품명 (예: "한라산 청정 생막걸리")
+- brewery: 제조사/양조장명 (예: "한라산주조", "배상면주가")
+- region: 지역명이 보이면 추출 (예: "제주", "포천", "전주")
+- 막걸리가 아니거나 텍스트를 읽을 수 없으면 모든 값을 null로 반환
 - JSON만 반환하고 다른 설명은 하지 마세요`;
 
     const response = await fetch(`${GEMINI_API_URL}?key=${GEMINI_API_KEY}`, {
@@ -131,8 +139,10 @@ serve(async (req) => {
     try {
       const parsed = JSON.parse(jsonText);
       result = {
-        name: parsed.name,
-        brewery: parsed.brewery,
+        primaryName: parsed.primaryName || null,
+        name: parsed.name || parsed.primaryName || null,  // name이 없으면 primaryName 사용
+        brewery: parsed.brewery || null,
+        region: parsed.region || null,
         debug: {
           rawResponse: generatedText,
           parsedJson: jsonText
@@ -143,8 +153,10 @@ serve(async (req) => {
       console.error("Failed to parse JSON:", jsonText);
       console.error("Parse error:", parseError);
       result = {
+        primaryName: null,
         name: null,
         brewery: null,
+        region: null,
         debug: {
           rawResponse: generatedText,
           parsedJson: jsonText
