@@ -80,7 +80,7 @@ private extension LabelScanView {
   @ViewBuilder
   func BottomControls() -> some View {
     VStack(spacing: 24) {
-      Text("막걸리 라벨을 프레임 안에 맞춰주세요")
+      Text("막걸리 라벨을 찍어주세요")
         .font(.SF15R)
         .foregroundColor(.w50)
       
