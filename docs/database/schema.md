@@ -1,4 +1,15 @@
+---
+참조: []
+피참조:
+  - AGENTS.md
+  - docs/coding/models.md
+  - docs/services/supabase.md
+검증: []
+---
+
 # 데이터베이스 스키마
+
+Supabase Postgres 테이블. Swift 모델 매핑은 [../coding/models.md](../coding/models.md).
 
 ## Makgeolli
 
@@ -39,6 +50,6 @@
 | `id` | UUID | Primary Key |
 | `user_id` | UUID | 사용자 ID |
 | `makgeolli_id` | UUID | 막걸리 ID |
-| `reaction_type` | String | "like" 또는 "dislike" |
+| `reaction_type` | String | `"like"` 또는 `"dislike"` |
 | `created_at` | Timestamp | 생성 시간 |
 | `updated_at` | Timestamp | 수정 시간 |

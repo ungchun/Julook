@@ -1,36 +1,17 @@
-# UI
+---
+참조:
+  - docs/ui/design-system.md
+  - docs/services/analytics.md
+피참조:
+  - AGENTS.md
+검증: []
+---
 
-## 디자인 시스템
+# UI 패턴
 
-### 색상
+자주 반복되는 UI 구현 패턴.
 
-```swift
-DesignSystemAsset.Colors.darkbase.swiftUIColor
-DesignSystemAsset.Colors.primary.swiftUIColor
-DesignSystemAsset.Colors.darkgray.swiftUIColor
-```
-
-### 폰트
-
-```swift
-.font(.SFTitle)
-.font(.SF20B)
-.font(.SF14R)
-.font(.SF12B)
-.font(.SF10B)
-```
-
-### 이미지
-
-```swift
-DesignSystemAsset.Images.homeTab.swiftUIImage
-DesignSystemAsset.Images.defaultMakgeolli.swiftUIImage
-DesignSystemAsset.Images.arrowRight.swiftUIImage
-```
-
-## UI 패턴
-
-### 이미지 로딩
+## 이미지 로딩
 
 ```swift
 if let imageUrl = store.images[item.id] {
@@ -51,7 +32,7 @@ private func makeImageView(for phase: AsyncImagePhase) -> some View {
 }
 ```
 
-### 로딩 상태
+## 로딩 상태 (Skeleton)
 
 ```swift
 if store.isLoading {
@@ -61,7 +42,9 @@ if store.isLoading {
 }
 ```
 
-### 리스트 아이템 탭
+## 리스트 아이템 탭 + 트래킹
+
+탭 제스처에서 Analytics 먼저, 그 다음 Action 전송.
 
 ```swift
 .onTapGesture {
@@ -70,9 +53,9 @@ if store.isLoading {
 }
 ```
 
-### 스코어 이미지
+**왜 이 순서인가**: Action 처리 중 화면이 전환되면 분석 이벤트가 누락될 수 있다. 먼저 기록.
 
-0-5 단계 값을 이미지로 표시:
+## 스코어 이미지 (0~5 단계)
 
 ```swift
 private func getScoreImage(for score: Int?) -> Image {
@@ -91,3 +74,5 @@ private func getScoreImage(for score: Int?) -> Image {
   }
 }
 ```
+
+자산 이름은 [design-system](./design-system.md).
