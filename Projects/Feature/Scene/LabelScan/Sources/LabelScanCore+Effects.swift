@@ -10,69 +10,9 @@ extension LabelScanCore {
     let supabaseClient = self.supabaseClient
     return .run { send in
       do {
-        guard let imageData = image.jpegData(compressionQuality: 0.8) else {
-          await send(.showError("이미지 변환에 실패했습니다."))
-          await send(.resetCamera)
-          return
-        }
-
-        let analysisResult = try await supabaseClient.analyzeLabelImage(imageData)
-
-        let primaryName = analysisResult.primaryName
-        let fullName = analysisResult.name
-
-        guard (primaryName != nil && !primaryName!.isEmpty)
-                || (fullName != nil && !fullName!.isEmpty) else {
-          await send(.showError("막걸리 라벨을 인식하지 못했습니다.\n다시 촬영해주세요."))
-          await send(.resetCamera)
-          return
-        }
-
-        var searchResults = try await LabelScanSearch.searchByPrimaryAndFullName(
-          client: supabaseClient,
-          primaryName: primaryName,
-          fullName: fullName
+        try await LabelScanAnalyzer.run(
+          image: image, client: supabaseClient, send: send
         )
-
-        if searchResults.isEmpty, let brewery = analysisResult.brewery, !brewery.isEmpty {
-          searchResults = try await supabaseClient.searchMakgeollis(brewery)
-        }
-
-        if searchResults.isEmpty, let region = analysisResult.region, !region.isEmpty {
-          searchResults = try await supabaseClient.searchMakgeollis(region)
-        }
-
-        let displayName = primaryName ?? fullName ?? "알 수 없는"
-
-        if searchResults.isEmpty {
-          await send(.showError(
-            "'\(displayName)' 막걸리를 찾지 못했습니다.\n아직 등록되지 않은 막걸리일 수 있습니다."
-          ))
-          await send(.resetCamera)
-          return
-        }
-
-        let similarityKeyword = primaryName ?? fullName ?? ""
-        let sorted = searchResults.map { makgeolli in
-          (makgeolli: makgeolli, similarity: LabelMatching.calculateSimilarity(
-            searchQuery: similarityKeyword, makgeolliName: makgeolli.name
-          ))
-        }.sorted { $0.similarity > $1.similarity }
-
-        let shouldDirectNavigate = searchResults.count == 1
-          || (sorted.first?.similarity ?? 0) >= 0.9
-
-        if shouldDirectNavigate, let bestMatch = sorted.first {
-          let imageURL = try? await LabelScanSearch.fetchImageURL(
-            client: supabaseClient, imageName: bestMatch.makgeolli.imageName
-          )
-          await send(.analysisCompleted(.success(bestMatch.makgeolli)))
-          await send(.moveToInformation(bestMatch.makgeolli, imageURL))
-          await send(.resetCamera)
-        } else {
-          await send(.showCandidates(searchResults))
-          await send(.resetCamera)
-        }
       } catch {
         await send(.showError("분석 중 오류가 발생했습니다.\n다시 시도해주세요."))
         await send(.resetCamera)
@@ -153,5 +93,94 @@ enum LabelScanSearch {
     guard let imageName = imageName else { return nil }
     let fileName = imageName.hasSuffix(".png") ? imageName : "\(imageName).png"
     return try await client.getPublicURL(Bucket.MAKGEOLLIIMAGE, fileName)
+  }
+}
+
+// MARK: - Analyzer pipeline
+
+enum LabelScanAnalyzer {
+  static func run(
+    image: UIImage,
+    client: Core.SupabaseClient,
+    send: Send<LabelScanCore.Action>
+  ) async throws {
+    guard let imageData = image.jpegData(compressionQuality: 0.8) else {
+      await send(.showError("이미지 변환에 실패했습니다."))
+      await send(.resetCamera)
+      return
+    }
+
+    let result = try await client.analyzeLabelImage(imageData)
+    let primary = result.primaryName
+    let full = result.name
+
+    guard !(primary ?? "").isEmpty || !(full ?? "").isEmpty else {
+      await send(.showError("막걸리 라벨을 인식하지 못했습니다.\n다시 촬영해주세요."))
+      await send(.resetCamera)
+      return
+    }
+
+    let searchResults = try await collectSearchResults(
+      client: client, analysis: result
+    )
+
+    let displayName = primary ?? full ?? "알 수 없는"
+    guard !searchResults.isEmpty else {
+      await send(.showError(
+        "'\(displayName)' 막걸리를 찾지 못했습니다.\n아직 등록되지 않은 막걸리일 수 있습니다."
+      ))
+      await send(.resetCamera)
+      return
+    }
+
+    try await dispatchMatch(
+      results: searchResults,
+      similarityKeyword: primary ?? full ?? "",
+      client: client,
+      send: send
+    )
+  }
+
+  private static func collectSearchResults(
+    client: Core.SupabaseClient, analysis: LabelAnalysisResult
+  ) async throws -> [Makgeolli] {
+    var results = try await LabelScanSearch.searchByPrimaryAndFullName(
+      client: client, primaryName: analysis.primaryName, fullName: analysis.name
+    )
+    if results.isEmpty, let brewery = analysis.brewery, !brewery.isEmpty {
+      results = try await client.searchMakgeollis(brewery)
+    }
+    if results.isEmpty, let region = analysis.region, !region.isEmpty {
+      results = try await client.searchMakgeollis(region)
+    }
+    return results
+  }
+
+  private static func dispatchMatch(
+    results: [Makgeolli],
+    similarityKeyword: String,
+    client: Core.SupabaseClient,
+    send: Send<LabelScanCore.Action>
+  ) async throws {
+    let sorted = results.map { makgeolli in
+      (makgeolli: makgeolli, similarity: LabelMatching.calculateSimilarity(
+        searchQuery: similarityKeyword, makgeolliName: makgeolli.name
+      ))
+    }.sorted { $0.similarity > $1.similarity }
+
+    let shouldDirectNavigate = results.count == 1
+      || (sorted.first?.similarity ?? 0) >= 0.9
+
+    if shouldDirectNavigate, let best = sorted.first {
+      let imageURL = try? await LabelScanSearch.fetchImageURL(
+        client: client, imageName: best.makgeolli.imageName
+      )
+      await send(.analysisCompleted(.success(best.makgeolli)))
+      await send(.moveToInformation(best.makgeolli, imageURL))
+      await send(.resetCamera)
+    } else {
+      await send(.showCandidates(results))
+      await send(.resetCamera)
+    }
   }
 }

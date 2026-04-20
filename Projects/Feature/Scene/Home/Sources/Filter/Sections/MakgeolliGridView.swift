@@ -40,104 +40,9 @@ private extension MakgeolliGridView {
   @ViewBuilder
   func MakgeolliCardView(makgeolli: Makgeolli, imageURL: URL?) -> some View {
     VStack(spacing: 16) {
-      if let imageURL = imageURL {
-        AsyncImage(url: imageURL) { phase in
-          switch phase {
-          case .empty:
-            ProgressView()
-              .frame(height: 150)
-          case .success(let image):
-            image
-              .resizable()
-              .aspectRatio(contentMode: .fit)
-              .frame(height: 150)
-              .clipped()
-          case .failure:
-            DesignSystemAsset.Images.defaultMakgeolli.swiftUIImage
-              .resizable()
-              .aspectRatio(contentMode: .fit)
-              .frame(height: 150)
-          @unknown default:
-            DesignSystemAsset.Images.defaultMakgeolli.swiftUIImage
-              .resizable()
-              .aspectRatio(contentMode: .fit)
-              .frame(height: 150)
-          }
-        }
-      } else {
-        Rectangle()
-          .fill(Color.darkgray)
-          .frame(height: 150)
-          .overlay(
-            ProgressView()
-              .progressViewStyle(CircularProgressViewStyle(tint: .w))
-          )
-      }
-
-      VStack(spacing: 2) {
-        Text(makgeolli.name)
-          .foregroundColor(.w)
-          .font(.SF12R)
-          .lineLimit(1)
-
-        if let brewery = makgeolli.brewery {
-          Text("\(brewery) ･ \(formatValue(makgeolli.alcoholPercentage))도")
-          .foregroundColor(.w50)
-          .font(.SF10R)
-          .lineLimit(1)
-        } else {
-          Text("\(formatValue(makgeolli.alcoholPercentage))도")
-          .foregroundColor(.w50)
-          .font(.SF10R)
-          .lineLimit(1)
-        }
-      }
-
-      HStack(spacing: 6) {
-        VStack(spacing: 4) {
-          getScoreImage(for: makgeolli.sweetness)
-            .resizable()
-            .aspectRatio(contentMode: .fit)
-            .frame(width: 24, height: 24)
-
-          Text("단맛")
-            .foregroundColor(.w50)
-            .font(.SF10B)
-        }
-
-        VStack(spacing: 4) {
-          getScoreImage(for: makgeolli.sourness)
-            .resizable()
-            .aspectRatio(contentMode: .fit)
-            .frame(width: 24, height: 24)
-
-          Text("신맛")
-            .foregroundColor(.w50)
-            .font(.SF10B)
-        }
-
-        VStack(spacing: 4) {
-          getScoreImage(for: makgeolli.thickness)
-            .resizable()
-            .aspectRatio(contentMode: .fit)
-            .frame(width: 24, height: 24)
-
-          Text("걸쭉")
-            .foregroundColor(.w50)
-            .font(.SF10B)
-        }
-
-        VStack(spacing: 4) {
-          getScoreImage(for: makgeolli.carbonation)
-            .resizable()
-            .aspectRatio(contentMode: .fit)
-            .frame(width: 24, height: 24)
-
-          Text("탄산")
-            .foregroundColor(.w50)
-            .font(.SF10B)
-        }
-      }
+      cardImage(imageURL: imageURL)
+      cardNameLine(makgeolli: makgeolli)
+      cardScoreRow(makgeolli: makgeolli)
     }
     .frame(maxWidth: .infinity)
     .padding(.horizontal, 12)
@@ -147,6 +52,78 @@ private extension MakgeolliGridView {
     .cornerRadius(20)
     .onTapGesture {
       store.send(.moveToInformation(makgeolli, imageURL))
+    }
+  }
+
+  @ViewBuilder
+  func cardImage(imageURL: URL?) -> some View {
+    if let imageURL = imageURL {
+      AsyncImage(url: imageURL) { phase in
+        cardImagePhase(phase)
+      }
+    } else {
+      Rectangle()
+        .fill(Color.darkgray)
+        .frame(height: 150)
+        .overlay(
+          ProgressView()
+            .progressViewStyle(CircularProgressViewStyle(tint: .w))
+        )
+    }
+  }
+
+  @ViewBuilder
+  func cardImagePhase(_ phase: AsyncImagePhase) -> some View {
+    switch phase {
+    case .empty:
+      ProgressView().frame(height: 150)
+    case .success(let image):
+      image.resizable().aspectRatio(contentMode: .fit).frame(height: 150).clipped()
+    case .failure, _:
+      DesignSystemAsset.Images.defaultMakgeolli.swiftUIImage
+        .resizable().aspectRatio(contentMode: .fit).frame(height: 150)
+    }
+  }
+
+  @ViewBuilder
+  func cardNameLine(makgeolli: Makgeolli) -> some View {
+    VStack(spacing: 2) {
+      Text(makgeolli.name)
+        .foregroundColor(.w)
+        .font(.SF12R)
+        .lineLimit(1)
+
+      if let brewery = makgeolli.brewery {
+        Text("\(brewery) ･ \(formatValue(makgeolli.alcoholPercentage))도")
+          .foregroundColor(.w50).font(.SF10R).lineLimit(1)
+      } else {
+        Text("\(formatValue(makgeolli.alcoholPercentage))도")
+          .foregroundColor(.w50).font(.SF10R).lineLimit(1)
+      }
+    }
+  }
+
+  @ViewBuilder
+  func cardScoreRow(makgeolli: Makgeolli) -> some View {
+    HStack(spacing: 6) {
+      cardScoreColumn(score: makgeolli.sweetness, label: "단맛")
+      cardScoreColumn(score: makgeolli.sourness, label: "신맛")
+      cardScoreColumn(score: makgeolli.thickness, label: "걸쭉")
+      cardScoreColumn(score: makgeolli.carbonation, label: "탄산")
+    }
+  }
+
+  @ViewBuilder
+  func cardScoreColumn(score: Int?, label: String) -> some View {
+    VStack(spacing: 4) {
+      getScoreImage(for: score)
+        .resizable()
+        .aspectRatio(contentMode: .fit)
+        .frame(width: 24, height: 24)
+
+      Text(label)
+        .foregroundColor(.w50)
+        .font(.SF10B)
     }
   }
 

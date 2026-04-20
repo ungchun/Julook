@@ -13,112 +13,18 @@ extension MyMakgeolliCore {
 
     return .run { send in
       do {
-        let favoriteMakgeollis = try await myMakgeolliClient.getMyMakgeollis()
-        let allReactions = try await makgeolliReactionClient.getAllReactions()
-        let userComments = try await supabaseClient.getUserComments(userId)
-
-        var allMakgeollisMap: [UUID: MyMakgeolliEntity] = [:]
-        for makgeolli in favoriteMakgeollis {
-          allMakgeollisMap[makgeolli.id] = makgeolli
-        }
-
-        // 각 막걸리의 가장 최신 reaction만 사용
-        var latestReactions: [UUID: MakgeolliReactionEntity] = [:]
-        for reaction in allReactions {
-          if let existing = latestReactions[reaction.makgeolliId] {
-            if reaction.updatedAt > existing.updatedAt {
-              latestReactions[reaction.makgeolliId] = reaction
-            }
-          } else {
-            latestReactions[reaction.makgeolliId] = reaction
-          }
-        }
-
-        var likedMap: [UUID: MyMakgeolliEntity] = [:]
-        var dislikedMap: [UUID: MyMakgeolliEntity] = [:]
-
-        for (makgeolliId, reaction) in latestReactions {
-          guard let reactionType = reaction.reactionType else { continue }
-
-          if let favorite = allMakgeollisMap[makgeolliId] {
-            let updated = MyMakgeolliEntity(
-              id: favorite.id,
-              name: favorite.name,
-              imageName: favorite.imageName,
-              feedback: favorite.feedback,
-              isFavorite: favorite.isFavorite,
-              comment: favorite.comment,
-              createdAt: reaction.createdAt,
-              updatedAt: reaction.updatedAt
-            )
-            allMakgeollisMap[makgeolliId] = updated
-
-            if reactionType == "like" {
-              likedMap[makgeolliId] = updated
-            } else if reactionType == "dislike" {
-              dislikedMap[makgeolliId] = updated
-            }
-          } else {
-            do {
-              if let info = try await supabaseClient.fetchMakgeolliById(makgeolliId) {
-                let entity = MyMakgeolliEntity(
-                  id: info.id,
-                  name: info.name,
-                  imageName: info.imageName,
-                  feedback: nil,
-                  isFavorite: false,
-                  comment: nil,
-                  createdAt: reaction.createdAt,
-                  updatedAt: reaction.updatedAt
-                )
-                allMakgeollisMap[makgeolliId] = entity
-
-                if reactionType == "like" {
-                  likedMap[makgeolliId] = entity
-                } else if reactionType == "dislike" {
-                  dislikedMap[makgeolliId] = entity
-                }
-              }
-            } catch {
-              // 개별 조회 실패는 무시하고 계속
-            }
-          }
-        }
-
-        var commentMakgeollis: [MyMakgeolliEntity] = []
-        for comment in userComments {
-          if let existing = allMakgeollisMap[comment.makgeolliId] {
-            commentMakgeollis.append(existing)
-          } else {
-            do {
-              if let info = try await supabaseClient.fetchMakgeolliById(comment.makgeolliId) {
-                let entity = MyMakgeolliEntity(
-                  id: info.id,
-                  name: info.name,
-                  imageName: info.imageName,
-                  feedback: nil,
-                  isFavorite: false,
-                  comment: comment.comment,
-                  createdAt: comment.createdAt,
-                  updatedAt: comment.updatedAt
-                )
-                commentMakgeollis.append(entity)
-                allMakgeollisMap[comment.makgeolliId] = entity
-              }
-            } catch {
-              // 개별 조회 실패는 무시
-            }
-          }
-        }
-
-        let sorted: ([MyMakgeolliEntity]) -> [MyMakgeolliEntity] = { $0.sorted { $0.updatedAt > $1.updatedAt } }
-
+        let result = try await MyMakgeolliAggregator.aggregate(
+          myMakgeolliClient: myMakgeolliClient,
+          reactionClient: makgeolliReactionClient,
+          supabaseClient: supabaseClient,
+          userId: userId
+        )
         await send(.updateAllData(
-          sorted(Array(allMakgeollisMap.values)),
-          sorted(Array(likedMap.values)),
-          sorted(Array(dislikedMap.values)),
-          sorted(favoriteMakgeollis),
-          sorted(commentMakgeollis)
+          result.all,
+          result.liked,
+          result.disliked,
+          result.favorites,
+          result.comments
         ))
       } catch {
         await send(.logError(MyMakgeolliCoreError(
@@ -176,5 +82,133 @@ extension MyMakgeolliCore {
         )
       }
     )
+  }
+}
+
+// MARK: - Aggregator
+
+struct MyMakgeolliAggregated {
+  let all: [MyMakgeolliEntity]
+  let liked: [MyMakgeolliEntity]
+  let disliked: [MyMakgeolliEntity]
+  let favorites: [MyMakgeolliEntity]
+  let comments: [MyMakgeolliEntity]
+}
+
+enum MyMakgeolliAggregator {
+  static func aggregate(
+    myMakgeolliClient: MyMakgeolliClient,
+    reactionClient: MakgeolliReactionClient,
+    supabaseClient: SupabaseClient,
+    userId: UUID
+  ) async throws -> MyMakgeolliAggregated {
+    let favorites = try await myMakgeolliClient.getMyMakgeollis()
+    let allReactions = try await reactionClient.getAllReactions()
+    let userComments = try await supabaseClient.getUserComments(userId)
+
+    var allMap: [UUID: MyMakgeolliEntity] = [:]
+    for makgeolli in favorites { allMap[makgeolli.id] = makgeolli }
+
+    let latestReactions = latestByMakgeolliId(allReactions)
+    var likedMap: [UUID: MyMakgeolliEntity] = [:]
+    var dislikedMap: [UUID: MyMakgeolliEntity] = [:]
+
+    for (makgeolliId, reaction) in latestReactions {
+      guard let reactionType = reaction.reactionType else { continue }
+      let entity = try await resolveEntity(
+        makgeolliId: makgeolliId,
+        reaction: reaction,
+        allMap: allMap,
+        client: supabaseClient
+      )
+      guard let entity = entity else { continue }
+      allMap[makgeolliId] = entity
+      if reactionType == "like" { likedMap[makgeolliId] = entity }
+      else if reactionType == "dislike" { dislikedMap[makgeolliId] = entity }
+    }
+
+    let commentMakgeollis = try await appendComments(
+      comments: userComments, allMap: &allMap, client: supabaseClient
+    )
+
+    let sorted: ([MyMakgeolliEntity]) -> [MyMakgeolliEntity] = {
+      $0.sorted { $0.updatedAt > $1.updatedAt }
+    }
+
+    return MyMakgeolliAggregated(
+      all: sorted(Array(allMap.values)),
+      liked: sorted(Array(likedMap.values)),
+      disliked: sorted(Array(dislikedMap.values)),
+      favorites: sorted(favorites),
+      comments: sorted(commentMakgeollis)
+    )
+  }
+
+  private static func latestByMakgeolliId(
+    _ reactions: [MakgeolliReactionEntity]
+  ) -> [UUID: MakgeolliReactionEntity] {
+    var latest: [UUID: MakgeolliReactionEntity] = [:]
+    for reaction in reactions {
+      if let existing = latest[reaction.makgeolliId], reaction.updatedAt <= existing.updatedAt {
+        continue
+      }
+      latest[reaction.makgeolliId] = reaction
+    }
+    return latest
+  }
+
+  private static func resolveEntity(
+    makgeolliId: UUID,
+    reaction: MakgeolliReactionEntity,
+    allMap: [UUID: MyMakgeolliEntity],
+    client: SupabaseClient
+  ) async throws -> MyMakgeolliEntity? {
+    if let favorite = allMap[makgeolliId] {
+      return MyMakgeolliEntity(
+        id: favorite.id, name: favorite.name,
+        imageName: favorite.imageName, feedback: favorite.feedback,
+        isFavorite: favorite.isFavorite, comment: favorite.comment,
+        createdAt: reaction.createdAt, updatedAt: reaction.updatedAt
+      )
+    }
+    do {
+      guard let info = try await client.fetchMakgeolliById(makgeolliId) else { return nil }
+      return MyMakgeolliEntity(
+        id: info.id, name: info.name,
+        imageName: info.imageName, feedback: nil,
+        isFavorite: false, comment: nil,
+        createdAt: reaction.createdAt, updatedAt: reaction.updatedAt
+      )
+    } catch {
+      return nil
+    }
+  }
+
+  private static func appendComments(
+    comments: [UserComment],
+    allMap: inout [UUID: MyMakgeolliEntity],
+    client: SupabaseClient
+  ) async throws -> [MyMakgeolliEntity] {
+    var commentMakgeollis: [MyMakgeolliEntity] = []
+    for comment in comments {
+      if let existing = allMap[comment.makgeolliId] {
+        commentMakgeollis.append(existing)
+        continue
+      }
+      do {
+        guard let info = try await client.fetchMakgeolliById(comment.makgeolliId) else { continue }
+        let entity = MyMakgeolliEntity(
+          id: info.id, name: info.name,
+          imageName: info.imageName, feedback: nil,
+          isFavorite: false, comment: comment.comment,
+          createdAt: comment.createdAt, updatedAt: comment.updatedAt
+        )
+        commentMakgeollis.append(entity)
+        allMap[comment.makgeolliId] = entity
+      } catch {
+        // 개별 조회 실패는 무시
+      }
+    }
+    return commentMakgeollis
   }
 }

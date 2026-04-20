@@ -6,6 +6,13 @@ import DesignSystem
 extension InformationView {
   @ViewBuilder
   func MakgeolliDetailSectionView() -> some View {
+    detailImage
+    detailNameLine
+    detailScoreRow
+  }
+
+  @ViewBuilder
+  private var detailImage: some View {
     ZStack {
       Circle()
         .fill(LinearGradient.lilacNeutral)
@@ -14,32 +21,28 @@ extension InformationView {
 
       if let imageURL = store.state.makgeolliImage {
         AsyncImage(url: imageURL) { phase in
-          switch phase {
-          case .empty:
-            ProgressView()
-              .frame(height: 244)
-          case .success(let image):
-            image
-              .resizable()
-              .aspectRatio(contentMode: .fit)
-              .frame(height: 244)
-              .clipped()
-          case .failure:
-            DesignSystemAsset.Images.defaultMakgeolli.swiftUIImage
-              .resizable()
-              .aspectRatio(contentMode: .fit)
-              .frame(height: 244)
-          @unknown default:
-            DesignSystemAsset.Images.defaultMakgeolli.swiftUIImage
-              .resizable()
-              .aspectRatio(contentMode: .fit)
-              .frame(height: 244)
-          }
+          detailImagePhase(phase)
         }
       }
     }
     .padding(.bottom, 32)
+  }
 
+  @ViewBuilder
+  private func detailImagePhase(_ phase: AsyncImagePhase) -> some View {
+    switch phase {
+    case .empty:
+      ProgressView().frame(height: 244)
+    case .success(let image):
+      image.resizable().aspectRatio(contentMode: .fit).frame(height: 244).clipped()
+    case .failure, _:
+      DesignSystemAsset.Images.defaultMakgeolli.swiftUIImage
+        .resizable().aspectRatio(contentMode: .fit).frame(height: 244)
+    }
+  }
+
+  @ViewBuilder
+  private var detailNameLine: some View {
     VStack(spacing: 4) {
       Text(store.state.makgeolli.name)
         .foregroundColor(.w)
@@ -59,53 +62,31 @@ extension InformationView {
       }
     }
     .padding(.bottom, 16)
+  }
 
+  @ViewBuilder
+  private var detailScoreRow: some View {
     HStack(spacing: 16) {
-      VStack(spacing: 6) {
-        getScoreImage(for: store.state.makgeolli.sweetness)
-          .resizable()
-          .aspectRatio(contentMode: .fit)
-          .frame(width: 44, height: 44)
-
-        Text("단맛")
-          .foregroundColor(.w50)
-          .font(.SF12B)
-      }
-
-      VStack(spacing: 6) {
-        getScoreImage(for: store.state.makgeolli.sourness)
-          .resizable()
-          .aspectRatio(contentMode: .fit)
-          .frame(width: 44, height: 44)
-
-        Text("신맛")
-          .foregroundColor(.w50)
-          .font(.SF12B)
-      }
-
-      VStack(spacing: 6) {
-        getScoreImage(for: store.state.makgeolli.thickness)
-          .resizable()
-          .aspectRatio(contentMode: .fit)
-          .frame(width: 44, height: 44)
-
-        Text("걸쭉")
-          .foregroundColor(.w50)
-          .font(.SF12B)
-      }
-
-      VStack(spacing: 6) {
-        getScoreImage(for: store.state.makgeolli.carbonation)
-          .resizable()
-          .aspectRatio(contentMode: .fit)
-          .frame(width: 44, height: 44)
-
-        Text("탄산")
-          .foregroundColor(.w50)
-          .font(.SF12B)
-      }
+      detailScoreColumn(score: store.state.makgeolli.sweetness, label: "단맛")
+      detailScoreColumn(score: store.state.makgeolli.sourness, label: "신맛")
+      detailScoreColumn(score: store.state.makgeolli.thickness, label: "걸쭉")
+      detailScoreColumn(score: store.state.makgeolli.carbonation, label: "탄산")
     }
     .padding(.bottom, 32)
+  }
+
+  @ViewBuilder
+  private func detailScoreColumn(score: Int?, label: String) -> some View {
+    VStack(spacing: 6) {
+      getScoreImage(for: score)
+        .resizable()
+        .aspectRatio(contentMode: .fit)
+        .frame(width: 44, height: 44)
+
+      Text(label)
+        .foregroundColor(.w50)
+        .font(.SF12B)
+    }
   }
 
   func getScoreImage(for score: Int?) -> Image {

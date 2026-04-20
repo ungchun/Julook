@@ -134,73 +134,85 @@ private extension SearchView {
   @ViewBuilder
   func RecentSearchesView() -> some View {
     VStack(alignment: .leading, spacing: 0) {
-      HStack {
-        Text("최근 검색어")
-          .foregroundColor(.w)
+      recentSearchesHeader
+      recentSearchesList
+    }
+    .padding(.top, 16)
+  }
+
+  @ViewBuilder
+  private var recentSearchesHeader: some View {
+    HStack {
+      Text("최근 검색어")
+        .foregroundColor(.w)
+        .font(.SF14R)
+      Spacer()
+      Button {
+        if !store.recentSearches.isEmpty {
+          store.send(.showClearConfirmAlert(true))
+        }
+      } label: {
+        Text("지우기")
+          .foregroundColor(DesignSystemAsset.Colors.primary.swiftUIColor)
           .font(.SF14R)
-        Spacer()
-        Button {
-          if !store.recentSearches.isEmpty {
-            store.send(.showClearConfirmAlert(true))
-          }
-        } label: {
-          Text("지우기")
-            .foregroundColor(DesignSystemAsset.Colors.primary.swiftUIColor)
-            .font(.SF14R)
-        }
       }
-      .padding(.bottom, 20)
-      .alert("최근 검색어 지우기", isPresented: $store.isShowingClearConfirmAlert) {
-        Button("취소", role: .cancel) {
-          store.send(.showClearConfirmAlert(false))
-        }
-        Button("지우기", role: .destructive) {
-          store.send(.clearRecentSearches)
-          store.send(.showClearConfirmAlert(false))
-        }
-      } message: {
-        Text("검색한 기록을 모두 지울까요?")
+    }
+    .padding(.bottom, 20)
+    .alert("최근 검색어 지우기", isPresented: $store.isShowingClearConfirmAlert) {
+      Button("취소", role: .cancel) { store.send(.showClearConfirmAlert(false)) }
+      Button("지우기", role: .destructive) {
+        store.send(.clearRecentSearches)
+        store.send(.showClearConfirmAlert(false))
       }
+    } message: {
+      Text("검색한 기록을 모두 지울까요?")
+    }
+  }
 
-      ForEach(store.recentSearches, id: \.self) { search in
-        VStack(spacing: 12) {
-          HStack {
-            Text(search)
-              .foregroundColor(.w)
-              .font(.SF17R)
+  @ViewBuilder
+  private var recentSearchesList: some View {
+    ForEach(store.recentSearches, id: \.self) { search in
+      VStack(spacing: 12) {
+        recentSearchRow(search)
 
-            Spacer()
-
-            Button {
-              store.send(.removeRecentSearchTapped(search))
-            } label: {
-              Image(systemName: "xmark")
-                .font(.system(size: 16))
-                .foregroundColor(.w50)
-            }
-            .buttonStyle(BorderlessButtonStyle())
-          }
-          .contentShape(Rectangle())
-          .onTapGesture {
-            Amp.track(event: "recent_search_clicked", properties: [
-              "search_query": search
-            ])
-            if store.isSearchBarFocused {
-              focused = false
-              store.send(.setSearchBarFocus(false))
-            }
-            store.searchText = search
-            store.send(.searchSubmitted)
-          }
-
-          if search != store.recentSearches.last {
-            Divider()
-              .background(Color.w10)
-              .padding(.bottom, 12)
-          }
+        if search != store.recentSearches.last {
+          Divider()
+            .background(Color.w10)
+            .padding(.bottom, 12)
         }
       }
     }
-    .padding(.top, 16)
+  }
+
+  @ViewBuilder
+  private func recentSearchRow(_ search: String) -> some View {
+    HStack {
+      Text(search)
+        .foregroundColor(.w)
+        .font(.SF17R)
+
+      Spacer()
+
+      Button {
+        store.send(.removeRecentSearchTapped(search))
+      } label: {
+        Image(systemName: "xmark")
+          .font(.system(size: 16))
+          .foregroundColor(.w50)
+      }
+      .buttonStyle(BorderlessButtonStyle())
+    }
+    .contentShape(Rectangle())
+    .onTapGesture {
+      Amp.track(event: "recent_search_clicked", properties: [
+        "search_query": search
+      ])
+      if store.isSearchBarFocused {
+        focused = false
+        store.send(.setSearchBarFocus(false))
+      }
+      store.searchText = search
+      store.send(.searchSubmitted)
+    }
   }
 }
