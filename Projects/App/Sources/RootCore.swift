@@ -18,14 +18,14 @@ import ComposableArchitecture
 
 @Reducer
 public struct RootCore {
-  @Reducer
+  @Reducer(state: .equatable)
   public enum Destination {
     case splash(SplashCore)
     case mainCoordinator(MainCoordinatorCore)
   }
-  
+
   @ObservableState
-  public struct State {
+  public struct State: Equatable {
     @Presents var destination: Destination.State?
     var isCheckingForUpdates: Bool = false
     var showUpdateAlert: Bool = false
