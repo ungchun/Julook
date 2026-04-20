@@ -7,7 +7,9 @@
   - docs/workflow/feature.md
   - docs/workflow/refactor.md
   - docs/workflow/bugfix.md
-검증: []
+검증:
+  - Projects/Core/Tests/
+  - Projects/Feature/Scene/Home/Tests/
 ---
 
 # Phase 0 ~ 5 게이트

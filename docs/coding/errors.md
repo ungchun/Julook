@@ -3,7 +3,8 @@
 피참조:
   - AGENTS.md
   - docs/coding/tca.md
-검증: []
+검증:
+  - Projects/Core/Tests/SupabaseClientErrorTests.swift
 ---
 
 # 에러 처리

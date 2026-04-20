@@ -6,7 +6,8 @@
 피참조:
   - AGENTS.md
   - docs/testing/writing.md
-검증: []
+검증:
+  - Projects/Feature/Scene/LabelScan/Tests/LabelMatchingTests.swift
 ---
 
 # 테스트 교차 검증

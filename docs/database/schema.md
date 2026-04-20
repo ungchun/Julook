@@ -4,7 +4,10 @@
   - AGENTS.md
   - docs/coding/models.md
   - docs/services/supabase.md
-검증: []
+검증:
+  - Projects/Core/Tests/MakgeolliTests.swift
+  - Projects/Core/Tests/UserCommentTests.swift
+  - Projects/Core/Tests/MakgeolliReactionTests.swift
 ---
 
 # 데이터베이스 스키마

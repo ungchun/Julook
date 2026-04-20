@@ -4,7 +4,9 @@
   - docs/tdd/phases.md
 피참조:
   - AGENTS.md
-검증: []
+검증:
+  - scripts/pre-push.sh
+  - .swiftlint.yml
 ---
 
 # 자가 강제 규칙

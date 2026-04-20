@@ -8,7 +8,8 @@
   - docs/workflow/refactor.md
   - docs/workflow/bugfix.md
   - docs/git/push-check.md
-검증: []
+검증:
+  - scripts/pre-push.sh
 ---
 
 # Git 커밋 규칙

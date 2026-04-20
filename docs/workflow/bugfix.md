@@ -5,7 +5,8 @@
   - docs/testing/writing.md
 피참조:
   - AGENTS.md
-검증: []
+검증:
+  - Projects/Feature/Scene/Tabs/Tests/TabCoreTests.swift
 ---
 
 # 버그 수정

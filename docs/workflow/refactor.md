@@ -5,7 +5,9 @@
   - docs/testing/writing.md
 피참조:
   - AGENTS.md
-검증: []
+검증:
+  - Projects/Feature/Scene/Home/Tests/HomeCoreTests.swift
+  - Projects/Feature/Scene/Home/Tests/InformationCoreTests.swift
 ---
 
 # 리팩토링

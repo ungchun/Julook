@@ -5,7 +5,12 @@
   - AGENTS.md
   - docs/coding/tca.md
   - docs/workflow/feature.md
-검증: []
+검증:
+  - Projects/Core/Tests/MakgeolliTests.swift
+  - Projects/Core/Tests/AwardTests.swift
+  - Projects/Core/Tests/UserCommentTests.swift
+  - Projects/Core/Tests/MakgeolliReactionTests.swift
+  - Projects/Core/Tests/MyMakgeolliEntityTests.swift
 ---
 
 # 데이터 모델

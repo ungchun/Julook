@@ -3,7 +3,8 @@
 피참조:
   - AGENTS.md
   - docs/ui/patterns.md
-검증: []
+검증:
+  - Projects/DesignSystem/Tests/DesignSystemAssetTests.swift
 ---
 
 # 디자인 시스템

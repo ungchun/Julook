@@ -4,7 +4,8 @@
 피참조:
   - AGENTS.md
   - docs/architecture/data-flow.md
-검증: []
+검증:
+  - Projects/Core/Tests/MyMakgeolliEntityTests.swift
 ---
 
 # SwiftData (로컬 저장)

@@ -8,7 +8,10 @@
   - docs/testing/tca-test.md
 피참조:
   - AGENTS.md
-검증: []
+검증:
+  - Projects/Feature/Scene/Home/Tests/
+  - Projects/Feature/Scene/Search/Tests/
+  - Projects/Core/Tests/
 ---
 
 # 새 기능 개발

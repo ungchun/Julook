@@ -5,7 +5,9 @@
   - docs/workflow/feature.md
   - docs/coding/tca.md
   - docs/git/push-check.md
-검증: []
+검증:
+  - .swiftlint.yml
+  - scripts/pre-push.sh
 ---
 
 # 스타일 가이드

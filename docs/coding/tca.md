@@ -4,7 +4,11 @@
   - AGENTS.md
   - docs/workflow/feature.md
   - docs/architecture/data-flow.md
-검증: []
+검증:
+  - Projects/Feature/Scene/Home/Tests/HomeCoreTests.swift
+  - Projects/Feature/Scene/Home/Tests/InformationCoreTests.swift
+  - Projects/Feature/Scene/Home/Tests/FilterCoreTests.swift
+  - Projects/Feature/Scene/Search/Tests/SearchCoreTests.swift
 ---
 
 # TCA 패턴
