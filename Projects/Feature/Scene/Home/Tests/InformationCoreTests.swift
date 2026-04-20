@@ -93,6 +93,42 @@ final class InformationCoreTests: XCTestCase {
     }
   }
 
+  // MARK: - Reaction state transitions
+
+  func test_updateReactionState_likeSetsActiveAndDisablesDislike() async {
+    let store = makeStore()
+
+    await store.send(.updateReactionState("like")) {
+      $0.currentReaction = "like"
+      $0.likeButtonState = .active
+      $0.dislikeButtonState = .disabled
+    }
+  }
+
+  func test_updateReactionState_nilDisablesBoth() async {
+    let store = makeStore()
+
+    await store.send(.updateReactionState(nil)) {
+      $0.likeButtonState = .disabled
+      $0.dislikeButtonState = .disabled
+    }
+  }
+
+  func test_updateReactionCounts_setsState() async {
+    let counts = MakgeolliReactionCount(
+      id: UUID(),
+      makgeolliId: UUID(),
+      likeCount: 3,
+      dislikeCount: 1,
+      updatedAt: Date()
+    )
+    let store = makeStore()
+
+    await store.send(.updateReactionCounts(counts)) {
+      $0.reactionCounts = counts
+    }
+  }
+
   // MARK: - Helpers
 
   private func makeStore() -> TestStoreOf<InformationCore> {

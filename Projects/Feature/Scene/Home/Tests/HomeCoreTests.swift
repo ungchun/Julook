@@ -79,6 +79,43 @@ final class HomeCoreTests: XCTestCase {
     // 추가 effect 없음 — 초기화 완료 상태에서 onAppear는 no-op
   }
 
+  // MARK: - Failure paths
+
+  func test_newReleasesResponseFailure_clearsLoadingAndLogsError() async {
+    var state = HomeCore.State()
+    state.isLoadingNewReleases = true
+    let store = TestStore(initialState: state) { HomeCore() }
+    let error = NSError(domain: "test", code: -1)
+
+    await store.send(.newReleasesResponse(.failure(error))) {
+      $0.isLoadingNewReleases = false
+    }
+    await store.receive(\.logError)
+  }
+
+  func test_awardsResponseFailure_clearsLoadingAndLogsError() async {
+    var state = HomeCore.State()
+    state.isLoadingAwards = true
+    let store = TestStore(initialState: state) { HomeCore() }
+    let error = NSError(domain: "test", code: -1)
+
+    await store.send(.awardsResponse(.failure(error))) {
+      $0.isLoadingAwards = false
+    }
+    await store.receive(\.logError)
+  }
+
+  func test_newReleasesResponseSuccessEmpty_clearsLoading() async {
+    var state = HomeCore.State()
+    state.isLoadingNewReleases = true
+    let store = TestStore(initialState: state) { HomeCore() }
+
+    await store.send(.newReleasesResponse(.success([]))) {
+      $0.isLoadingNewReleases = false
+      $0.newReleases = []
+    }
+  }
+
   // MARK: - Helpers
 
   private static let sampleMakgeolli = Makgeolli(
