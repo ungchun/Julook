@@ -1,0 +1,157 @@
+import Foundation
+import UIKit
+
+import Core
+
+import ComposableArchitecture
+
+extension LabelScanCore {
+  func analyzeImageEffect(image: UIImage) -> Effect<Action> {
+    let supabaseClient = self.supabaseClient
+    return .run { send in
+      do {
+        guard let imageData = image.jpegData(compressionQuality: 0.8) else {
+          await send(.showError("이미지 변환에 실패했습니다."))
+          await send(.resetCamera)
+          return
+        }
+
+        let analysisResult = try await supabaseClient.analyzeLabelImage(imageData)
+
+        let primaryName = analysisResult.primaryName
+        let fullName = analysisResult.name
+
+        guard (primaryName != nil && !primaryName!.isEmpty)
+                || (fullName != nil && !fullName!.isEmpty) else {
+          await send(.showError("막걸리 라벨을 인식하지 못했습니다.\n다시 촬영해주세요."))
+          await send(.resetCamera)
+          return
+        }
+
+        var searchResults = try await LabelScanSearch.searchByPrimaryAndFullName(
+          client: supabaseClient,
+          primaryName: primaryName,
+          fullName: fullName
+        )
+
+        if searchResults.isEmpty, let brewery = analysisResult.brewery, !brewery.isEmpty {
+          searchResults = try await supabaseClient.searchMakgeollis(brewery)
+        }
+
+        if searchResults.isEmpty, let region = analysisResult.region, !region.isEmpty {
+          searchResults = try await supabaseClient.searchMakgeollis(region)
+        }
+
+        let displayName = primaryName ?? fullName ?? "알 수 없는"
+
+        if searchResults.isEmpty {
+          await send(.showError(
+            "'\(displayName)' 막걸리를 찾지 못했습니다.\n아직 등록되지 않은 막걸리일 수 있습니다."
+          ))
+          await send(.resetCamera)
+          return
+        }
+
+        let similarityKeyword = primaryName ?? fullName ?? ""
+        let sorted = searchResults.map { makgeolli in
+          (makgeolli: makgeolli, similarity: LabelMatching.calculateSimilarity(
+            searchQuery: similarityKeyword, makgeolliName: makgeolli.name
+          ))
+        }.sorted { $0.similarity > $1.similarity }
+
+        let shouldDirectNavigate = searchResults.count == 1
+          || (sorted.first?.similarity ?? 0) >= 0.9
+
+        if shouldDirectNavigate, let bestMatch = sorted.first {
+          let imageURL = try? await LabelScanSearch.fetchImageURL(
+            client: supabaseClient, imageName: bestMatch.makgeolli.imageName
+          )
+          await send(.analysisCompleted(.success(bestMatch.makgeolli)))
+          await send(.moveToInformation(bestMatch.makgeolli, imageURL))
+          await send(.resetCamera)
+        } else {
+          await send(.showCandidates(searchResults))
+          await send(.resetCamera)
+        }
+      } catch {
+        await send(.showError("분석 중 오류가 발생했습니다.\n다시 시도해주세요."))
+        await send(.resetCamera)
+      }
+    }
+  }
+
+  func showCandidatesEffect(candidates: [Makgeolli]) -> Effect<Action> {
+    let supabaseClient = self.supabaseClient
+    return .run { send in
+      var images: [UUID: URL] = [:]
+      for makgeolli in candidates {
+        if let imageName = makgeolli.imageName {
+          do {
+            let fileName = imageName.hasSuffix(".png") ? imageName : "\(imageName).png"
+            let url = try await supabaseClient.getPublicURL(
+              Bucket.MAKGEOLLIIMAGE, fileName
+            )
+            images[makgeolli.id] = url
+          } catch { }
+        }
+      }
+      await send(.candidateImagesLoaded(images))
+    }
+  }
+
+  func selectCandidateEffect(makgeolli: Makgeolli, imageURL: URL?) -> Effect<Action> {
+    .run { send in
+      try await Task.sleep(for: .milliseconds(300))
+      await send(.moveToInformation(makgeolli, imageURL))
+    }
+  }
+}
+
+enum LabelScanSearch {
+  static func searchByPrimaryAndFullName(
+    client: Core.SupabaseClient,
+    primaryName: String?,
+    fullName: String?
+  ) async throws -> [Makgeolli] {
+    var results: [Makgeolli] = []
+
+    if let primary = primaryName, !primary.isEmpty {
+      let fetched = try await client.searchMakgeollis(primary)
+      results = fetched.filter {
+        LabelMatching.isNameMatched(searchQuery: primary, makgeolliName: $0.name)
+      }
+    }
+
+    guard results.isEmpty, let full = fullName, !full.isEmpty else { return results }
+
+    let cleaned = LabelMatching.cleanKeyword(full)
+    if !cleaned.isEmpty {
+      let fetched = try await client.searchMakgeollis(cleaned)
+      results = fetched.filter {
+        LabelMatching.isNameMatched(searchQuery: cleaned, makgeolliName: $0.name)
+      }
+    }
+
+    guard results.isEmpty else { return results }
+
+    let words = cleaned.split(separator: " ").map(String.init).filter { $0.count >= 2 }
+    for word in words {
+      let fetched = try await client.searchMakgeollis(word)
+      let matched = fetched.filter {
+        LabelMatching.isNameMatched(searchQuery: word, makgeolliName: $0.name)
+      }
+      results.append(contentsOf: matched)
+    }
+
+    var seen = Set<UUID>()
+    return results.filter { seen.insert($0.id).inserted }
+  }
+
+  static func fetchImageURL(
+    client: Core.SupabaseClient, imageName: String?
+  ) async throws -> URL? {
+    guard let imageName = imageName else { return nil }
+    let fileName = imageName.hasSuffix(".png") ? imageName : "\(imageName).png"
+    return try await client.getPublicURL(Bucket.MAKGEOLLIIMAGE, fileName)
+  }
+}
