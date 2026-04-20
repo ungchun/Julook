@@ -17,7 +17,10 @@ extension Project {
       name: name,
       organizationName: "com.azhy.julook",
       options: .options(
-        automaticSchemesOptions: .disabled,
+        automaticSchemesOptions: .enabled(
+          codeCoverageEnabled: true,
+          testingOptions: [.parallelizable, .randomExecutionOrdering]
+        ),
         defaultKnownRegions: ["ko"],
         developmentRegion: "ko",
         textSettings: .textSettings(usesTabs: false, indentWidth: 2, tabWidth: 2)

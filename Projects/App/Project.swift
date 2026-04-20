@@ -45,6 +45,18 @@ let project = Project.make(
             .release(name: .release, xcconfig: "./Resources/Secrets.xcconfig")
         ]
       )
+    ),
+    .make(
+      name: "JulookTests",
+      product: .unitTests,
+      bundleId: "com.azhy.julook.tests",
+      sources: ["Tests/**"],
+      dependencies: [
+        .target(name: .julook)
+      ],
+      settings: .settings(
+        base: ["SWIFT_VERSION": "6.0"]
+      )
     )
   ]
 )

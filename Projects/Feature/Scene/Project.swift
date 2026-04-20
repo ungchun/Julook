@@ -97,6 +97,21 @@ let project = Project.make(
       settings: .settings(
         base: ["SWIFT_VERSION": "6.0"]
       )
+    ),
+    .make(
+      name: "FeatureHomeTests",
+      product: .unitTests,
+      bundleId: "com.azhy.julook.home.tests",
+      sources: ["Home/Tests/**"],
+      dependencies: [
+        .target(name: .home),
+        .project(target: .core, projectPath: .core),
+        .project(target: .designSystem, projectPath: .designSystem),
+        .external(externalDependency: .composableArchitecture)
+      ],
+      settings: .settings(
+        base: ["SWIFT_VERSION": "6.0"]
+      )
     )
   ]
 )

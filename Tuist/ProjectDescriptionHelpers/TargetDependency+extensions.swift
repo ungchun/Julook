@@ -35,6 +35,7 @@ public enum TargetName: String {
   case splash = "FeatureSplash"
   case labelScan = "FeatureLabelScan"
   case mainCoordinator = "MainCoordinator"
+  case julook = "Julook"
 }
 
 public enum ExternalDependency: String {
