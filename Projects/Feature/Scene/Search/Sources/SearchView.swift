@@ -1,11 +1,3 @@
-//
-//  SearchView.swift
-//  FeatureTabs
-//
-//  Created by Kim SungHun on 3/5/25.
-//  Copyright © 2025 com.azhy.julook. All rights reserved.
-//
-
 import SwiftUI
 
 import DesignSystem
@@ -16,11 +8,11 @@ import ComposableArchitecture
 public struct SearchView: View {
   @Bindable var store: StoreOf<SearchCore>
   @FocusState private var focused: Bool
-  
+
   public init(store: StoreOf<SearchCore>) {
     self.store = store
   }
-  
+
   public var body: some View {
     ZStack {
       DesignSystemAsset.Colors.darkbase.swiftUIColor
@@ -31,11 +23,11 @@ public struct SearchView: View {
             store.send(.setSearchBarFocus(false))
           }
         }
-      
+
       VStack(spacing: 0) {
         SearchBar()
           .padding(.bottom, 16)
-        
+
         if store.recentSearches.isEmpty
             && store.searchText.isEmpty
             && !store.isSearchBarFocused {
@@ -47,7 +39,7 @@ public struct SearchView: View {
             if store.searchText.isEmpty && (store.isSearchBarFocused || !store.recentSearches.isEmpty) {
               RecentSearchesView()
             }
-            
+
             if !store.searchText.isEmpty {
               SearchResultsView(store: store)
             }
@@ -79,7 +71,7 @@ private extension SearchView {
         Image(systemName: "magnifyingglass")
           .foregroundColor(.w50)
           .padding(.leading, 8)
-        
+
         TextField("막걸리 이름, 양조장 ...", text: $store.searchText)
           .foregroundColor(.w)
           .accentColor(DesignSystemAsset.Colors.primary.swiftUIColor)
@@ -97,7 +89,7 @@ private extension SearchView {
           .onChange(of: focused) { _, newValue in
             store.send(.setSearchBarFocus(newValue))
           }
-        
+
         if !store.searchText.isEmpty {
           Button {
             store.searchText = ""
@@ -111,7 +103,7 @@ private extension SearchView {
       .padding(.vertical, 10)
       .background(DesignSystemAsset.Colors.w10.swiftUIColor)
       .cornerRadius(10)
-      
+
       if focused {
         Button("취소") {
           focused = false
@@ -124,21 +116,21 @@ private extension SearchView {
       }
     }
   }
-  
+
   @ViewBuilder
   func EmptyStateView() -> some View {
     VStack(spacing: 20) {
       Text("막걸리 이름으로 검색해보세요!")
         .foregroundColor(.w50)
         .font(.SF17R)
-      
+
       DesignSystemAsset.Images.searchJulook.swiftUIImage
         .resizable()
         .scaledToFit()
         .frame(height: 140)
     }
   }
-  
+
   @ViewBuilder
   func RecentSearchesView() -> some View {
     VStack(alignment: .leading, spacing: 0) {
@@ -169,16 +161,16 @@ private extension SearchView {
       } message: {
         Text("검색한 기록을 모두 지울까요?")
       }
-      
+
       ForEach(store.recentSearches, id: \.self) { search in
         VStack(spacing: 12) {
           HStack {
             Text(search)
               .foregroundColor(.w)
               .font(.SF17R)
-            
+
             Spacer()
-            
+
             Button {
               store.send(.removeRecentSearchTapped(search))
             } label: {
@@ -200,7 +192,7 @@ private extension SearchView {
             store.searchText = search
             store.send(.searchSubmitted)
           }
-          
+
           if search != store.recentSearches.last {
             Divider()
               .background(Color.w10)
@@ -210,243 +202,5 @@ private extension SearchView {
       }
     }
     .padding(.top, 16)
-  }
-}
-
-private struct SearchResultsView: View {
-  @Bindable var store: StoreOf<SearchCore>
-  
-  fileprivate init(
-    store: StoreOf<SearchCore>
-  ) {
-    self.store = store
-  }
-  
-  fileprivate var body: some View {
-    if store.isSearching {
-      ProgressView()
-        .progressViewStyle(CircularProgressViewStyle(tint: .w))
-        .padding(.top, 32)
-    } else if store.searchResults.isEmpty {
-      VStack(spacing: 16) {
-        HStack(spacing: 4) {
-          Spacer()
-          Text("'\(store.searchText)'")
-            .foregroundColor(.w85)
-            .font(.SF17R)
-          Text("검색 결과가 없어요.")
-            .foregroundColor(.w50)
-            .font(.SF17R)
-          Spacer()
-        }
-        .lineLimit(1)
-        
-        Button {
-          store.send(.requestRegisterMakgeolli(store.searchText))
-        } label: {
-          Text("등록 요청하기")
-            .foregroundColor(DesignSystemAsset.Colors.primary.swiftUIColor)
-            .font(.SF17R)
-        }
-        .alert("등록 요청 완료", isPresented: $store.isShowingRequestAlert) {
-          Button("확인", role: .cancel) {
-            store.send(.showRequestAlert(false))
-          }
-        } message: {
-          Text("빠른 시일내에 추가할게요!")
-        }
-      }
-      .padding(.top, 32)
-    } else {
-      VStack(spacing: 16) {
-        ForEach(store.searchResults, id: \.id) { makgeolli in
-          MakgeolliSearchResultRow(makgeolli: makgeolli, store: store)
-          
-          if makgeolli.id != store.searchResults.last?.id {
-            Divider()
-              .background(Color.w10)
-          }
-        }
-      }
-      .padding(.top, 16)
-    }
-  }
-}
-
-private struct MakgeolliSearchResultRow: View {
-  let makgeolli: Makgeolli
-  let store: StoreOf<SearchCore>
-  
-  fileprivate init(
-    makgeolli: Makgeolli,
-    store: StoreOf<SearchCore>
-  ) {
-    self.makgeolli = makgeolli
-    self.store = store
-  }
-  
-  fileprivate var body: some View {
-    Button {
-      store.send(.makgeolliTapped(makgeolli))
-    } label: {
-      HStack(spacing: 0) {
-        Group {
-          if let imageURL = store.makgeolliImages[makgeolli.id] {
-            AsyncImage(url: imageURL) { phase in
-              makeImageView(for: phase)
-            }
-          } else {
-            DesignSystemAsset.Images.defaultMakgeolli.swiftUIImage
-              .resizable()
-              .aspectRatio(contentMode: .fit)
-              .frame(width: 30, height: 60)
-          }
-        }
-        .padding(.vertical, 10)
-        .padding(.horizontal, 16)
-        .background(DesignSystemAsset.Colors.darkgray.swiftUIColor)
-        .cornerRadius(12)
-        
-        VStack(alignment: .leading, spacing: 4) {
-          Text(makgeolli.name)
-            .foregroundColor(.w)
-            .font(.SF14R)
-            .lineLimit(1)
-          
-          if let brewery = makgeolli.brewery {
-            Text("\(brewery) ･ \(formatValue(makgeolli.alcoholPercentage))도")
-              .foregroundColor(.w50)
-              .font(.SF10B)
-              .lineLimit(1)
-          } else {
-            Text("\(formatValue(makgeolli.alcoholPercentage))도")
-              .foregroundColor(.w50)
-              .font(.SF10B)
-              .lineLimit(1)
-          }
-        }
-        .padding(.horizontal, 16)
-        
-        Spacer()
-        
-        HStack(spacing: 6) {
-          ScoreItem(
-            score: makgeolli.sweetness,
-            label: "단맛",
-            color: DesignSystemAsset.Colors.primary.swiftUIColor
-          )
-          ScoreItem(
-            score: makgeolli.sourness,
-            label: "신맛",
-            color: DesignSystemAsset.Colors.primary.swiftUIColor
-          )
-          ScoreItem(
-            score: makgeolli.thickness,
-            label: "걸쭉",
-            color: DesignSystemAsset.Colors.primary.swiftUIColor
-          )
-          ScoreItem(
-            score: makgeolli.carbonation,
-            label: "탄산",
-            color: DesignSystemAsset.Colors.primary.swiftUIColor
-          )
-        }
-      }
-    }
-    .padding(.vertical, 8)
-  }
-}
-
-private extension MakgeolliSearchResultRow {
-  @ViewBuilder
-  func ScoreItem(score: Int?, label: String, color: Color) -> some View {
-    VStack(spacing: 4) {
-      if let score = score {
-        switch score {
-        case 0:
-          DesignSystemAsset.Images._0Score.swiftUIImage
-            .resizable()
-            .aspectRatio(contentMode: .fit)
-            .frame(width: 24, height: 24)
-        case 1:
-          DesignSystemAsset.Images._1Score.swiftUIImage
-            .resizable()
-            .aspectRatio(contentMode: .fit)
-            .frame(width: 24, height: 24)
-        case 2:
-          DesignSystemAsset.Images._2Score.swiftUIImage
-            .resizable()
-            .aspectRatio(contentMode: .fit)
-            .frame(width: 24, height: 24)
-        case 3:
-          DesignSystemAsset.Images._3Score.swiftUIImage
-            .resizable()
-            .aspectRatio(contentMode: .fit)
-            .frame(width: 24, height: 24)
-        case 4:
-          DesignSystemAsset.Images._4Score.swiftUIImage
-            .resizable()
-            .aspectRatio(contentMode: .fit)
-            .frame(width: 24, height: 24)
-        case 5:
-          DesignSystemAsset.Images._5Score.swiftUIImage
-            .resizable()
-            .aspectRatio(contentMode: .fit)
-            .frame(width: 24, height: 24)
-        default:
-          DesignSystemAsset.Images.nillScore.swiftUIImage
-            .resizable()
-            .aspectRatio(contentMode: .fit)
-            .frame(width: 24, height: 24)
-        }
-      } else {
-        DesignSystemAsset.Images.nillScore.swiftUIImage
-          .resizable()
-          .aspectRatio(contentMode: .fit)
-          .frame(width: 24, height: 24)
-      }
-      
-      Text(label)
-        .foregroundColor(.w50)
-        .font(.SF10B)
-    }
-  }
-  
-  @ViewBuilder
-  func makeImageView(for phase: AsyncImagePhase) -> some View {
-    switch phase {
-    case .empty:
-      AnyView(
-        ProgressView()
-          .frame(width: 30, height: 60)
-      )
-    case .success(let image):
-      AnyView(
-        image
-          .resizable()
-          .aspectRatio(contentMode: .fit)
-          .frame(width: 30, height: 60)
-      )
-    case .failure:
-      AnyView(
-        DesignSystemAsset.Images.defaultMakgeolli.swiftUIImage
-          .resizable()
-          .aspectRatio(contentMode: .fit)
-          .frame(width: 30, height: 60)
-      )
-      
-    @unknown default:
-      AnyView(
-        DesignSystemAsset.Images.defaultMakgeolli.swiftUIImage
-          .resizable()
-          .aspectRatio(contentMode: .fit)
-          .frame(width: 30, height: 60)
-      )
-    }
-  }
-  
-  func formatValue<T>(_ value: T?) -> String {
-    guard let value = value else { return "-" }
-    return "\(value)"
   }
 }
