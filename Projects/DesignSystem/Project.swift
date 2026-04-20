@@ -14,6 +14,18 @@ let project = Project.make(
       settings: .settings(
         base: ["SWIFT_VERSION": "6.0"]
       )
+    ),
+    .make(
+      name: "DesignSystemTests",
+      product: .unitTests,
+      bundleId: "com.azhy.julook.designSystem.tests",
+      sources: ["Tests/**"],
+      dependencies: [
+        .target(name: .designSystem)
+      ],
+      settings: .settings(
+        base: ["SWIFT_VERSION": "6.0"]
+      )
     )
   ]
 )

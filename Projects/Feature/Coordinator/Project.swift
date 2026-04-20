@@ -18,6 +18,21 @@ let project = Project.make(
       settings: .settings(
         base: ["SWIFT_VERSION": "6.0"]
       )
+    ),
+    .make(
+      name: "MainCoordinatorTests",
+      product: .unitTests,
+      bundleId: "com.azhy.julook.mainCoordinator.tests",
+      sources: ["Tests/**"],
+      dependencies: [
+        .target(name: .mainCoordinator),
+        .project(target: .core, projectPath: .core),
+        .external(externalDependency: .composableArchitecture),
+        .external(externalDependency: .tcaCoordinators)
+      ],
+      settings: .settings(
+        base: ["SWIFT_VERSION": "6.0"]
+      )
     )
   ]
 )

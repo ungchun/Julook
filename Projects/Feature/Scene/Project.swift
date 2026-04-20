@@ -151,6 +151,30 @@ let project = Project.make(
         .external(externalDependency: .composableArchitecture)
       ],
       settings: .settings(base: ["SWIFT_VERSION": "6.0"])
+    ),
+    .make(
+      name: "FeatureTabsTests",
+      product: .unitTests,
+      bundleId: "com.azhy.julook.tabs.tests",
+      sources: ["Tabs/Tests/**"],
+      dependencies: [
+        .target(name: .tabs),
+        .project(target: .core, projectPath: .core),
+        .external(externalDependency: .composableArchitecture)
+      ],
+      settings: .settings(base: ["SWIFT_VERSION": "6.0"])
+    ),
+    .make(
+      name: "FeatureSplashTests",
+      product: .unitTests,
+      bundleId: "com.azhy.julook.splash.tests",
+      sources: ["Splash/Tests/**"],
+      dependencies: [
+        .target(name: .splash),
+        .project(target: .core, projectPath: .core),
+        .external(externalDependency: .composableArchitecture)
+      ],
+      settings: .settings(base: ["SWIFT_VERSION": "6.0"])
     )
   ]
 )
