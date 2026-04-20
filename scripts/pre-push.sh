@@ -134,35 +134,42 @@ else
   ok "프로덕션 + 테스트 동반."
 fi
 
-# ── [경고 7] 커밋 메시지 형식 ─────────────────────────────
-sec "[경고 7] 커밋 메시지 형식 ({이모지} [{type}] ...)"
+# ── [차단 7] 커밋 메시지 형식 ─────────────────────────────
+sec "[차단 7] 커밋 메시지 형식 ({이모지} [{type}] ...)"
 BAD=0
 MSG_RE='^(✨|🐛|♻️|📝|🎨|🚀|🙈|💄|🔥|🔒|⚡️|✅) \[(feat|fix|refactor|docs|style|deploy|chore|ui|perf|security|test)\] '
 while IFS= read -r msg; do
   [[ -z "$msg" ]] && continue
+  # 시스템 merge 커밋 (Merge branch / Merge tag / Merge <branch-name> 등)은 형식 검증 제외
+  if [[ "$msg" == Merge* ]]; then
+    continue
+  fi
   if ! echo "$msg" | grep -qE "$MSG_RE"; then
-    warn "형식 불일치: $msg"; BAD=$((BAD+1))
+    fail "형식 불일치: $msg"; BAD=$((BAD+1))
   fi
 done <<< "$COMMITS"
 (( BAD == 0 )) && ok "커밋 메시지 형식 OK."
 
-# ── [경고 8] WIP / 임시 커밋 ─────────────────────────────
-sec "[경고 8] WIP/임시 커밋"
+# ── [차단 8] WIP / 임시 커밋 ─────────────────────────────
+sec "[차단 8] WIP/임시 커밋"
 WIP="$(echo "$COMMITS" | grep -iE 'wip|fixme|임시|asdf|test[[:space:]]*123' || true)"
 if [[ -n "$WIP" ]]; then
-  warn "WIP/임시 커밋 감지 (푸시 전 squash 권장):"
+  fail "WIP/임시 커밋 감지 (푸시 전 squash 필수):"
   echo "$WIP" | sed 's/^/    /'
 else
   ok "WIP/임시 커밋 없음."
 fi
 
-# ── [경고 10] SwiftLint ──────────────────────────────────
-sec "[경고 10] SwiftLint"
+# ── [차단 10] SwiftLint ──────────────────────────────────
+sec "[차단 10] SwiftLint"
 if command -v swiftlint >/dev/null 2>&1 && [[ -f ".swiftlint.yml" ]]; then
-  if ! swiftlint --quiet >/dev/null 2>&1; then
-    warn "SwiftLint 위반 — \`swiftlint\` 로 확인."
+  # error 수준 위반만 차단, warning은 출력하되 통과
+  LINT_ERRORS="$(swiftlint --quiet 2>&1 | grep 'error:' || true)"
+  if [[ -n "$LINT_ERRORS" ]]; then
+    fail "SwiftLint error 수준 위반:"
+    echo "$LINT_ERRORS" | head -5 | sed 's/^/    /'
   else
-    ok "SwiftLint 통과."
+    ok "SwiftLint error 없음 (warning은 허용)."
   fi
 else
   ok "SwiftLint 미설치 또는 설정 없음 (스킵)."

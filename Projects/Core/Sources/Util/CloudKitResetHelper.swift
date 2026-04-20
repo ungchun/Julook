@@ -16,7 +16,7 @@ public struct CloudKitResetHelper {
   
   /// 로컬 SwiftData 및 CloudKit 데이터 완전 초기화
   public static func resetAllData() async throws {
-    print("🔄 CloudKit 데이터 초기화 시작...")
+    Log.debug("🔄 CloudKit 데이터 초기화 시작...")
     
     // 1. 로컬 SwiftData 초기화
     try await resetLocalData()
@@ -24,12 +24,12 @@ public struct CloudKitResetHelper {
     // 2. CloudKit 컨테이너 초기화
     try await resetCloudKitData()
     
-    print("✅ CloudKit 데이터 초기화 완료")
+    Log.debug("✅ CloudKit 데이터 초기화 완료")
   }
   
   /// 로컬 SwiftData 초기화
   private static func resetLocalData() async throws {
-    print("🗑️ 로컬 SwiftData 초기화 중...")
+    Log.debug("🗑️ 로컬 SwiftData 초기화 중...")
     
     let container = try await SharedModelContainer.shared.container
     
@@ -52,16 +52,16 @@ public struct CloudKitResetHelper {
         }
         
         try context.save()
-        print("✅ 로컬 SwiftData 초기화 완료")
+        Log.debug("✅ 로컬 SwiftData 초기화 완료")
       } catch {
-        print("❌ 로컬 SwiftData 초기화 실패: \(error)")
+        Log.debug("❌ 로컬 SwiftData 초기화 실패: \(error)")
       }
     }
   }
   
   /// CloudKit 컨테이너 초기화
   private static func resetCloudKitData() async throws {
-    print("☁️ CloudKit 데이터 초기화 중...")
+    Log.debug("☁️ CloudKit 데이터 초기화 중...")
     
     let container = CKContainer.default()
     let database = container.privateCloudDatabase
@@ -95,14 +95,14 @@ public struct CloudKitResetHelper {
               return false
             }
           }.count
-          print("✅ CloudKit \(recordType) 레코드 \(deletedCount)개 삭제 완료")
+          Log.debug("✅ CloudKit \(recordType) 레코드 \(deletedCount)개 삭제 완료")
         }
       } catch {
-        print("⚠️ CloudKit \(recordType) 삭제 중 오류 (계속 진행): \(error)")
+        Log.debug("⚠️ CloudKit \(recordType) 삭제 중 오류 (계속 진행): \(error)")
       }
     }
     
-    print("✅ CloudKit 데이터 초기화 완료")
+    Log.debug("✅ CloudKit 데이터 초기화 완료")
   }
 }
 #endif

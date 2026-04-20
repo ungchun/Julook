@@ -35,15 +35,15 @@
 | 5 | **프로덕션 코드 변경 시 테스트 동반** | `Projects/**/Sources/**` or `supabase/functions/` 변경 있는데 `**/Tests/**` 변경 0건 → 차단. [../tdd/enforcement.md](../tdd/enforcement.md) |
 | 6 | **빌드 성공 + 전체 테스트 통과** | `tuist generate` + `xcodebuild test` |
 
-## 경고 항목 (통과는 허용, 로그만 남김)
+## 차단 항목 (계속)
 
-| # | 항목 | 비고 |
-|---|------|------|
-| 7 | 커밋 메시지 형식 | [../git/commit.md](./commit.md) 형식 불일치 시 경고 |
-| 8 | WIP/임시 커밋 | `WIP`, `fixme`, `임시`, `asdf` 등 메시지 감지 |
-| 10 | SwiftLint 위반 | SwiftLint 설치된 경우에만 실행 |
+| # | 항목 | 판정 기준 |
+|---|------|----------|
+| 7 | 커밋 메시지 형식 | [../git/commit.md](./commit.md) 형식 (`{이모지} [{type}] ...`) 불일치 |
+| 8 | WIP/임시 커밋 금지 | `WIP`, `fixme`, `임시`, `asdf` 등 메시지 감지 |
+| 10 | SwiftLint error 수준 | `.swiftlint.yml` 임계값 error 에 해당하는 위반 (warning은 통과) |
 
-향후 경고 → 차단으로 승격 예정.
+> 이전에는 경고 수준이었으나 차단으로 승격됨 (2026-04-21).
 
 ## 비상 우회
 
