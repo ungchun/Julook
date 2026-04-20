@@ -112,6 +112,45 @@ let project = Project.make(
       settings: .settings(
         base: ["SWIFT_VERSION": "6.0"]
       )
+    ),
+    .make(
+      name: "FeatureSearchTests",
+      product: .unitTests,
+      bundleId: "com.azhy.julook.search.tests",
+      sources: ["Search/Tests/**"],
+      dependencies: [
+        .target(name: .search),
+        .project(target: .core, projectPath: .core),
+        .project(target: .designSystem, projectPath: .designSystem),
+        .external(externalDependency: .composableArchitecture)
+      ],
+      settings: .settings(base: ["SWIFT_VERSION": "6.0"])
+    ),
+    .make(
+      name: "FeatureMyMakgeolliTests",
+      product: .unitTests,
+      bundleId: "com.azhy.julook.myMakgeolli.tests",
+      sources: ["MyMakgeolli/Tests/**"],
+      dependencies: [
+        .target(name: .myMakgeolli),
+        .project(target: .core, projectPath: .core),
+        .project(target: .designSystem, projectPath: .designSystem),
+        .external(externalDependency: .composableArchitecture)
+      ],
+      settings: .settings(base: ["SWIFT_VERSION": "6.0"])
+    ),
+    .make(
+      name: "FeatureLabelScanTests",
+      product: .unitTests,
+      bundleId: "com.azhy.julook.labelScan.tests",
+      sources: ["LabelScan/Tests/**"],
+      dependencies: [
+        .target(name: .labelScan),
+        .project(target: .core, projectPath: .core),
+        .project(target: .designSystem, projectPath: .designSystem),
+        .external(externalDependency: .composableArchitecture)
+      ],
+      settings: .settings(base: ["SWIFT_VERSION": "6.0"])
     )
   ]
 )
