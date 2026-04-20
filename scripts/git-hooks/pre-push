@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+# Git pre-push hook entry. scripts/pre-push.sh 호출.
+exec "$(git rev-parse --show-toplevel)/scripts/pre-push.sh" "$@"
