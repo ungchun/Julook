@@ -1,0 +1,56 @@
+# SwiftLint 설정
+# 문서 규칙(docs/coding/style.md): 함수 50 / 타입 300 / 파일 400
+# 기존 코드베이스와 호환을 위해 임계값은 warning 수준으로 잡고, error는 여유있게.
+
+included:
+  - Projects
+
+excluded:
+  - Projects/**/Derived
+  - Projects/**/Tests
+  - Tuist/.build
+
+function_body_length:
+  warning: 50
+  error: 200  # 기존 거대 SwiftUI body는 점진적 리팩토링 예정
+
+type_body_length:
+  warning: 300
+  error: 600
+
+file_length:
+  warning: 400
+  error: 800
+
+line_length:
+  warning: 120
+  error: 200
+
+
+# 기존 스타일과 너무 어긋나는 규칙은 비활성
+# identifier_name: 디자인 시스템 색상 w/w50 등 단일 문자 이름 규약
+disabled_rules:
+  - trailing_whitespace
+  - todo
+  - multiple_closures_with_trailing_closure
+  - redundant_string_enum_value
+  - implicit_return
+  - opening_brace
+  - nesting
+  - cyclomatic_complexity
+  - function_parameter_count
+  - large_tuple
+  - identifier_name
+  - trailing_newline     # 개별 파일 단일 개행 위반은 포맷터가 처리
+
+# 문서 규칙 강화: force unwrapping 경고
+opt_in_rules:
+  - empty_count
+  - closure_spacing
+  - first_where
+  - last_where
+  - sorted_first_last
+  - toggle_bool
+  - unavailable_function
+
+reporter: "xcode"

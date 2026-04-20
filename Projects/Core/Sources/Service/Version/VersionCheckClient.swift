@@ -41,7 +41,7 @@ extension VersionCheckClient: DependencyKey {
         let currentComponents = currentVersion.split(separator: ".").compactMap { Int($0) }
         let latestComponents = latestVersion.split(separator: ".").compactMap { Int($0) }
         
-        if currentComponents.count > 0 && latestComponents.count > 0 {
+        if !currentComponents.isEmpty && !latestComponents.isEmpty {
           if currentComponents[0] < latestComponents[0] {
             return true
           }
