@@ -116,6 +116,80 @@ final class HomeCoreTests: XCTestCase {
     }
   }
 
+  // MARK: - Image response success
+
+  func test_newReleasesImageResponse_success_setsImageMap() async {
+    let store = TestStore(initialState: HomeCore.State()) { HomeCore() }
+    let id = UUID()
+    let url = URL(string: "https://example.com/a.png")!
+
+    await store.send(.newReleasesImageResponse(id: id, .success(url))) {
+      $0.newReleasesImages[id] = url
+    }
+  }
+
+  func test_randomMakgeolliImageResponse_success_setsImageMap() async {
+    let store = TestStore(initialState: HomeCore.State()) { HomeCore() }
+    let id = UUID()
+    let url = URL(string: "https://example.com/a.png")!
+
+    await store.send(.randomMakgeolliImageResponse(id: id, .success(url))) {
+      $0.randomMakgeolliImages[id] = url
+    }
+  }
+
+  func test_topLikedImageResponse_success_setsImageMap() async {
+    let store = TestStore(initialState: HomeCore.State()) { HomeCore() }
+    let id = UUID()
+    let url = URL(string: "https://example.com/a.png")!
+
+    await store.send(.topLikedImageResponse(id: id, .success(url))) {
+      $0.topLikedImages[id] = url
+    }
+  }
+
+  func test_recentCommentImageResponse_success_setsImageMap() async {
+    let store = TestStore(initialState: HomeCore.State()) { HomeCore() }
+    let id = UUID()
+    let url = URL(string: "https://example.com/a.png")!
+
+    await store.send(.recentCommentImageResponse(id: id, .success(url))) {
+      $0.recentCommentImages[id] = url
+    }
+  }
+
+  // MARK: - Favorite & reaction updates
+
+  func test_updateTopLikedFavoriteStatus_setsMap() async {
+    let store = TestStore(initialState: HomeCore.State()) { HomeCore() }
+    let id = UUID()
+
+    await store.send(.updateTopLikedFavoriteStatus(id: id, true)) {
+      $0.topLikedFavoriteStatus[id] = true
+    }
+  }
+
+  func test_updateRecentCommentReaction_setsMap() async {
+    let store = TestStore(initialState: HomeCore.State()) { HomeCore() }
+    let commentId = UUID()
+
+    await store.send(.updateRecentCommentReaction(commentId: commentId, "like")) {
+      $0.recentCommentReactions[commentId] = "like"
+    }
+  }
+
+  // MARK: - Navigation actions are no-op in Reducer
+
+  func test_moveToCommentList_isNoop() async {
+    let store = TestStore(initialState: HomeCore.State()) { HomeCore() }
+    await store.send(.moveToCommentList)
+  }
+
+  func test_showToast_isNoop() async {
+    let store = TestStore(initialState: HomeCore.State()) { HomeCore() }
+    await store.send(.showToast("msg", .error))
+  }
+
   // MARK: - Helpers
 
   private static let sampleMakgeolli = Makgeolli(
