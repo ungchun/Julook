@@ -142,7 +142,7 @@ extension MyMakgeolliClient: DependencyKey {
           let context = container.mainContext
           do {
             let descriptor = FetchDescriptor<MyMakgeolliLocal>()
-            let _ = try context.fetchCount(descriptor)
+            _ = try context.fetchCount(descriptor)
             return true
           } catch {
             return false

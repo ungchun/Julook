@@ -18,8 +18,7 @@ struct TodaysRankingView: View {
       }
 
       VStack(alignment: .leading, spacing: 0) {
-        ForEach(Array(store.topLikedMakgeollis.enumerated()), id: \.element.id) {
-          idx, makgeolli in
+        ForEach(Array(store.topLikedMakgeollis.enumerated()), id: \.element.id) { idx, makgeolli in
           HStack(alignment: .center, spacing: 16) {
             Text("\(idx+1)")
               .foregroundColor(.w)

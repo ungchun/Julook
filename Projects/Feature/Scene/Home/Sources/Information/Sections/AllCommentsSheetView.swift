@@ -29,8 +29,7 @@ struct AllCommentsSheetView: View {
         } else {
           ScrollView {
             LazyVStack(spacing: 0) {
-              ForEach(Array(store.state.publicComments.enumerated()), id: \.element.id) {
-                idx, comment in
+              ForEach(Array(store.state.publicComments.enumerated()), id: \.element.id) { idx, comment in
                 CommentItem(
                   comment: comment,
                   makgeolliName: store.state.makgeolli.name,

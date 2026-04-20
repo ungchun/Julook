@@ -14,9 +14,9 @@ public struct InformationCore: Sendable {
     public var likeButtonState: ReactionButtonState = .active
     public var dislikeButtonState: ReactionButtonState = .active
     public var isFavorite: Bool = false
-    public var currentReaction: String? = nil
-    public var reactionCounts: MakgeolliReactionCount? = nil
-    public var userComment: UserComment? = nil
+    public var currentReaction: String?
+    public var reactionCounts: MakgeolliReactionCount?
+    public var userComment: UserComment?
     public var isShowingCommentSheet: Bool = false
     public var isShowingEditActionSheet: Bool = false
     public var isShowingDeleteAlert: Bool = false

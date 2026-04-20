@@ -32,7 +32,7 @@ struct AppDelegateCore {
   @Dependency(\.myMakgeolliClient) var myMakgeolliClient
   
   var body: some Reducer<State, Action> {
-    Reduce { state, action in
+    Reduce { _, action in
       switch action {
       case .didFinishLaunching:
         return .run { send in
@@ -41,7 +41,7 @@ struct AppDelegateCore {
         }
         
       case .setupSupabase:
-        return .run { send in
+        return .run { _ in
           await supabaseClient.initialize()
         }
         

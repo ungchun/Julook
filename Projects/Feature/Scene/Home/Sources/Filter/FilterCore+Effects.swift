@@ -82,11 +82,9 @@ extension FilterCore {
   func removeDuplicates(from makgeollis: [Makgeolli]) -> [Makgeolli] {
     var uniqueIds = Set<UUID>()
     var result: [Makgeolli] = []
-    for makgeolli in makgeollis {
-      if !uniqueIds.contains(makgeolli.id) {
-        uniqueIds.insert(makgeolli.id)
-        result.append(makgeolli)
-      }
+    for makgeolli in makgeollis where !uniqueIds.contains(makgeolli.id) {
+      uniqueIds.insert(makgeolli.id)
+      result.append(makgeolli)
     }
     return result
   }

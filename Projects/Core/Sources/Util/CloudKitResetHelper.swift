@@ -74,7 +74,7 @@ public struct CloudKitResetHelper {
         let query = CKQuery(recordType: recordType, predicate: NSPredicate(value: true))
         let records = try await database.records(matching: query)
         
-        let recordIDs = records.matchResults.compactMap { (recordID, result) in
+        let recordIDs = records.matchResults.compactMap { (_, result) in
           switch result {
           case .success(let record):
             return record.recordID

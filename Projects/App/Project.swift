@@ -2,7 +2,7 @@ import Foundation
 import ProjectDescription
 import ProjectDescriptionHelpers
 
-fileprivate let commonScripts: [TargetScript] = [
+private let commonScripts: [TargetScript] = [
     .post(
       script: """
         ROOT_DIR=\(ProcessInfo.processInfo.environment["TUIST_ROOT_DIR"] ?? "")

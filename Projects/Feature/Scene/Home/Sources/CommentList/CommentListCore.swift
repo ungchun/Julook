@@ -226,7 +226,7 @@ public struct CommentListCore {
           }
         )
         
-      case .showToast(_, _):
+      case .showToast:
         return .none
       }
     }

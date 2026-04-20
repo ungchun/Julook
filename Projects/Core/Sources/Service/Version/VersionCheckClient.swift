@@ -10,6 +10,11 @@ import Foundation
 
 import ComposableArchitecture
 
+public enum VersionCheckError: Error, Sendable {
+  case invalidBundleID
+  case lookupFailed
+}
+
 @DependencyClient
 public struct VersionCheckClient: Sendable {
   public var checkForUpdate: @Sendable () async throws -> String = { "1.0.0" }
@@ -30,10 +35,10 @@ extension VersionCheckClient: DependencyKey {
              let latestVersion = appInfo["version"] as? String {
             return latestVersion
           } else {
-            throw NSError()
+            throw VersionCheckError.lookupFailed
           }
         } else {
-          throw NSError()
+          throw VersionCheckError.invalidBundleID
         }
       },
       
