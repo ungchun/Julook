@@ -50,12 +50,12 @@ extension InformationView {
         .lineLimit(1)
 
       if let brewery = store.makgeolli.brewery {
-        Text("\(brewery) ･ \(formatValue(store.state.makgeolli.alcoholPercentage))도")
+        Text(L10n.Common.Format.breweryAlcohol(brewery, formatValue(store.state.makgeolli.alcoholPercentage)))
           .foregroundColor(.w50)
           .font(.SF15R)
           .lineLimit(1)
       } else {
-        Text("\(formatValue(store.state.makgeolli.alcoholPercentage))도")
+        Text(L10n.Common.Format.alcoholOnly(formatValue(store.state.makgeolli.alcoholPercentage)))
           .foregroundColor(.w50)
           .font(.SF15R)
           .lineLimit(1)
@@ -67,10 +67,10 @@ extension InformationView {
   @ViewBuilder
   private var detailScoreRow: some View {
     HStack(spacing: 16) {
-      detailScoreColumn(score: store.state.makgeolli.sweetness, label: "단맛")
-      detailScoreColumn(score: store.state.makgeolli.sourness, label: "신맛")
-      detailScoreColumn(score: store.state.makgeolli.thickness, label: "걸쭉")
-      detailScoreColumn(score: store.state.makgeolli.carbonation, label: "탄산")
+      detailScoreColumn(score: store.state.makgeolli.sweetness, label: L10n.Common.Taste.sweetness)
+      detailScoreColumn(score: store.state.makgeolli.sourness, label: L10n.Common.Taste.sourness)
+      detailScoreColumn(score: store.state.makgeolli.thickness, label: L10n.Common.Taste.thickness)
+      detailScoreColumn(score: store.state.makgeolli.carbonation, label: L10n.Common.Taste.carbonation)
     }
     .padding(.bottom, 32)
   }
@@ -119,13 +119,13 @@ extension InformationView {
 
   func formatDate(_ date: Date) -> String {
     let formatter = DateFormatter()
-    formatter.dateFormat = "yyyy년 M월 d일"
+    formatter.dateFormat = L10n.Common.Format.dateYMD
     return formatter.string(from: date)
   }
 
   func formatShortDate(_ date: Date) -> String {
     let formatter = DateFormatter()
-    formatter.dateFormat = "M월 d일"
+    formatter.dateFormat = L10n.Common.Format.dateMD
     return formatter.string(from: date)
   }
 

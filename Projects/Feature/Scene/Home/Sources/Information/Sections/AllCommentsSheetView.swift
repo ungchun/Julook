@@ -16,7 +16,7 @@ struct AllCommentsSheetView: View {
 
         if store.state.publicComments.isEmpty {
           VStack(spacing: 20) {
-            Text("공개된 코멘트가 없어요")
+            Text(L10n.Information.AllComments.empty)
               .foregroundColor(.w50)
               .font(.SF17R)
 
@@ -47,7 +47,7 @@ struct AllCommentsSheetView: View {
           }
         }
       }
-      .navigationTitle("코멘트")
+      .navigationTitle(L10n.Information.AllComments.title)
       .navigationBarTitleDisplayMode(.inline)
     }
   }

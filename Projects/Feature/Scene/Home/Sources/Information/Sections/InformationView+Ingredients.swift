@@ -9,7 +9,7 @@ extension InformationView {
     if let ingredients = store.makgeolli.ingredients {
       HStack {
         VStack(alignment: .leading, spacing: 0) {
-          Text("원재료")
+          Text(L10n.Information.Ingredients.title)
             .foregroundColor(.w)
             .font(.SF20B)
             .padding(.bottom, 20)
@@ -20,7 +20,7 @@ extension InformationView {
             .multilineTextAlignment(.leading)
             .padding(.bottom, 16)
 
-          Text("정보출처: 식품안전나라")
+          Text(L10n.Information.Ingredients.source)
             .foregroundColor(.w25)
             .font(.SF12B)
         }

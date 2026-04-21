@@ -10,7 +10,7 @@ extension InformationView {
         && store.makgeolli.website != nil {
       HStack {
         VStack(alignment: .leading, spacing: 0) {
-          Text("양조장 링크")
+          Text(L10n.Information.Brewery.link)
             .foregroundColor(.w)
             .font(.SF20B)
             .padding(.bottom, 20)

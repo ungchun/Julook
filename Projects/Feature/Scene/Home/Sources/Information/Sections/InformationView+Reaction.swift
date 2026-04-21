@@ -10,14 +10,14 @@ extension InformationView {
       ReactionButton(
         state: store.state.dislikeButtonState,
         type: .dislike,
-        text: "아쉬워요",
+        text: L10n.Common.Reaction.dislike,
         action: { store.send(.dislikeButtonTapped) }
       )
 
       ReactionButton(
         state: store.state.likeButtonState,
         type: .like,
-        text: "좋았어요",
+        text: L10n.Common.Reaction.like,
         action: { store.send(.likeButtonTapped) }
       )
     }
@@ -42,13 +42,13 @@ extension InformationView {
     )) {
       editActionSheetButtons
     }
-    .alert("코멘트 삭제", isPresented: .init(
+    .alert(L10n.Information.Comment.DeleteAlert.title, isPresented: .init(
       get: { store.state.isShowingDeleteAlert },
       set: { store.send(.showDeleteAlert($0)) }
     )) {
       deleteAlertButtons
     } message: {
-      Text("코멘트를 삭제하시겠어요?")
+      Text(L10n.Information.Comment.DeleteAlert.message)
     }
     .padding(.bottom, 40)
   }
@@ -58,14 +58,14 @@ extension InformationView {
   @ViewBuilder
   private var myCommentHeader: some View {
     HStack {
-      Text("내 코멘트")
+      Text(L10n.Information.Comment.myComment)
         .foregroundColor(.w85)
         .font(.SF12B)
 
       Spacer()
 
       if let userComment = store.state.userComment {
-        Text(userComment.isPublic ? "전체공개" : "비공개")
+        Text(userComment.isPublic ? L10n.Information.Comment.Visibility.public : L10n.Information.Comment.Visibility.private)
           .foregroundColor(.w50)
           .font(.SF12R)
       }
@@ -99,7 +99,7 @@ extension InformationView {
 
         Spacer()
 
-        Text("수정")
+        Text(L10n.Information.Comment.edit)
           .foregroundColor(DesignSystemAsset.Colors.primary.swiftUIColor)
           .font(.SF14R)
           .onTapGesture {
@@ -115,7 +115,7 @@ extension InformationView {
       store.send(.commentSectionTapped)
     }) {
       HStack {
-        Text("터치해서 코멘트를 남겨보세요!")
+        Text(L10n.Information.Comment.emptyPrompt)
           .foregroundColor(.w85)
           .font(.SF14R)
       }
@@ -128,14 +128,14 @@ extension InformationView {
 
   @ViewBuilder
   private var editActionSheetButtons: some View {
-    Button("수정하기") { store.send(.showCommentSheet(true)) }
-    Button("삭제하기", role: .destructive) { store.send(.showDeleteAlert(true)) }
-    Button("취소하기", role: .cancel) { }
+    Button(L10n.Information.Comment.editAction) { store.send(.showCommentSheet(true)) }
+    Button(L10n.Information.Comment.deleteAction, role: .destructive) { store.send(.showDeleteAlert(true)) }
+    Button(L10n.Information.Comment.cancelAction, role: .cancel) { }
   }
 
   @ViewBuilder
   private var deleteAlertButtons: some View {
-    Button("취소", role: .cancel) { store.send(.showDeleteAlert(false)) }
-    Button("삭제하기", role: .destructive) { store.send(.confirmDelete) }
+    Button(L10n.Common.Button.cancel, role: .cancel) { store.send(.showDeleteAlert(false)) }
+    Button(L10n.Information.Comment.deleteAction, role: .destructive) { store.send(.confirmDelete) }
   }
 }

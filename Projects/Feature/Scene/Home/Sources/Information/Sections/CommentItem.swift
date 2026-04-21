@@ -48,7 +48,7 @@ struct CommentItem: View {
 
   private func formatShortDate(_ date: Date) -> String {
     let formatter = DateFormatter()
-    formatter.dateFormat = "M월 d일"
+    formatter.dateFormat = L10n.Common.Format.dateMD
     return formatter.string(from: date)
   }
 }

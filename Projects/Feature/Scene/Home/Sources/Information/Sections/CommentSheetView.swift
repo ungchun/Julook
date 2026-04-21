@@ -16,7 +16,7 @@ struct CommentSheetView: View {
   var body: some View {
     VStack(alignment: .leading, spacing: 0) {
       HStack {
-        Button("취소") {
+        Button(L10n.Common.Button.cancel) {
           store.send(.showCommentSheet(false))
         }
         .foregroundColor(DesignSystemAsset.Colors.primary.swiftUIColor)
@@ -24,13 +24,13 @@ struct CommentSheetView: View {
 
         Spacer()
 
-        Text(store.state.userComment != nil ? "코멘트 수정" : "코멘트 남기기")
+        Text(store.state.userComment != nil ? L10n.Information.CommentSheet.Title.edit : L10n.Information.CommentSheet.Title.create)
           .foregroundColor(.w)
           .font(.SF17B)
 
         Spacer()
 
-        Button("저장") {
+        Button(L10n.Common.Button.save) {
           store.send(.saveComment(commentText, isPublic))
         }
         .foregroundColor(
@@ -45,7 +45,7 @@ struct CommentSheetView: View {
       Divider()
         .padding(.bottom, 16)
 
-      TextField("막걸리에 대한 생각을 자유롭게 적어주세요.", text: $commentText, axis: .vertical)
+      TextField(L10n.Information.CommentSheet.placeholder, text: $commentText, axis: .vertical)
         .foregroundColor(.w85)
         .font(.SF14R)
         .focused($isTextEditorFocused)
@@ -63,7 +63,7 @@ struct CommentSheetView: View {
       HStack(spacing: 8) {
         Spacer()
 
-        Text("비공개")
+        Text(L10n.Information.Comment.Visibility.private)
           .foregroundColor(.w50)
           .font(.SF14R)
 

@@ -19,7 +19,7 @@ extension InformationView {
   @ViewBuilder
   private var evaluationHeader: some View {
     HStack {
-      Text("평가 및 코멘트")
+      Text(L10n.Information.Evaluation.title)
         .foregroundColor(.w)
         .font(.SF20B)
       Spacer()
@@ -69,11 +69,11 @@ extension InformationView {
       }
 
       HStack {
-        Text("좋았어요 (\(like))")
+        Text(L10n.Information.Evaluation.likeCount(like))
           .foregroundColor(.w50)
           .font(.SF14R)
         Spacer()
-        Text("아쉬워요 (\(dislike))")
+        Text(L10n.Information.Evaluation.dislikeCount(dislike))
           .foregroundColor(.w50)
           .font(.SF14R)
       }
@@ -182,7 +182,7 @@ extension InformationView {
   @ViewBuilder
   private var emptyPublicCommentsCard: some View {
     VStack(alignment: .center, spacing: 8) {
-      Text("공개된 코멘트가 없어요.")
+      Text(L10n.Information.Comments.empty)
         .foregroundColor(.w50)
         .font(.SF12R)
         .frame(maxWidth: .infinity)
