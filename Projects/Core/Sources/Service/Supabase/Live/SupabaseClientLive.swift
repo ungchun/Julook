@@ -46,6 +46,9 @@ extension SupabaseClient: DependencyKey {
       fetchRandomMakgeollis: { try await SupabaseClientLive.fetchRandomMakgeollis(ref) },
       fetchAwards: { try await SupabaseClientLive.fetchAwards(ref) },
       fetchMakgeollis: { try await SupabaseClientLive.fetchMakgeollis(ref, limit: $0, offset: $1) },
+      fetchMakgeolliTranslations: { locale in
+        try await SupabaseClientLive.fetchMakgeolliTranslations(ref, locale: locale)
+      },
       fetchFilteredMakgeollis: {
         try await SupabaseClientLive.fetchFilteredMakgeollis(
           ref, pageSize: $0, offset: $1, filters: $2

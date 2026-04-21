@@ -24,6 +24,7 @@ public struct SupabaseClient: Sendable {
   public var fetchRandomMakgeollis: @Sendable () async throws -> [Makgeolli]
   public var fetchAwards: @Sendable () async throws -> [Award]
   public var fetchMakgeollis: @Sendable (Int, Int) async throws -> [Makgeolli]
+  public var fetchMakgeolliTranslations: @Sendable (SupportedLocale) async throws -> [MakgeolliTranslation]
   public var fetchFilteredMakgeollis: @Sendable (Int, Int, Set<FilterType>) async throws -> [Makgeolli]
   public var fetchMakgeollisByAward: @Sendable (String, Int, Int) async throws -> [Makgeolli]
   public var fetchMakgeolliById: @Sendable (UUID) async throws -> Makgeolli?
