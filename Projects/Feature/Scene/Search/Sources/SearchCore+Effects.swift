@@ -87,9 +87,9 @@ extension SearchCore {
   func getErrorMessage(for code: SearchCoreError.Code) -> String {
     switch code {
     case .failToSearch:
-      return "검색에 실패했습니다."
+      return L10n.Search.Error.searchFailed
     case .failToFetchImage:
-      return "이미지 로딩에 실패했습니다."
+      return L10n.Common.Error.imageLoadFailed
     }
   }
 }

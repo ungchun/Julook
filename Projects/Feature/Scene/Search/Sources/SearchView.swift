@@ -72,7 +72,7 @@ private extension SearchView {
           .foregroundColor(.w50)
           .padding(.leading, 8)
 
-        TextField("막걸리 이름, 양조장 ...", text: $store.searchText)
+        TextField(L10n.Search.Input.placeholder, text: $store.searchText)
           .foregroundColor(.w)
           .accentColor(DesignSystemAsset.Colors.primary.swiftUIColor)
           .focused($focused)
@@ -105,7 +105,7 @@ private extension SearchView {
       .cornerRadius(10)
 
       if focused {
-        Button("취소") {
+        Button(L10n.Common.Button.cancel) {
           focused = false
           UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
         }
@@ -120,7 +120,7 @@ private extension SearchView {
   @ViewBuilder
   func EmptyStateView() -> some View {
     VStack(spacing: 20) {
-      Text("막걸리 이름으로 검색해보세요!")
+      Text(L10n.Search.EmptyState.prompt)
         .foregroundColor(.w50)
         .font(.SF17R)
 
@@ -143,7 +143,7 @@ private extension SearchView {
   @ViewBuilder
   private var recentSearchesHeader: some View {
     HStack {
-      Text("최근 검색어")
+      Text(L10n.Search.Recent.title)
         .foregroundColor(.w)
         .font(.SF14R)
       Spacer()
@@ -152,20 +152,20 @@ private extension SearchView {
           store.send(.showClearConfirmAlert(true))
         }
       } label: {
-        Text("지우기")
+        Text(L10n.Common.Button.clear)
           .foregroundColor(DesignSystemAsset.Colors.primary.swiftUIColor)
           .font(.SF14R)
       }
     }
     .padding(.bottom, 20)
-    .alert("최근 검색어 지우기", isPresented: $store.isShowingClearConfirmAlert) {
-      Button("취소", role: .cancel) { store.send(.showClearConfirmAlert(false)) }
-      Button("지우기", role: .destructive) {
+    .alert(L10n.Search.Recent.ClearAlert.title, isPresented: $store.isShowingClearConfirmAlert) {
+      Button(L10n.Common.Button.cancel, role: .cancel) { store.send(.showClearConfirmAlert(false)) }
+      Button(L10n.Common.Button.clear, role: .destructive) {
         store.send(.clearRecentSearches)
         store.send(.showClearConfirmAlert(false))
       }
     } message: {
-      Text("검색한 기록을 모두 지울까요?")
+      Text(L10n.Search.Recent.ClearAlert.message)
     }
   }
 
