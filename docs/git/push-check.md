@@ -42,8 +42,22 @@
 | 7 | 커밋 메시지 형식 | [../git/commit.md](./commit.md) 형식 (`{이모지} [{type}] ...`) 불일치 |
 | 8 | WIP/임시 커밋 금지 | `WIP`, `fixme`, `임시`, `asdf` 등 메시지 감지 |
 | 10 | SwiftLint error 수준 | `.swiftlint.yml` 임계값 error 에 해당하는 위반 (warning은 통과) |
+| 11 | 한글 리터럴 0건 | [아래 섹션](#한글-리터럴-0건) 참조 |
 
 > 이전에는 경고 수준이었으나 차단으로 승격됨 (2026-04-21).
+
+### 한글 리터럴 0건
+
+Swift 소스의 주석이 아닌 문자열 리터럴에 한글이 포함되면 푸시 차단. UI 문자열은 전부 `L10n.*` (SwiftGen) 경유. 근거: [../coding/localization.md](../coding/localization.md).
+
+```bash
+./scripts/check-hardcoded-korean.sh Projects
+```
+
+- 탐지 시 stderr 에 `파일:라인:내용` 출력 + exit 1.
+- 제외: `**/Generated/**`, `**/Tests/**`, `**/.build/**`, `scripts/fixtures/**`.
+- 디버그 로그 전용 탈출구: 같은 라인에 `// swiftgen-ignore` 마커.
+- 의존성: `ripgrep` (`brew install ripgrep`).
 
 ## 비상 우회
 

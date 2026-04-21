@@ -27,7 +27,7 @@
 필요할 때만 해당 문서를 타고 들어간다 (상위 문서는 링크 + 요약만 포함).
 
 - **아키텍처**: [structure](./docs/architecture/structure.md), [data-flow](./docs/architecture/data-flow.md)
-- **코딩 규칙**: [tca](./docs/coding/tca.md), [models](./docs/coding/models.md), [errors](./docs/coding/errors.md), [style](./docs/coding/style.md)
+- **코딩 규칙**: [tca](./docs/coding/tca.md), [models](./docs/coding/models.md), [errors](./docs/coding/errors.md), [style](./docs/coding/style.md), [localization](./docs/coding/localization.md)
 - **서비스**: [supabase](./docs/services/supabase.md), [swiftdata](./docs/services/swiftdata.md), [analytics](./docs/services/analytics.md), [logging](./docs/services/logging.md)
 - **UI**: [design-system](./docs/ui/design-system.md), [patterns](./docs/ui/patterns.md)
 - **데이터베이스**: [schema](./docs/database/schema.md)
