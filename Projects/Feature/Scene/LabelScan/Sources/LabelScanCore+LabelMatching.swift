@@ -3,9 +3,9 @@ import Foundation
 enum LabelMatching {
   static func cleanKeyword(_ text: String) -> String {
     let removeWords = [
-      "막걸리", "생막걸리", "탁주", "생탁주", "프리미엄",
-      "명품", "전통", "우리", "순", "참", "특선", "명가",
-      "본가", "원조", "청정", "손"
+      "막걸리", "생막걸리", "탁주", "생탁주", "프리미엄",  // swiftgen-ignore
+      "명품", "전통", "우리", "순", "참", "특선", "명가",  // swiftgen-ignore
+      "본가", "원조", "청정", "손"  // swiftgen-ignore
     ]
     var result = text
     for word in removeWords {

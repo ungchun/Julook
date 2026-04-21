@@ -34,13 +34,13 @@ public struct LabelScanView: View {
       store.send(.onDisappear)
     }
     .alert(
-      "알림",
+      L10n.Common.Alert.notice,
       isPresented: Binding(
         get: { store.isShowingError },
         set: { _ in store.send(.dismissError) }
       )
     ) {
-      Button("확인") {
+      Button(L10n.Common.Button.confirm) {
         store.send(.dismissError)
       }
     } message: {
@@ -72,7 +72,7 @@ private extension LabelScanView {
   @ViewBuilder
   func BottomControls() -> some View {
     VStack(spacing: 24) {
-      Text("막걸리 라벨을 찍어주세요")
+      Text(L10n.LabelScan.Guide.prompt)
         .font(.SF15R)
         .foregroundColor(.w50)
 

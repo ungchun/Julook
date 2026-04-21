@@ -39,12 +39,12 @@ struct CandidateRow: View {
             .lineLimit(1)
 
           if let brewery = makgeolli.brewery {
-            Text("\(brewery) ･ \(formatValue(makgeolli.alcoholPercentage))도")
+            Text(L10n.Common.Format.breweryAlcohol(brewery, formatValue(makgeolli.alcoholPercentage)))
               .foregroundColor(.w50)
               .font(.SF10B)
               .lineLimit(1)
           } else {
-            Text("\(formatValue(makgeolli.alcoholPercentage))도")
+            Text(L10n.Common.Format.alcoholOnly(formatValue(makgeolli.alcoholPercentage)))
               .foregroundColor(.w50)
               .font(.SF10B)
               .lineLimit(1)
@@ -57,22 +57,22 @@ struct CandidateRow: View {
         HStack(spacing: 6) {
           ScoreItem(
             score: makgeolli.sweetness,
-            label: "단맛",
+            label: L10n.Common.Taste.sweetness,
             color: DesignSystemAsset.Colors.primary.swiftUIColor
           )
           ScoreItem(
             score: makgeolli.sourness,
-            label: "신맛",
+            label: L10n.Common.Taste.sourness,
             color: DesignSystemAsset.Colors.primary.swiftUIColor
           )
           ScoreItem(
             score: makgeolli.thickness,
-            label: "걸쭉",
+            label: L10n.Common.Taste.thickness,
             color: DesignSystemAsset.Colors.primary.swiftUIColor
           )
           ScoreItem(
             score: makgeolli.carbonation,
-            label: "탄산",
+            label: L10n.Common.Taste.carbonation,
             color: DesignSystemAsset.Colors.primary.swiftUIColor
           )
         }

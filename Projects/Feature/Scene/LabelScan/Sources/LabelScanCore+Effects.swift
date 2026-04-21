@@ -14,7 +14,7 @@ extension LabelScanCore {
           image: image, client: supabaseClient, send: send
         )
       } catch {
-        await send(.showError("분석 중 오류가 발생했습니다.\n다시 시도해주세요."))
+        await send(.showError(L10n.LabelScan.Error.analysisErrorRetry))
         await send(.resetCamera)
       }
     }
@@ -105,7 +105,7 @@ enum LabelScanAnalyzer {
     send: Send<LabelScanCore.Action>
   ) async throws {
     guard let imageData = image.jpegData(compressionQuality: 0.8) else {
-      await send(.showError("이미지 변환에 실패했습니다."))
+      await send(.showError(L10n.LabelScan.Error.imageConversionFailed))
       await send(.resetCamera)
       return
     }
@@ -115,7 +115,7 @@ enum LabelScanAnalyzer {
     let full = result.name
 
     guard !(primary ?? "").isEmpty || !(full ?? "").isEmpty else {
-      await send(.showError("막걸리 라벨을 인식하지 못했습니다.\n다시 촬영해주세요."))
+      await send(.showError(L10n.LabelScan.Error.labelNotRecognized))
       await send(.resetCamera)
       return
     }
@@ -124,11 +124,9 @@ enum LabelScanAnalyzer {
       client: client, analysis: result
     )
 
-    let displayName = primary ?? full ?? "알 수 없는"
+    let displayName = primary ?? full ?? L10n.LabelScan.Error.unknownLabel
     guard !searchResults.isEmpty else {
-      await send(.showError(
-        "'\(displayName)' 막걸리를 찾지 못했습니다.\n아직 등록되지 않은 막걸리일 수 있습니다."
-      ))
+      await send(.showError(L10n.LabelScan.Error.notFoundFormat(displayName)))
       await send(.resetCamera)
       return
     }

@@ -101,7 +101,7 @@ public struct LabelScanCore {
 
       case .analysisCompleted(.failure):
         state.isAnalyzing = false
-        return .send(.showError("분석에 실패했습니다. 다시 시도해주세요."))
+        return .send(.showError(L10n.LabelScan.Error.analysisFailed))
 
       case let .showError(message):
         state.isAnalyzing = false
