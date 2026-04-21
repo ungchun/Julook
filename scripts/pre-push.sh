@@ -191,8 +191,8 @@ else
       fail "tuist generate 실패. 로그: /tmp/julook_tuist.log"
     elif ! xcodebuild \
             -workspace Julook.xcworkspace \
-            -scheme Julook \
-            -destination 'platform=iOS Simulator,name=iPhone 15' \
+            -scheme "Julook (App project)" \
+            -destination 'platform=iOS Simulator,name=iPhone 16 Pro,OS=18.5' \
             -quiet \
             test >/tmp/julook_test.log 2>&1; then
       fail "빌드/테스트 실패. 로그 마지막 40줄:"
