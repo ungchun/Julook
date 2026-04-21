@@ -31,7 +31,7 @@ public struct MyMakgeolliView: View {
             .frame(maxHeight: .infinity)
           } else if store.state.myMakgeollis.isEmpty {
             VStack(spacing: 20) {
-              Text("비어있어요")
+              Text(L10n.MyMakgeolli.Empty.title)
                 .foregroundColor(.w50)
                 .font(.SF17R)
 

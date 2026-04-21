@@ -9,13 +9,13 @@ extension MyMakgeolliView {
   @ViewBuilder
   func HeaderView() -> some View {
     ZStack {
-      Text("내 막걸리")
+      Text(L10n.MyMakgeolli.title)
         .font(.SF17B)
         .foregroundColor(.w)
 
       HStack {
 #if DEBUG
-        Button("초기화") {
+        Button(L10n.MyMakgeolli.Reset.button) {
           Task {
             do {
               try await CloudKitResetHelper.resetAllData()
@@ -44,7 +44,7 @@ extension MyMakgeolliView {
           VStack(spacing: 0) {
             Spacer()
 
-            Text(tab.rawValue)
+            Text(tab.displayName)
               .font(.SF15R)
               .foregroundColor(store.state.selectedTab == tab ? .w : .w50)
               .onTapGesture {

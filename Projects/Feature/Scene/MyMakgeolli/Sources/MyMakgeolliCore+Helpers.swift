@@ -1,6 +1,8 @@
 import Foundation
 import Security
 
+import Core
+
 extension MyMakgeolliCore {
   func getUserID() -> UUID {
     let service = "com.azhy.julook"
@@ -53,15 +55,15 @@ extension MyMakgeolliCore {
   func getErrorMessage(for code: MyMakgeolliCoreError.Code) -> String {
     switch code {
     case .failToFetchMyMakgeollis:
-      return "찜한 막걸리 목록을 불러오지 못했습니다."
+      return L10n.MyMakgeolli.Error.fetchFavoritesFailed
     case .failToFetchReactionData:
-      return "반응 데이터를 불러오지 못했습니다."
+      return L10n.MyMakgeolli.Error.fetchReactionsFailed
     case .failToFetchImage:
-      return "이미지 로딩에 실패했습니다."
+      return L10n.Common.Error.imageLoadFailed
     case .failToFetchMakgeolliDetail:
-      return "막걸리 정보를 불러오지 못했습니다."
+      return L10n.Common.Error.fetchMakgeolliFailed
     case .makgeolliNotFound:
-      return "해당 막걸리를 찾을 수 없습니다."
+      return L10n.MyMakgeolli.Error.makgeolliNotFound
     }
   }
 }
