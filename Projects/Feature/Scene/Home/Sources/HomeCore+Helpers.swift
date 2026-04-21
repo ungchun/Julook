@@ -70,6 +70,8 @@ extension HomeCore {
       return "찜 상태 변경에 실패했습니다."
     case .failToFetchRecentComments:
       return "최근 코멘트를 불러오지 못했습니다."
+    case .failToFetchTranslations:
+      return "번역 정보를 불러오지 못했습니다."
     }
   }
 }

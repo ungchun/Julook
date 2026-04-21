@@ -17,5 +17,6 @@ public struct HomeCoreError: JulookError, @unchecked Sendable {
     case failToFetchTopLiked
     case failToUpdateFavoriteStatus
     case failToFetchRecentComments
+    case failToFetchTranslations
   }
 }

@@ -79,6 +79,34 @@ final class HomeCoreTests: XCTestCase {
     // 추가 effect 없음 — 초기화 완료 상태에서 onAppear는 no-op
   }
 
+  // MARK: - Translation response
+
+  func test_translationsResponse_success_storesByMakgeolliId() async {
+    let store = TestStore(initialState: HomeCore.State()) { HomeCore() }
+    let id1 = UUID()
+    let id2 = UUID()
+    let t1 = MakgeolliTranslation(
+      makgeolliId: id1, locale: "en", name: "A",
+      brewery: nil, awards: nil, ingredients: nil, description: nil
+    )
+    let t2 = MakgeolliTranslation(
+      makgeolliId: id2, locale: "en", name: "B",
+      brewery: nil, awards: nil, ingredients: nil, description: nil
+    )
+
+    await store.send(.translationsResponse(.success([t1, t2]))) {
+      $0.translationsByMakgeolliId = [id1: t1, id2: t2]
+    }
+  }
+
+  func test_translationsResponse_failure_emitsLogError() async {
+    let store = TestStore(initialState: HomeCore.State()) { HomeCore() }
+    let error = NSError(domain: "test", code: -1)
+
+    await store.send(.translationsResponse(.failure(error)))
+    await store.receive(\.logError)
+  }
+
   // MARK: - Failure paths
 
   func test_newReleasesResponseFailure_clearsLoadingAndLogsError() async {

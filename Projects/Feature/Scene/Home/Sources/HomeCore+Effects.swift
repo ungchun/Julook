@@ -22,6 +22,7 @@ extension HomeCore {
       .send(.fetchAwards),
       .send(.fetchTopLikedMakgeollis),
       .send(.fetchRecentComments),
+      .send(.fetchTranslations),
       .run { send in
         for await _ in NotificationCenter.default.notifications(
           named: .recentCommentsChanged
@@ -72,6 +73,20 @@ extension HomeCore {
         await send(.randomMakgeollisResponse(.success(makgeollis)))
       } catch {
         await send(.randomMakgeollisResponse(.failure(error)))
+      }
+    }
+  }
+
+  func fetchTranslationsEffect() -> Effect<Action> {
+    let supabaseClient = self.supabaseClient
+    return .run { send in
+      do {
+        let translations = try await supabaseClient.fetchTranslationsIfNeeded(
+          for: .current
+        )
+        await send(.translationsResponse(.success(translations)))
+      } catch {
+        await send(.translationsResponse(.failure(error)))
       }
     }
   }

@@ -38,6 +38,9 @@ public struct HomeCore {
     public var recentCommentImages: [UUID: URL] = [:]
     public var recentCommentReactions: [UUID: String] = [:]
 
+    // 번역 (영어 로컬라이징)
+    public var translationsByMakgeolliId: [UUID: MakgeolliTranslation] = [:]
+
     public init() { }
   }
 
@@ -89,6 +92,10 @@ public struct HomeCore {
     case updateRecentCommentReaction(commentId: UUID, String?)
     case refreshRecentCommentReactions
     case recentCommentItemTapped(UserComment)
+
+    // 번역 (영어 로컬라이징)
+    case fetchTranslations
+    case translationsResponse(TaskResult<[MakgeolliTranslation]>)
 
     // 네비게이션
     case moveToFilter
@@ -281,6 +288,18 @@ public struct HomeCore {
           return .none
         }
         return .send(.moveToInformation(makgeolli, state.recentCommentImages[makgeolli.id]))
+
+      case .fetchTranslations:
+        return fetchTranslationsEffect()
+
+      case let .translationsResponse(.success(translations)):
+        state.translationsByMakgeolliId = Dictionary(
+          uniqueKeysWithValues: translations.map { ($0.makgeolliId, $0) }
+        )
+        return .none
+
+      case let .translationsResponse(.failure(error)):
+        return logErrorEffect(code: .failToFetchTranslations, error: error)
 
       case .moveToFilter, .moveToFilterWithSelection, .moveToFilterWithTopic,
            .moveToInformation, .moveToCommentList:
