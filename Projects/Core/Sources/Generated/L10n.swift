@@ -85,6 +85,18 @@ public enum L10n {
     }
   }
   public enum Filter {
+    public enum Kind {
+      /// 탄산감 많은
+      public static let carbonated = L10n.tr("Localizable", "filter.kind.carbonated", fallback: "탄산감 많은")
+      /// 감미료 없는
+      public static let noSweetener = L10n.tr("Localizable", "filter.kind.noSweetener", fallback: "감미료 없는")
+      /// 시큼한
+      public static let sour = L10n.tr("Localizable", "filter.kind.sour", fallback: "시큼한")
+      /// 달달한
+      public static let sweet = L10n.tr("Localizable", "filter.kind.sweet", fallback: "달달한")
+      /// MARK: filter.kind — FilterType enum displayName
+      public static let thick = L10n.tr("Localizable", "filter.kind.thick", fallback: "걸쭉한")
+    }
     public enum Sort {
       /// 높은 도수순
       public static let highAlcohol = L10n.tr("Localizable", "filter.sort.highAlcohol", fallback: "높은 도수순")
@@ -92,18 +104,6 @@ public enum L10n {
       public static let lowAlcohol = L10n.tr("Localizable", "filter.sort.lowAlcohol", fallback: "낮은 도수순")
       /// MARK: filter.sort — SortOption enum displayName
       public static let recommended = L10n.tr("Localizable", "filter.sort.recommended", fallback: "추천순")
-    }
-    public enum `Type` {
-      /// 탄산감 많은
-      public static let carbonated = L10n.tr("Localizable", "filter.type.carbonated", fallback: "탄산감 많은")
-      /// 감미료 없는
-      public static let noSweetener = L10n.tr("Localizable", "filter.type.noSweetener", fallback: "감미료 없는")
-      /// 시큼한
-      public static let sour = L10n.tr("Localizable", "filter.type.sour", fallback: "시큼한")
-      /// 달달한
-      public static let sweet = L10n.tr("Localizable", "filter.type.sweet", fallback: "달달한")
-      /// MARK: filter.type — FilterType enum displayName
-      public static let thick = L10n.tr("Localizable", "filter.type.thick", fallback: "걸쭉한")
     }
   }
   public enum Home {

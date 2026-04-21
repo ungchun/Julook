@@ -43,7 +43,7 @@ struct SortOptionsView: View {
             get: { self.store.selectedSort },
             set: { option in
               Amp.track(event: "sort_option_selected", properties: [
-                "sort_option": option.description
+                "sort_option": option.rawValue
               ])
               self.store.send(.selectSort(option))
               self.store.send(.applySorting)

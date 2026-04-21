@@ -37,9 +37,9 @@ public enum ReactionType: String, CaseIterable {
   public var displayName: String {
     switch self {
     case .like:
-      return "좋았어요"
+      return L10n.Common.Reaction.like
     case .dislike:
-      return "아쉬워요"
+      return L10n.Common.Reaction.dislike
     }
   }
 }

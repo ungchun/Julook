@@ -41,12 +41,12 @@
 "common.error.fetchMakgeolliFailed" = "막걸리 정보를 불러오지 못했습니다.";
 "common.error.favoriteToggleFailed" = "찜 상태 변경에 실패했습니다.";
 
-/* MARK: filter.type */
-"filter.type.thick" = "걸쭉한";
-"filter.type.sweet" = "달달한";
-"filter.type.sour" = "시큼한";
-"filter.type.carbonated" = "탄산감 많은";
-"filter.type.noSweetener" = "감미료 없는";
+/* MARK: filter.kind */
+"filter.kind.thick" = "걸쭉한";
+"filter.kind.sweet" = "달달한";
+"filter.kind.sour" = "시큼한";
+"filter.kind.carbonated" = "탄산감 많은";
+"filter.kind.noSweetener" = "감미료 없는";
 
 /* MARK: filter.sort */
 "filter.sort.recommended" = "추천순";

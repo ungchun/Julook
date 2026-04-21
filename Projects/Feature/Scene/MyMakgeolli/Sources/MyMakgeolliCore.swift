@@ -6,11 +6,21 @@ import DesignSystem
 import ComposableArchitecture
 
 public enum MyMakgeolliFilterTab: String, CaseIterable, Equatable {
-  case all = "전체"
-  case like = "좋았어요"
-  case dislike = "아쉬워요"
-  case favorite = "찜"
-  case comment = "코멘트"
+  case all
+  case like
+  case dislike
+  case favorite
+  case comment
+
+  public var displayName: String {
+    switch self {
+    case .all: return L10n.MyMakgeolli.Tab.all
+    case .like: return L10n.Common.Reaction.like
+    case .dislike: return L10n.Common.Reaction.dislike
+    case .favorite: return L10n.MyMakgeolli.Tab.favorite
+    case .comment: return L10n.MyMakgeolli.Tab.comment
+    }
+  }
 }
 
 @Reducer

@@ -46,7 +46,7 @@ struct MakgeolliFilterView: View {
             }
             .onTapGesture {
               Amp.track(event: "filter_type_clicked", properties: [
-                "filter_type": filterType.description
+                "filter_type": filterType.rawValue
               ])
               store.send(.filterItemTapped(filterType))
             }

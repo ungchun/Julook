@@ -11,18 +11,24 @@ import SwiftUI
 import DesignSystem
 
 public enum FilterType: String, CaseIterable, Identifiable, Sendable {
-  case thick = "걸쭉한"
-  case sweet = "달달한"
-  case sour = "시큼한"
-  case carbonated = "탄산감 많은"
-  case noSweetener = "감미료 없는"
-  
+  case thick
+  case sweet
+  case sour
+  case carbonated
+  case noSweetener
+
   public var id: String { rawValue }
-  
+
   public var description: String {
-    return rawValue
+    switch self {
+    case .thick: return L10n.Filter.Kind.thick
+    case .sweet: return L10n.Filter.Kind.sweet
+    case .sour: return L10n.Filter.Kind.sour
+    case .carbonated: return L10n.Filter.Kind.carbonated
+    case .noSweetener: return L10n.Filter.Kind.noSweetener
+    }
   }
-  
+
   public var image: Image {
     switch self {
     case .thick: return DesignSystemAsset.Images.thick.swiftUIImage
@@ -35,13 +41,17 @@ public enum FilterType: String, CaseIterable, Identifiable, Sendable {
 }
 
 public enum SortOption: String, CaseIterable, Identifiable {
-  case recommended = "추천순"
-  case highAlcohol = "높은 도수순"
-  case lowAlcohol = "낮은 도수순"
-  
+  case recommended
+  case highAlcohol
+  case lowAlcohol
+
   public var id: String { rawValue }
-  
+
   public var description: String {
-    return rawValue
+    switch self {
+    case .recommended: return L10n.Filter.Sort.recommended
+    case .highAlcohol: return L10n.Filter.Sort.highAlcohol
+    case .lowAlcohol: return L10n.Filter.Sort.lowAlcohol
+    }
   }
 }

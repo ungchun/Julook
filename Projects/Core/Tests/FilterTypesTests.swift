@@ -11,12 +11,12 @@ final class FilterTypeTests: XCTestCase {
     ])
   }
 
-  func test_rawValues_matchKoreanLabels() {
-    XCTAssertEqual(FilterType.thick.rawValue, "걸쭉한")
-    XCTAssertEqual(FilterType.sweet.rawValue, "달달한")
-    XCTAssertEqual(FilterType.sour.rawValue, "시큼한")
-    XCTAssertEqual(FilterType.carbonated.rawValue, "탄산감 많은")
-    XCTAssertEqual(FilterType.noSweetener.rawValue, "감미료 없는")
+  func test_rawValues_areEnglishIdentifiers() {
+    XCTAssertEqual(FilterType.thick.rawValue, "thick")
+    XCTAssertEqual(FilterType.sweet.rawValue, "sweet")
+    XCTAssertEqual(FilterType.sour.rawValue, "sour")
+    XCTAssertEqual(FilterType.carbonated.rawValue, "carbonated")
+    XCTAssertEqual(FilterType.noSweetener.rawValue, "noSweetener")
   }
 
   func test_id_equalsRawValue() {
@@ -25,10 +25,12 @@ final class FilterTypeTests: XCTestCase {
     }
   }
 
-  func test_description_equalsRawValue() {
-    for filter in FilterType.allCases {
-      XCTAssertEqual(filter.description, filter.rawValue)
-    }
+  func test_description_returnsLocalizedDisplayName() {
+    XCTAssertEqual(FilterType.thick.description, L10n.Filter.Kind.thick)
+    XCTAssertEqual(FilterType.sweet.description, L10n.Filter.Kind.sweet)
+    XCTAssertEqual(FilterType.sour.description, L10n.Filter.Kind.sour)
+    XCTAssertEqual(FilterType.carbonated.description, L10n.Filter.Kind.carbonated)
+    XCTAssertEqual(FilterType.noSweetener.description, L10n.Filter.Kind.noSweetener)
   }
 
   func test_identifiable_allIdsAreUnique() {
@@ -46,10 +48,10 @@ final class SortOptionTests: XCTestCase {
     ])
   }
 
-  func test_rawValues_matchKoreanLabels() {
-    XCTAssertEqual(SortOption.recommended.rawValue, "추천순")
-    XCTAssertEqual(SortOption.highAlcohol.rawValue, "높은 도수순")
-    XCTAssertEqual(SortOption.lowAlcohol.rawValue, "낮은 도수순")
+  func test_rawValues_areEnglishIdentifiers() {
+    XCTAssertEqual(SortOption.recommended.rawValue, "recommended")
+    XCTAssertEqual(SortOption.highAlcohol.rawValue, "highAlcohol")
+    XCTAssertEqual(SortOption.lowAlcohol.rawValue, "lowAlcohol")
   }
 
   func test_id_equalsRawValue() {
@@ -58,9 +60,9 @@ final class SortOptionTests: XCTestCase {
     }
   }
 
-  func test_description_equalsRawValue() {
-    for option in SortOption.allCases {
-      XCTAssertEqual(option.description, option.rawValue)
-    }
+  func test_description_returnsLocalizedDisplayName() {
+    XCTAssertEqual(SortOption.recommended.description, L10n.Filter.Sort.recommended)
+    XCTAssertEqual(SortOption.highAlcohol.description, L10n.Filter.Sort.highAlcohol)
+    XCTAssertEqual(SortOption.lowAlcohol.description, L10n.Filter.Sort.lowAlcohol)
   }
 }

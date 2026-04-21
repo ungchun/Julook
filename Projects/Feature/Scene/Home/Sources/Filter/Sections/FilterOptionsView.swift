@@ -14,7 +14,7 @@ struct FilterOptionsView: View {
         ForEach(Array(FilterType.allCases.enumerated()), id: \.element) { index, option in
           Button {
             Amp.track(event: "filter_type_clicked", properties: [
-              "filter_type": option.description
+              "filter_type": option.rawValue
             ])
             store.send(.toggleFilterTapped(option))
           } label: {
