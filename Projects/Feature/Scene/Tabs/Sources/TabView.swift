@@ -12,6 +12,7 @@ import FeatureHome
 import FeatureSearch
 import FeatureLabelScan
 import FeatureMyMakgeolli
+import Core
 import DesignSystem
 
 import ComposableArchitecture
@@ -43,7 +44,7 @@ public struct TabsView: View {
           action: \.homeTab))
         .tabItem {
           DesignSystemAsset.Images.homeTab.swiftUIImage
-          Text("모아보기")
+          Text(L10n.Tabs.home)
             .font(.style(.SF10B))
         }
         .tag(Tab.home)
@@ -53,7 +54,7 @@ public struct TabsView: View {
           action: \.searchTab))
         .tabItem {
           DesignSystemAsset.Images.searchTab.swiftUIImage
-          Text("검색")
+          Text(L10n.Tabs.search)
             .font(.style(.SF10B))
         }
         .tag(Tab.search)
@@ -63,7 +64,7 @@ public struct TabsView: View {
           action: \.labelScanTab))
         .tabItem {
           Image(systemName: "camera.fill")
-          Text("라벨스캔")
+          Text(L10n.Tabs.labelScan)
             .font(.style(.SF10B))
         }
         .tag(Tab.labelScan)
@@ -73,7 +74,7 @@ public struct TabsView: View {
           action: \.myMakgeolliTab))
         .tabItem {
           Image(systemName: "heart.fill")
-          Text("내 막걸리")
+          Text(L10n.Tabs.myMakgeolli)
             .font(.style(.SF10B))
         }
         .tag(Tab.myMakgeolli)
