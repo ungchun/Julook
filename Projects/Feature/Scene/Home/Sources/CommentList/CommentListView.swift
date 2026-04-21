@@ -35,7 +35,7 @@ public struct CommentListView: View {
       .padding(.vertical, 16)
     }
     .addNavigationBar(
-      title: "코멘트가 달렸어요"
+      title: L10n.Home.Section.recentComments
     )
     .onAppear { store.send(.onAppear) }
   }
@@ -79,7 +79,7 @@ private extension CommentListView {
   @ViewBuilder
   func EmptyView() -> some View {
     VStack(spacing: 20) {
-      Text("아직 코멘트가 없어요")
+      Text(L10n.Home.CommentList.empty)
         .foregroundColor(.w50)
         .font(.SF17R)
       
@@ -249,7 +249,7 @@ private extension CommentListItem {
   
   func formatDate(_ date: Date) -> String {
     let formatter = DateFormatter()
-    formatter.dateFormat = "yyyy년 M월 d일"
+    formatter.dateFormat = L10n.Common.Format.dateYMD
     return formatter.string(from: date)
   }
 }

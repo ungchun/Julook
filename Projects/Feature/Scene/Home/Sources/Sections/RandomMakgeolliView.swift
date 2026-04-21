@@ -11,7 +11,7 @@ struct RandomMakgeolliView: View {
   var body: some View {
     VStack(spacing: 20) {
       HStack(alignment: .center, spacing: 8) {
-        Text("이 막걸리는 어때요?")
+        Text(L10n.Home.Section.random)
           .foregroundColor(.w)
           .font(.SF20B)
         Spacer()
@@ -60,28 +60,28 @@ struct RandomMakgeolliView: View {
                       HStack(alignment: .bottom, spacing: 4) {
                         VStack(spacing: 4) {
                           getChartImage(for: makgeolli.sweetness)
-                          Text("단")
+                          Text(L10n.Common.Taste.sweetnessShort)
                             .foregroundColor(.w50)
                             .font(.SF10B)
                         }
 
                         VStack(spacing: 4) {
                           getChartImage(for: makgeolli.sourness)
-                          Text("신")
+                          Text(L10n.Common.Taste.sournessShort)
                             .foregroundColor(.w50)
                             .font(.SF10B)
                         }
 
                         VStack(spacing: 4) {
                           getChartImage(for: makgeolli.thickness)
-                          Text("걸")
+                          Text(L10n.Common.Taste.thicknessShort)
                             .foregroundColor(.w50)
                             .font(.SF10B)
                         }
 
                         VStack(spacing: 4) {
                           getChartImage(for: makgeolli.carbonation)
-                          Text("탄")
+                          Text(L10n.Common.Taste.carbonationShort)
                             .foregroundColor(.w50)
                             .font(.SF10B)
                         }

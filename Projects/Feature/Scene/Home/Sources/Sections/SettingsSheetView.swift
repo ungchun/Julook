@@ -15,7 +15,7 @@ struct SettingsSheetView: View {
         .padding(.top, 8)
         .padding(.bottom, 20)
 
-      SettingRowView(title: "문의하기", showArrow: true) {
+      SettingRowView(title: L10n.Home.Settings.contact, showArrow: true) {
         Amp.track(event: "settings_inquiry_clicked")
         if let url = URL(string: "mailto:leedool3003@gmail.com") {
           openURL(url)
@@ -26,7 +26,7 @@ struct SettingsSheetView: View {
         .background(Color.w25)
         .padding(.horizontal, 16)
 
-      SettingRowView(title: "리뷰 남기기", showArrow: true) {
+      SettingRowView(title: L10n.Home.Settings.review, showArrow: true) {
         Amp.track(event: "settings_review_clicked")
         let reviewURL = "https://apps.apple.com/app/id6743315707?action=write-review"
         if let url = URL(string: reviewURL) {
@@ -38,7 +38,7 @@ struct SettingsSheetView: View {
         .background(Color.w25)
         .padding(.horizontal, 16)
 
-      SettingRowView(title: "이용약관", showArrow: true) {
+      SettingRowView(title: L10n.Home.Settings.terms, showArrow: true) {
         Amp.track(event: "settings_terms_clicked")
         if let url = URL(
           string: "https://yawner.notion.site/1c792ec2705581ec8b98d5b25d5d94ab?source=copy_link"
@@ -51,7 +51,7 @@ struct SettingsSheetView: View {
         .background(Color.w25)
         .padding(.horizontal, 16)
 
-      SettingRowView(title: "개인정보처리방침", showArrow: true) {
+      SettingRowView(title: L10n.Home.Settings.privacy, showArrow: true) {
         Amp.track(event: "settings_privacy_clicked")
         if let url = URL(
           string: "https://yawner.notion.site/1c792ec270558160a0f0c57392e4d1de?source=copy_link"
@@ -65,7 +65,7 @@ struct SettingsSheetView: View {
         .padding(.horizontal, 16)
 
       HStack {
-        Text("버전 정보")
+        Text(L10n.Home.Settings.version)
           .foregroundColor(.w)
           .font(.SF17R)
 

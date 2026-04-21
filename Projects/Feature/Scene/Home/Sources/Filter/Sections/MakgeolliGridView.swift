@@ -94,10 +94,10 @@ private extension MakgeolliGridView {
         .lineLimit(1)
 
       if let brewery = makgeolli.brewery {
-        Text("\(brewery) ･ \(formatValue(makgeolli.alcoholPercentage))도")
+        Text(L10n.Common.Format.breweryAlcohol(brewery, formatValue(makgeolli.alcoholPercentage)))
           .foregroundColor(.w50).font(.SF10R).lineLimit(1)
       } else {
-        Text("\(formatValue(makgeolli.alcoholPercentage))도")
+        Text(L10n.Common.Format.alcoholOnly(formatValue(makgeolli.alcoholPercentage)))
           .foregroundColor(.w50).font(.SF10R).lineLimit(1)
       }
     }
@@ -106,10 +106,10 @@ private extension MakgeolliGridView {
   @ViewBuilder
   func cardScoreRow(makgeolli: Makgeolli) -> some View {
     HStack(spacing: 6) {
-      cardScoreColumn(score: makgeolli.sweetness, label: "단맛")
-      cardScoreColumn(score: makgeolli.sourness, label: "신맛")
-      cardScoreColumn(score: makgeolli.thickness, label: "걸쭉")
-      cardScoreColumn(score: makgeolli.carbonation, label: "탄산")
+      cardScoreColumn(score: makgeolli.sweetness, label: L10n.Common.Taste.sweetness)
+      cardScoreColumn(score: makgeolli.sourness, label: L10n.Common.Taste.sourness)
+      cardScoreColumn(score: makgeolli.thickness, label: L10n.Common.Taste.thickness)
+      cardScoreColumn(score: makgeolli.carbonation, label: L10n.Common.Taste.carbonation)
     }
   }
 

@@ -11,7 +11,7 @@ struct MakgeolliTopicView: View {
   var body: some View {
     VStack(spacing: 20) {
       HStack(alignment: .center, spacing: 8) {
-        Text("주제로 찾기")
+        Text(L10n.Home.Section.filterByTopic)
           .foregroundColor(.w)
           .font(.SF20B)
         Spacer()

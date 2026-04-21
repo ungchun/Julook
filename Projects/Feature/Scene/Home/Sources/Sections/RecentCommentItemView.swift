@@ -86,7 +86,7 @@ struct RecentCommentItemView: View, Equatable {
 
   private func formatDate(_ date: Date) -> String {
     let formatter = DateFormatter()
-    formatter.dateFormat = "yyyy년 M월 d일"
+    formatter.dateFormat = L10n.Common.Format.dateYMD
     return formatter.string(from: date)
   }
 }

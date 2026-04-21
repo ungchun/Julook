@@ -44,7 +44,7 @@ public struct FilterView: View {
     .accentColor(DesignSystemAsset.Colors.primary.swiftUIColor)
     .addNavigationBar(
       title: store.isTopicMode
-      ? store.topicTitle : "특징으로 찾기"
+      ? store.topicTitle : L10n.Home.Section.filterByFeature
     )
     .onAppear { store.send(.onAppear) }
   }

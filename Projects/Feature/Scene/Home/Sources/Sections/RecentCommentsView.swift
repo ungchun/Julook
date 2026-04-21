@@ -11,7 +11,7 @@ struct RecentCommentsView: View {
   var body: some View {
     VStack(spacing: 20) {
       HStack(alignment: .center, spacing: 8) {
-        Text("코멘트가 달렸어요")
+        Text(L10n.Home.Section.recentComments)
           .foregroundColor(.w)
           .font(.SF20B)
 

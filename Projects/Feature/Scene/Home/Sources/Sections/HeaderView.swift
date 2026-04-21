@@ -8,7 +8,7 @@ struct HeaderView: View {
 
   var body: some View {
     HStack {
-      Text("모아보기")
+      Text(L10n.Home.Header.title)
         .foregroundColor(.w)
         .font(.SFTitle)
 

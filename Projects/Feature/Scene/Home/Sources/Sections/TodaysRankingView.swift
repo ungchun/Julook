@@ -11,7 +11,7 @@ struct TodaysRankingView: View {
   var body: some View {
     VStack(spacing: 20) {
       HStack(alignment: .center, spacing: 8) {
-        Text("인기 막걸리")
+        Text(L10n.Home.Section.popular)
           .foregroundColor(.w)
           .font(.SF20B)
         Spacer()
@@ -55,7 +55,7 @@ struct TodaysRankingView: View {
                     .aspectRatio(contentMode: .fit)
                     .frame(width: 24, height: 24)
 
-                  Text("단맛")
+                  Text(L10n.Common.Taste.sweetness)
                     .foregroundColor(.w50)
                     .font(.SF10B)
                 }
@@ -66,7 +66,7 @@ struct TodaysRankingView: View {
                     .aspectRatio(contentMode: .fit)
                     .frame(width: 24, height: 24)
 
-                  Text("신맛")
+                  Text(L10n.Common.Taste.sourness)
                     .foregroundColor(.w50)
                     .font(.SF10B)
                 }
@@ -77,7 +77,7 @@ struct TodaysRankingView: View {
                     .aspectRatio(contentMode: .fit)
                     .frame(width: 24, height: 24)
 
-                  Text("걸쭉")
+                  Text(L10n.Common.Taste.thickness)
                     .foregroundColor(.w50)
                     .font(.SF10B)
                 }
@@ -88,7 +88,7 @@ struct TodaysRankingView: View {
                     .aspectRatio(contentMode: .fit)
                     .frame(width: 24, height: 24)
 
-                  Text("탄산")
+                  Text(L10n.Common.Taste.carbonation)
                     .foregroundColor(.w50)
                     .font(.SF10B)
                 }
