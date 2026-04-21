@@ -71,3 +71,6 @@ Tuist/.build
 
 *.xcconfig
 supabase/.temp/
+
+### TDD workspace (per-cycle artifacts) ###
+_workspace/
