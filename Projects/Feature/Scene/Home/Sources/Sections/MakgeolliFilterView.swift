@@ -11,7 +11,7 @@ struct MakgeolliFilterView: View {
   var body: some View {
     VStack(spacing: 20) {
       HStack(alignment: .center, spacing: 8) {
-        Text("특징으로 찾기")
+        Text(L10n.Home.Section.filterByFeature)
           .foregroundColor(.w)
           .font(.SF20B)
 

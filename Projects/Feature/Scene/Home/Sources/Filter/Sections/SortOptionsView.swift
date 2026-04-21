@@ -12,7 +12,7 @@ struct SortOptionsView: View {
     VStack {
       HStack {
         HStack(spacing: 4) {
-          Text("어떤 순서로 정렬되나요")
+          Text(L10n.Home.Sort.questionLabel)
             .foregroundColor(.w50)
             .font(.SF12R)
 
@@ -25,15 +25,15 @@ struct SortOptionsView: View {
         .onTapGesture {
           store.send(.toggleSortInfoAlertTapped)
         }
-        .alert("추천순으로 정렬", isPresented: Binding(
+        .alert(L10n.Home.Sort.InfoAlert.title, isPresented: Binding(
           get: { store.showSortInfoAlert },
           set: { if !$0 { store.send(.toggleSortInfoAlertTapped) } }
         )) {
-          Button("확인", role: .cancel) {
+          Button(L10n.Common.Button.confirm, role: .cancel) {
             store.send(.toggleSortInfoAlertTapped)
           }
         } message: {
-          Text("최근에 나온 막걸리일수록 리스트 상단에 정렬돼요.")
+          Text(L10n.Home.Sort.InfoAlert.message)
         }
 
         Spacer()
