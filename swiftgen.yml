@@ -1,0 +1,15 @@
+## SwiftGen 6.6.x
+## 실행: `swiftgen` (프로젝트 루트에서) — 내부적으로 `swiftgen config run` 래핑
+## Tuist .pre 스크립트에서 자동 실행된다 (Projects/Core/Project.swift 참조)
+
+input_dir: .
+output_dir: .
+
+strings:
+  inputs:
+    - Projects/Core/Resources/ko.lproj
+  outputs:
+    - templateName: structured-swift5
+      output: Projects/Core/Sources/Generated/L10n.swift
+      params:
+        publicAccess: true

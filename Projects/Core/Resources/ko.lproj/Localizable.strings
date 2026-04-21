@@ -1,0 +1,194 @@
+/*
+  Localizable.strings (ko)
+  Julook
+
+  키 네이밍: scene.section.element
+  세션 2가 이 파일에 키를 append한다. 기존 seed 키는 보존할 것.
+  자세한 규약은 docs/coding/localization.md (세션 3 담당) 참조.
+*/
+
+/* MARK: common.button — 공용 액션 버튼 */
+"common.button.confirm" = "확인";
+"common.button.cancel" = "취소";
+"common.button.clear" = "지우기";
+"common.button.save" = "저장";
+
+/* MARK: common.alert — 공용 알림 */
+"common.alert.notice" = "알림";
+
+/* MARK: common.reaction — 반응 공용 라벨 */
+"common.reaction.like" = "좋았어요";
+"common.reaction.dislike" = "아쉬워요";
+
+/* MARK: common.taste — 맛 공용 라벨 (전체 + 축약) */
+"common.taste.sweetness" = "단맛";
+"common.taste.sourness" = "신맛";
+"common.taste.thickness" = "걸쭉";
+"common.taste.carbonation" = "탄산";
+"common.taste.sweetnessShort" = "단";
+"common.taste.sournessShort" = "신";
+"common.taste.thicknessShort" = "걸";
+"common.taste.carbonationShort" = "탄";
+
+/* MARK: common.format — 포맷 문자열 (%@: 문자 / %lld: 정수) */
+"common.format.breweryAlcohol" = "%@ ･ %@도";
+"common.format.alcoholOnly" = "%@도";
+"common.format.dateYMD" = "yyyy년 M월 d일";
+"common.format.dateMD" = "M월 d일";
+
+/* MARK: common.error — 공용 에러 메시지 */
+"common.error.imageLoadFailed" = "이미지 로딩에 실패했습니다.";
+"common.error.imageFetchFailed" = "이미지를 불러오지 못했습니다.";
+"common.error.fetchMakgeolliFailed" = "막걸리 정보를 불러오지 못했습니다.";
+"common.error.favoriteToggleFailed" = "찜 상태 변경에 실패했습니다.";
+
+/* MARK: filter.type — FilterType enum displayName */
+"filter.type.thick" = "걸쭉한";
+"filter.type.sweet" = "달달한";
+"filter.type.sour" = "시큼한";
+"filter.type.carbonated" = "탄산감 많은";
+"filter.type.noSweetener" = "감미료 없는";
+
+/* MARK: filter.sort — SortOption enum displayName */
+"filter.sort.recommended" = "추천순";
+"filter.sort.highAlcohol" = "높은 도수순";
+"filter.sort.lowAlcohol" = "낮은 도수순";
+
+/* MARK: app.update — RootView 업데이트 알림 */
+"app.update.title" = "업데이트가 필요합니다";
+"app.update.button" = "업데이트";
+"app.update.message" = "더 나은 서비스를 위해 주룩이 수정되었어요!";
+
+/* MARK: tabs — 바텀 탭 라벨 */
+"tabs.home" = "모아보기";
+"tabs.search" = "검색";
+"tabs.labelScan" = "라벨스캔";
+"tabs.myMakgeolli" = "내 막걸리";
+
+/* MARK: search.input — 검색 입력 */
+"search.input.placeholder" = "막걸리 이름, 양조장 ...";
+
+/* MARK: search.emptyState */
+"search.emptyState.prompt" = "막걸리 이름으로 검색해보세요!";
+
+/* MARK: search.recent — 최근 검색어 */
+"search.recent.title" = "최근 검색어";
+"search.recent.clearAlert.title" = "최근 검색어 지우기";
+"search.recent.clearAlert.message" = "검색한 기록을 모두 지울까요?";
+
+/* MARK: search.results — 검색 결과 */
+"search.results.empty" = "검색 결과가 없어요.";
+"search.results.requestRegister" = "등록 요청하기";
+"search.results.requestComplete.title" = "등록 요청 완료";
+"search.results.requestComplete.message" = "빠른 시일내에 추가할게요!";
+
+/* MARK: search.error */
+"search.error.searchFailed" = "검색에 실패했습니다.";
+
+/* MARK: labelScan.guide */
+"labelScan.guide.prompt" = "막걸리 라벨을 찍어주세요";
+
+/* MARK: labelScan.error */
+"labelScan.error.analysisFailed" = "분석에 실패했습니다. 다시 시도해주세요.";
+"labelScan.error.analysisErrorRetry" = "분석 중 오류가 발생했습니다.\n다시 시도해주세요.";
+"labelScan.error.imageConversionFailed" = "이미지 변환에 실패했습니다.";
+"labelScan.error.labelNotRecognized" = "막걸리 라벨을 인식하지 못했습니다.\n다시 촬영해주세요.";
+"labelScan.error.unknownLabel" = "알 수 없는";
+"labelScan.error.notFoundFormat" = "'%@' 막걸리를 찾지 못했습니다.\n아직 등록되지 않은 막걸리일 수 있습니다.";
+
+/* MARK: myMakgeolli — MyMakgeolli Scene */
+"myMakgeolli.title" = "내 막걸리";
+"myMakgeolli.empty.title" = "비어있어요";
+"myMakgeolli.reset.button" = "초기화";
+
+/* MARK: myMakgeolli.tab — MyMakgeolliFilterTab displayName */
+"myMakgeolli.tab.all" = "전체";
+"myMakgeolli.tab.favorite" = "찜";
+"myMakgeolli.tab.comment" = "코멘트";
+
+/* MARK: myMakgeolli.error */
+"myMakgeolli.error.fetchFavoritesFailed" = "찜한 막걸리 목록을 불러오지 못했습니다.";
+"myMakgeolli.error.fetchReactionsFailed" = "반응 데이터를 불러오지 못했습니다.";
+"myMakgeolli.error.makgeolliNotFound" = "해당 막걸리를 찾을 수 없습니다.";
+
+/* MARK: home.header */
+"home.header.title" = "모아보기";
+
+/* MARK: home.section — 홈 섹션 타이틀 */
+"home.section.filterByFeature" = "특징으로 찾기";
+"home.section.filterByTopic" = "주제로 찾기";
+"home.section.recentComments" = "코멘트가 달렸어요";
+"home.section.popular" = "인기 막걸리";
+"home.section.random" = "이 막걸리는 어때요?";
+"home.section.newReleases" = "새로 나왔어요";
+
+/* MARK: home.settings — 설정 시트 */
+"home.settings.contact" = "문의하기";
+"home.settings.review" = "리뷰 남기기";
+"home.settings.terms" = "이용약관";
+"home.settings.privacy" = "개인정보처리방침";
+"home.settings.version" = "버전 정보";
+
+/* MARK: home.sort — 정렬 옵션 */
+"home.sort.questionLabel" = "어떤 순서로 정렬되나요";
+"home.sort.infoAlert.title" = "추천순으로 정렬";
+"home.sort.infoAlert.message" = "최근에 나온 막걸리일수록 리스트 상단에 정렬돼요.";
+
+/* MARK: home.commentList */
+"home.commentList.empty" = "아직 코멘트가 없어요";
+
+/* MARK: home.error */
+"home.error.connectFailed" = "서비스 연결에 실패했습니다.";
+"home.error.fetchNewReleasesFailed" = "새로운 막걸리 정보를 불러오지 못했습니다.";
+"home.error.fetchRecommendFailed" = "추천 막걸리 정보를 불러오지 못했습니다.";
+"home.error.fetchAwardFailed" = "수상 정보를 불러오지 못했습니다.";
+"home.error.fetchPopularFailed" = "인기 막걸리 정보를 불러오지 못했습니다.";
+"home.error.fetchRecentCommentsFailed" = "최근 코멘트를 불러오지 못했습니다.";
+"home.error.fetchTranslationFailed" = "번역 정보를 불러오지 못했습니다.";
+"home.error.fetchCommentListFailed" = "코멘트 목록을 불러오지 못했습니다.";
+
+/* MARK: information.brewery */
+"information.brewery.link" = "양조장 링크";
+
+/* MARK: information.ingredients */
+"information.ingredients.title" = "원재료";
+"information.ingredients.source" = "정보출처: 식품안전나라";
+
+/* MARK: information.evaluation */
+"information.evaluation.title" = "평가 및 코멘트";
+"information.evaluation.likeCount" = "좋았어요 (%lld)";
+"information.evaluation.dislikeCount" = "아쉬워요 (%lld)";
+
+/* MARK: information.comments */
+"information.comments.empty" = "공개된 코멘트가 없어요.";
+
+/* MARK: information.comment — 내 코멘트 관련 액션 */
+"information.comment.deleteAlert.title" = "코멘트 삭제";
+"information.comment.deleteAlert.message" = "코멘트를 삭제하시겠어요?";
+"information.comment.myComment" = "내 코멘트";
+"information.comment.visibility.public" = "전체공개";
+"information.comment.visibility.private" = "비공개";
+"information.comment.edit" = "수정";
+"information.comment.emptyPrompt" = "터치해서 코멘트를 남겨보세요!";
+"information.comment.editAction" = "수정하기";
+"information.comment.deleteAction" = "삭제하기";
+"information.comment.cancelAction" = "취소하기";
+
+/* MARK: information.allComments */
+"information.allComments.empty" = "공개된 코멘트가 없어요";
+"information.allComments.title" = "코멘트";
+
+/* MARK: information.commentSheet */
+"information.commentSheet.title.edit" = "코멘트 수정";
+"information.commentSheet.title.create" = "코멘트 남기기";
+"information.commentSheet.placeholder" = "막걸리에 대한 생각을 자유롭게 적어주세요.";
+
+/* MARK: information.error */
+"information.error.favoriteStatusFailed" = "찜 상태를 확인하지 못했습니다.";
+"information.error.reactionFetchFailed" = "반응 정보를 불러오지 못했습니다.";
+"information.error.reactionSaveFailed" = "반응 저장에 실패했습니다.";
+"information.error.statsFetchFailed" = "평가 통계를 불러오지 못했습니다.";
+"information.error.myCommentFetchFailed" = "내 코멘트를 불러오지 못했습니다.";
+"information.error.commentSaveFailed" = "코멘트 저장에 실패했습니다.";
+"information.error.commentDeleteFailed" = "코멘트 삭제에 실패했습니다.";
+"information.error.otherUsersCommentFetchFailed" = "다른 유저의 코멘트를 불러오지 못했습니다.";
