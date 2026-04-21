@@ -60,7 +60,7 @@ fi
 
 # ── [차단 3] print( 직접 사용 금지 ───────────────────────
 sec "[차단 3] print( 직접 사용 금지 (Log 사용)"
-SWIFT_SRC="$(echo "$CHANGED" | grep -E '\.swift$' | grep -vE '(Tests/|Preview)' || true)"
+SWIFT_SRC="$(echo "$CHANGED" | grep -E '\.swift$' | grep -vE '(Tests/|Preview|scripts/fixtures/)' || true)"
 PRINT_HITS=""
 while IFS= read -r f; do
   [[ -z "$f" || ! -f "$f" ]] && continue
