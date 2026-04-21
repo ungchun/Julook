@@ -55,23 +55,23 @@ extension InformationCore {
   func getErrorMessage(for code: InformationCoreError.Code) -> String {
     switch code {
     case .failToCheckFavoriteStatus:
-      return "찜 상태를 확인하지 못했습니다."
+      return L10n.Information.Error.favoriteStatusFailed
     case .failToUpdateFavoriteStatus:
-      return "찜 상태 변경에 실패했습니다."
+      return L10n.Common.Error.favoriteToggleFailed
     case .failToLoadReaction:
-      return "반응 정보를 불러오지 못했습니다."
+      return L10n.Information.Error.reactionFetchFailed
     case .failToSaveReaction:
-      return "반응 저장에 실패했습니다."
+      return L10n.Information.Error.reactionSaveFailed
     case .failToLoadReactionCounts:
-      return "평가 통계를 불러오지 못했습니다."
+      return L10n.Information.Error.statsFetchFailed
     case .failToLoadUserComment:
-      return "내 코멘트를 불러오지 못했습니다."
+      return L10n.Information.Error.myCommentFetchFailed
     case .failToSaveUserComment:
-      return "코멘트 저장에 실패했습니다."
+      return L10n.Information.Error.commentSaveFailed
     case .failToDeleteUserComment:
-      return "코멘트 삭제에 실패했습니다."
+      return L10n.Information.Error.commentDeleteFailed
     case .failToLoadPublicComments:
-      return "다른 유저의 코멘트를 불러오지 못했습니다."
+      return L10n.Information.Error.otherUsersCommentFetchFailed
     }
   }
 

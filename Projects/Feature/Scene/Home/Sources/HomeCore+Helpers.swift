@@ -1,6 +1,8 @@
 import Foundation
 import Security
 
+import Core
+
 extension HomeCore {
   func getUserID() -> UUID {
     let service = "com.azhy.julook"
@@ -53,25 +55,25 @@ extension HomeCore {
   func getErrorMessage(for code: HomeCoreError.Code) -> String {
     switch code {
     case .failToSupabaseClientInitialized:
-      return "서비스 연결에 실패했습니다."
+      return L10n.Home.Error.connectFailed
     case .failToFetchNewReleases:
-      return "새로운 막걸리 정보를 불러오지 못했습니다."
+      return L10n.Home.Error.fetchNewReleasesFailed
     case .failToFetchRandomMakgeollis:
-      return "추천 막걸리 정보를 불러오지 못했습니다."
+      return L10n.Home.Error.fetchRecommendFailed
     case .failToGetImageUrl:
-      return "이미지를 불러오지 못했습니다."
+      return L10n.Common.Error.imageFetchFailed
     case .failToFetchImage:
-      return "이미지 로딩에 실패했습니다."
+      return L10n.Common.Error.imageLoadFailed
     case .failToFetchAwards:
-      return "수상 정보를 불러오지 못했습니다."
+      return L10n.Home.Error.fetchAwardFailed
     case .failToFetchTopLiked:
-      return "인기 막걸리 정보를 불러오지 못했습니다."
+      return L10n.Home.Error.fetchPopularFailed
     case .failToUpdateFavoriteStatus:
-      return "찜 상태 변경에 실패했습니다."
+      return L10n.Common.Error.favoriteToggleFailed
     case .failToFetchRecentComments:
-      return "최근 코멘트를 불러오지 못했습니다."
+      return L10n.Home.Error.fetchRecentCommentsFailed
     case .failToFetchTranslations:
-      return "번역 정보를 불러오지 못했습니다."
+      return L10n.Home.Error.fetchTranslationFailed
     }
   }
 }

@@ -235,11 +235,11 @@ public struct CommentListCore {
   private func getErrorMessage(for code: CommentListCoreError.Code) -> String {
     switch code {
     case .failToFetchComments:
-      return "코멘트 목록을 불러오지 못했습니다."
+      return L10n.Home.Error.fetchCommentListFailed
     case .failToFetchMakgeolliInfo:
-      return "막걸리 정보를 불러오지 못했습니다."
+      return L10n.Common.Error.fetchMakgeolliFailed
     case .failToFetchImage:
-      return "이미지를 불러오지 못했습니다."
+      return L10n.Common.Error.imageFetchFailed
     }
   }
 }
