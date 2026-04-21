@@ -34,7 +34,7 @@ struct RandomMakgeolliView: View {
             }
           } else {
             ForEach(
-              Array(store.randomMakgeollis.enumerated()), id: \.element.id
+              Array(store.localizedRandomMakgeollis.enumerated()), id: \.element.id
             ) { idx, makgeolli in
               RoundedRectangle(cornerRadius: 16)
                 .fill(Color.darkgray)

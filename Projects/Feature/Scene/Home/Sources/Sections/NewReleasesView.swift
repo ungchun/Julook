@@ -33,7 +33,7 @@ struct NewReleasesView: View {
                 .padding(.leading, idx == 0 ? 16 : 0)
             }
           } else {
-            ForEach(Array(store.newReleases.enumerated()), id: \.element.id) { idx, makgeolli in
+            ForEach(Array(store.localizedNewReleases.enumerated()), id: \.element.id) { idx, makgeolli in
               RoundedRectangle(cornerRadius: 16)
                 .fill(Color.darkgray)
                 .frame(width: 104, height: 240)

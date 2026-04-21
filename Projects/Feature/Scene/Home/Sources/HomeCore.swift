@@ -41,6 +41,25 @@ public struct HomeCore {
     // 번역 (영어 로컬라이징)
     public var translationsByMakgeolliId: [UUID: MakgeolliTranslation] = [:]
 
+    /// 주어진 Makgeolli에 현재 State의 번역을 적용한 결과를 반환.
+    public func localized(_ makgeolli: Makgeolli) -> Makgeolli {
+      makgeolli.localized(with: translationsByMakgeolliId[makgeolli.id])
+    }
+
+    public var localizedNewReleases: [Makgeolli] {
+      newReleases.map(localized)
+    }
+    public var localizedRandomMakgeollis: [Makgeolli] {
+      randomMakgeollis.map(localized)
+    }
+    public var localizedTopLikedMakgeollis: [Makgeolli] {
+      topLikedMakgeollis.map(localized)
+    }
+
+    public func localizedRecentCommentMakgeolli(for commentMakgeolliId: UUID) -> Makgeolli? {
+      recentCommentMakgeollis[commentMakgeolliId].map(localized)
+    }
+
     public init() { }
   }
 

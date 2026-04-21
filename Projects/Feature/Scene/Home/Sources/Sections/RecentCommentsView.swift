@@ -59,7 +59,7 @@ struct RecentCommentsView: View {
       } else {
         VStack(alignment: .leading, spacing: 0) {
           ForEach(Array(store.recentComments.enumerated()), id: \.element.id) { idx, comment in
-            if let makgeolli = store.recentCommentMakgeollis[comment.makgeolliId] {
+            if let makgeolli = store.state.localizedRecentCommentMakgeolli(for: comment.makgeolliId) {
               RecentCommentItemView(
                 comment: comment,
                 makgeolli: makgeolli,

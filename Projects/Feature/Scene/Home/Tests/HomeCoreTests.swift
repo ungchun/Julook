@@ -79,6 +79,52 @@ final class HomeCoreTests: XCTestCase {
     // 추가 effect 없음 — 초기화 완료 상태에서 onAppear는 no-op
   }
 
+  // MARK: - Localized helpers
+
+  func test_localizedNewReleases_appliesTranslationFromState() {
+    let id = UUID()
+    var state = HomeCore.State()
+    state.newReleases = [
+      Makgeolli(
+        id: id, name: "해창", brewery: "해창주조", website: nil, awards: nil,
+        sweetness: nil, sourness: nil, thickness: nil, carbonation: nil,
+        hasSweetener: nil, ingredients: nil, alcoholPercentage: nil,
+        imageName: nil, createdAt: nil, updatedAt: nil
+      )
+    ]
+    state.translationsByMakgeolliId = [
+      id: MakgeolliTranslation(
+        makgeolliId: id, locale: "en", name: "Haechang",
+        brewery: "Haechang Brewery", awards: nil, ingredients: nil, description: nil
+      )
+    ]
+
+    let result = state.localizedNewReleases
+
+    XCTAssertEqual(result.count, 1)
+    XCTAssertEqual(result[0].name, "Haechang")
+    XCTAssertEqual(result[0].brewery, "Haechang Brewery")
+  }
+
+  func test_localizedNewReleases_withoutTranslation_returnsOriginal() {
+    let id = UUID()
+    var state = HomeCore.State()
+    state.newReleases = [
+      Makgeolli(
+        id: id, name: "해창", brewery: "해창주조", website: nil, awards: nil,
+        sweetness: nil, sourness: nil, thickness: nil, carbonation: nil,
+        hasSweetener: nil, ingredients: nil, alcoholPercentage: nil,
+        imageName: nil, createdAt: nil, updatedAt: nil
+      )
+    ]
+    // translationsByMakgeolliId 비어있음
+
+    let result = state.localizedNewReleases
+
+    XCTAssertEqual(result[0].name, "해창")
+    XCTAssertEqual(result[0].brewery, "해창주조")
+  }
+
   // MARK: - Translation response
 
   func test_translationsResponse_success_storesByMakgeolliId() async {
