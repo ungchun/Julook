@@ -1,5 +1,6 @@
 import SwiftUI
 
+import Core
 import MainCoordinator
 import FeatureSplash
 import DesignSystem
@@ -33,12 +34,12 @@ struct RootView: View {
       }
     }
     .onAppear { store.send(.onAppear) }
-    .alert("업데이트가 필요합니다", isPresented: $store.showUpdateAlert) {
-      Button("업데이트") {
+    .alert(L10n.App.Update.title, isPresented: $store.showUpdateAlert) {
+      Button(L10n.App.Update.button) {
         store.send(.updateButtonTapped)
       }
     } message: {
-      Text("더 나은 서비스를 위해 주룩이 수정되었어요!")
+      Text(L10n.App.Update.message)
     }
     .toast(
       message: store.toastMessage,
