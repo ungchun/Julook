@@ -21,8 +21,8 @@ extension Project {
           codeCoverageEnabled: true,
           testingOptions: [.parallelizable, .randomExecutionOrdering]
         ),
-        defaultKnownRegions: ["ko"],
-        developmentRegion: "ko",
+        defaultKnownRegions: ["ko", "en"],
+        developmentRegion: "en",
         textSettings: .textSettings(usesTabs: false, indentWidth: 2, tabWidth: 2)
       ),
       packages: packages,
