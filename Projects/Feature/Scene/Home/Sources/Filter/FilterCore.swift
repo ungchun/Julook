@@ -30,7 +30,8 @@ public struct FilterCore {
 
     // 토픽 모드
     public var isTopicMode: Bool = false
-    public var topicTitle: String = ""
+    public var topicTitle: String = ""         // 쿼리 키 (원본 한국어 — Supabase fetch 용)
+    public var topicDisplayTitle: String = ""  // 뷰 표시용 (로케일 반영된 표시명)
 
     // UI
     public var scrollToTop: Bool = false
@@ -39,11 +40,13 @@ public struct FilterCore {
       self.initSelectedFilters = initSelectedFilters
       self.isTopicMode = false
       self.topicTitle = ""
+      self.topicDisplayTitle = ""
     }
 
-    public init(topicTitle: String) {
+    public init(topicTitle: String, displayTitle: String? = nil) {
       self.isTopicMode = true
       self.topicTitle = topicTitle
+      self.topicDisplayTitle = displayTitle ?? topicTitle
     }
   }
 

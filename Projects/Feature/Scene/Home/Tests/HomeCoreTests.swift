@@ -29,7 +29,11 @@ final class HomeCoreTests: XCTestCase {
   }
 
   func test_topicItemTapped_emitsMoveToFilterWithTopic() async {
-    let award = Award(id: UUID(), name: "2024 대한민국 주류대상", year: 2024, type: "korea_award")
+    // nameEn nil → localizedName 은 로케일 무관 name 반환 → 테스트 결정적.
+    let award = Award(
+      id: UUID(), name: "2024 대한민국 주류대상",
+      nameEn: nil, year: 2024, type: "korea_award"
+    )
     let store = TestStore(initialState: HomeCore.State()) {
       HomeCore()
     }

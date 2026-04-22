@@ -49,8 +49,8 @@ public struct MainCoordinatorCore {
         return .none
         
       case let .router(.routeAction(
-        id: _, action: .tabs(.homeTab(.moveToFilterWithTopic(title))))):
-        state.routes.push(.filter(.init(topicTitle: title)))
+        id: _, action: .tabs(.homeTab(.moveToFilterWithTopic(name, displayTitle))))):
+        state.routes.push(.filter(.init(topicTitle: name, displayTitle: displayTitle)))
         return .none
         
       case let .router(.routeAction(

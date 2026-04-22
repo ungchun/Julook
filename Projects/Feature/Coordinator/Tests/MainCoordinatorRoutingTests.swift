@@ -35,9 +35,15 @@ final class MainCoordinatorRoutingTests: XCTestCase {
     let store = makeStore()
 
     await store.send(.router(.routeAction(
-      id: 0, action: .tabs(.homeTab(.moveToFilterWithTopic("주류대상")))))
+      id: 0, action: .tabs(.homeTab(.moveToFilterWithTopic(
+        name: "2024 대한민국 주류대상",
+        displayTitle: "2024 Korea Awards"
+      )))))
     ) {
-      $0.routes.append(.push(.filter(FilterCore.State(topicTitle: "주류대상"))))
+      $0.routes.append(.push(.filter(FilterCore.State(
+        topicTitle: "2024 대한민국 주류대상",
+        displayTitle: "2024 Korea Awards"
+      ))))
     }
   }
 

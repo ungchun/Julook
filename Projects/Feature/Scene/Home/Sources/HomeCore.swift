@@ -119,7 +119,7 @@ public struct HomeCore {
     // 네비게이션
     case moveToFilter
     case moveToFilterWithSelection(FilterType)
-    case moveToFilterWithTopic(String)
+    case moveToFilterWithTopic(name: String, displayTitle: String)
     case moveToInformation(Makgeolli, URL?)
     case moveToCommentList
 
@@ -154,7 +154,10 @@ public struct HomeCore {
         return .send(.moveToInformation(m, state.randomMakgeolliImages[m.id]))
 
       case let .topicItemTapped(award):
-        return .send(.moveToFilterWithTopic(award.name))
+        return .send(.moveToFilterWithTopic(
+          name: award.name,
+          displayTitle: award.localizedName(for: .current)
+        ))
 
       case let .topLikedItemTapped(m):
         return .send(.moveToInformation(m, state.topLikedImages[m.id]))

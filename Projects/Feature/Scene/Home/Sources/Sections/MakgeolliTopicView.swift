@@ -41,7 +41,8 @@ struct MakgeolliTopicView: View {
                     HStack {
                       VStack {
                         Spacer()
-                        let components = award.name.components(separatedBy: " ")
+                        let displayName = award.localizedName(for: .current)
+                        let components = displayName.components(separatedBy: " ")
                         VStack(alignment: .leading, spacing: 0) {
                           ForEach(components, id: \.self) { component in
                             Text(component)
