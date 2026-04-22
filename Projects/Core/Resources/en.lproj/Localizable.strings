@@ -21,10 +21,10 @@
 "common.taste.sourness" = "Sour";
 "common.taste.thickness" = "Thick";
 "common.taste.carbonation" = "Fizzy";
-"common.taste.sweetnessShort" = "Sw";
-"common.taste.sournessShort" = "So";
-"common.taste.thicknessShort" = "Th";
-"common.taste.carbonationShort" = "Fz";
+"common.taste.sweetnessShort" = "S";
+"common.taste.sournessShort" = "S";
+"common.taste.thicknessShort" = "T";
+"common.taste.carbonationShort" = "F";
 
 /* MARK: common.format */
 "common.format.breweryAlcohol" = "%@ · %@%";
