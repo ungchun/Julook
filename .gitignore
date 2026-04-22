@@ -77,3 +77,4 @@ _workspace/
 
 ### Claude Code harness runtime ###
 .claude/*.lock
+.claude/settings.local.json
