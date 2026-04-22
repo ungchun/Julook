@@ -26,7 +26,7 @@ extension SupabaseClientLive {
     } catch let error as FunctionsError {
       if case let .httpError(code, data) = error {
         let errorMessage = String(data: data, encoding: .utf8) ?? "Unknown error"
-        Log.debug("[SupabaseClient] Edge Function 에러 - 코드: \(code), 메시지: \(errorMessage)")
+        Log.debug("[SupabaseClient] Edge Function error - code: \(code), message: \(errorMessage)")
       }
       throw SupabaseClientError(code: .failToAnalyzeLabel, underlying: error)
     } catch {

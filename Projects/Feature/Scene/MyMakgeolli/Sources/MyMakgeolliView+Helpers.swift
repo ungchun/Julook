@@ -21,7 +21,7 @@ extension MyMakgeolliView {
               try await CloudKitResetHelper.resetAllData()
               store.send(.loadReactionData)
             } catch {
-              Log.debug("초기화 실패: \(error)")
+              Log.debug("Reset failed: \(error)")
             }
           }
         }
