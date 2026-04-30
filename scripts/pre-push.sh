@@ -137,7 +137,7 @@ fi
 # ── [차단 7] 커밋 메시지 형식 ─────────────────────────────
 sec "[차단 7] 커밋 메시지 형식 ({이모지} [{type}] ...)"
 BAD=0
-MSG_RE='^(✨|🐛|♻️|📝|🎨|🚀|🙈|💄|🔥|🔒|⚡️|✅) \[(feat|fix|refactor|docs|style|deploy|chore|ui|perf|security|test)\] '
+MSG_RE='^(✨|🐛|♻️|📝|🎨|🚀|🙈|💄|🔥|🔒|⚡️|✅|🛠️) \[(feat|fix|refactor|docs|style|deploy|chore|ui|perf|security|test)\] '
 while IFS= read -r msg; do
   [[ -z "$msg" ]] && continue
   # 시스템 merge 커밋 (Merge branch / Merge tag / Merge <branch-name> 등)은 형식 검증 제외
