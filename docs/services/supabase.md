@@ -40,6 +40,8 @@ let store = TestStore(initialState: HomeCore.State()) {
 
 컬럼/타입은 [../database/schema.md](../database/schema.md).
 
+새 테이블/함수/트리거를 추가할 때는 같은 문서의 [마이그레이션 작성 가이드](../database/schema.md#마이그레이션-작성-가이드)를 따른다. RLS / 정책 / GRANT / search_path / SECURITY DEFINER 패턴이 정리되어 있다.
+
 ## Edge Functions
 
 - `supabase/functions/analyze-label/`: base64 이미지 → Gemini 2.5 Flash → 제품명/양조장 추출.
