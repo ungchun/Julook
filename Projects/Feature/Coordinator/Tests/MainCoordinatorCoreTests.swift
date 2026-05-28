@@ -11,7 +11,7 @@ final class MainCoordinatorCoreTests: XCTestCase {
 
   func test_initialRoute_isTabsOnly() {
     let state = MainCoordinatorCore.State(
-      routes: [.root(.tabs(.init()), embedInNavigationView: true)]
+      routes: [.root(.tabs(.init()), withNavigation: true)]
     )
 
     XCTAssertEqual(state.routes.count, 1)

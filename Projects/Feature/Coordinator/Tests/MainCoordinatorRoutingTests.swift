@@ -167,7 +167,7 @@ final class MainCoordinatorRoutingTests: XCTestCase {
 
   private func makeInitialState() -> MainCoordinatorCore.State {
     MainCoordinatorCore.State(
-      routes: [.root(.tabs(TabCore.State()), embedInNavigationView: true)]
+      routes: [.root(.tabs(TabCore.State()), withNavigation: true)]
     )
   }
 
