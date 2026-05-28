@@ -12,7 +12,7 @@ import FeatureHome
 import ComposableArchitecture
 import TCACoordinators
 
-@Reducer(state: .equatable)
+@Reducer(state: .equatable, .hashable)
 public enum MainScreen {
   case tabs(TabCore)
   case filter(FilterCore)

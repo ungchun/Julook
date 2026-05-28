@@ -23,17 +23,15 @@ public struct MainCoordinatorView: View {
   
   public var body: some View {
     TCARouter(store.scope(state: \.routes, action: \.router)) { screen in
-      Group {
-        switch screen.case {
-        case let .tabs(store):
-          TabsView(store: store)
-        case let .filter(store):
-          FilterView(store: store)
-        case let .information(store):
-          InformationView(store: store)
-        case let .commentList(store):
-          CommentListView(store: store)
-        }
+      switch screen.case {
+      case let .tabs(store):
+        TabsView(store: store)
+      case let .filter(store):
+        FilterView(store: store)
+      case let .information(store):
+        InformationView(store: store)
+      case let .commentList(store):
+        CommentListView(store: store)
       }
     }
   }

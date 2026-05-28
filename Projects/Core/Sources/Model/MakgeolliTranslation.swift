@@ -8,7 +8,7 @@
 
 import Foundation
 
-public struct MakgeolliTranslation: Codable, Equatable, Sendable {
+public struct MakgeolliTranslation: Codable, Equatable, Hashable, Sendable {
   /// 대상 막걸리 ID (FK)
   public let makgeolliId: UUID
   /// Locale 코드 (예: "en")

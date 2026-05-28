@@ -16,7 +16,7 @@ import ComposableArchitecture
 @Reducer
 public struct CommentListCore {
   @ObservableState
-  public struct State: Equatable {
+  public struct State: Equatable, Hashable {
     public var isLoading: Bool = false
     public var isLoadingMore: Bool = false
     public var commentedMakgeollis: [UserComment] = []

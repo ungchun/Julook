@@ -9,7 +9,7 @@
 import Foundation
 
 /// Supabase makgeolli_reactions 테이블과 매핑되는 모델
-public struct MakgeolliReactionRemote: Codable, Sendable, Equatable {
+public struct MakgeolliReactionRemote: Codable, Sendable, Equatable, Hashable {
   public let id: UUID
   public let userId: UUID
   public let makgeolliId: UUID
@@ -44,7 +44,7 @@ public struct MakgeolliReactionRemote: Codable, Sendable, Equatable {
 }
 
 /// Supabase makgeolli_reaction_counts 테이블과 매핑되는 모델
-public struct MakgeolliReactionCount: Codable, Sendable, Equatable {
+public struct MakgeolliReactionCount: Codable, Sendable, Equatable, Hashable {
   public let id: UUID
   public let makgeolliId: UUID
   public let likeCount: Int

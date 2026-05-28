@@ -8,7 +8,7 @@ import ComposableArchitecture
 @Reducer
 public struct HomeCore {
   @ObservableState
-  public struct State: Equatable {
+  public struct State: Equatable, Hashable {
     public var isInitialized: Bool = false
 
     // 신상 막걸리

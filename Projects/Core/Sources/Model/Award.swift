@@ -8,7 +8,7 @@
 
 import Foundation
 
-public struct Award: Codable, Identifiable, Equatable, Sendable {
+public struct Award: Codable, Identifiable, Equatable, Hashable, Sendable {
   public let id: UUID
   public let name: String
   public let nameEn: String?

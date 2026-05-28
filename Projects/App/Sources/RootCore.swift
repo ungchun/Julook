@@ -134,7 +134,7 @@ public struct RootCore {
           state.destination = .mainCoordinator(
             MainCoordinatorCore.State(
               routes: [.root(.tabs(TabCore.State()),
-                             embedInNavigationView: true)]
+                             withNavigation: true)]
             )
           )
         }

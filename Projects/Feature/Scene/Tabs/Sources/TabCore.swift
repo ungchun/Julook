@@ -26,7 +26,7 @@ public struct TabCore {
   public init() { }
   
   @ObservableState
-  public struct State: Equatable {
+  public struct State: Equatable, Hashable {
     var selectedTab: Tab
 
     var homeTab: HomeCore.State

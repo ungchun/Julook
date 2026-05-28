@@ -9,7 +9,7 @@ import ComposableArchitecture
 @Reducer
 public struct LabelScanCore {
   @ObservableState
-  public struct State: Equatable {
+  public struct State: Equatable, Hashable {
     // 카메라 상태
     public var isCameraReady: Bool = false
     public var capturedImage: UIImage?

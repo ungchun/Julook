@@ -8,7 +8,7 @@ import ComposableArchitecture
 @Reducer
 public struct InformationCore: Sendable {
   @ObservableState
-  public struct State: Equatable {
+  public struct State: Equatable, Hashable {
     public var makgeolli: Makgeolli
     public var makgeolliImage: URL?
     public var likeButtonState: ReactionButtonState = .active

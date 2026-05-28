@@ -8,7 +8,7 @@
 
 import Foundation
 
-public struct Makgeolli: Codable, Identifiable, Equatable, Sendable {
+public struct Makgeolli: Codable, Identifiable, Equatable, Hashable, Sendable {
   /// 고유 식별자 (UUID)
   public let id: UUID
   /// 막걸리 이름

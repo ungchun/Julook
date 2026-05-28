@@ -19,9 +19,9 @@ let packageSettings = PackageSettings(
 let package = Package(
   name: "Julook",
   dependencies: [
-    .package(url: "https://github.com/pointfreeco/swift-composable-architecture.git", from: "1.11.0"),
+    .package(url: "https://github.com/pointfreeco/swift-composable-architecture.git", from: "1.25.5"),
     .package(url: "https://github.com/pointfreeco/swift-navigation", from: "2.6.0"),
-    .package(url: "https://github.com/johnpatrickmorgan/TCACoordinators", from: "0.10.1"),
+    .package(url: "https://github.com/johnpatrickmorgan/TCACoordinators", from: "0.16.0"),
     .package(url: "https://github.com/supabase/supabase-swift", from: "2.25.0"),
     .package(url: "https://github.com/firebase/firebase-ios-sdk.git", from: "11.0.0"),
     .package(url: "https://github.com/amplitude/Amplitude-Swift", from: "1.13.9")

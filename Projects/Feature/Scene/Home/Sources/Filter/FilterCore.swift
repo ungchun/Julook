@@ -7,7 +7,7 @@ import ComposableArchitecture
 @Reducer
 public struct FilterCore {
   @ObservableState
-  public struct State: Equatable {
+  public struct State: Equatable, Hashable {
     // 필터
     public var selectedFilters: Set<FilterType> = []
     public var initSelectedFilters: FilterType?

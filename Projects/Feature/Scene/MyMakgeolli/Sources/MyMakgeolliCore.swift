@@ -26,7 +26,7 @@ public enum MyMakgeolliFilterTab: String, CaseIterable, Equatable {
 @Reducer
 public struct MyMakgeolliCore: Sendable {
   @ObservableState
-  public struct State: Equatable {
+  public struct State: Equatable, Hashable {
     public var isInitialized: Bool = false
     public var isLoading: Bool = false
     public var selectedTab: MyMakgeolliFilterTab = .all

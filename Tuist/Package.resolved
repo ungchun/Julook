@@ -1,5 +1,5 @@
 {
-  "originHash" : "a686275e726c71aa5f0684c58ddb4ee11c799f7b21246de0dd7bdbe0b96a8dda",
+  "originHash" : "85cb6e366f1620a71d4a6436ca60405cbab3ae913ea5f04fce68b7488fc523d0",
   "pins" : [
     {
       "identity" : "abseil-cpp-binary",
@@ -69,8 +69,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/johnpatrickmorgan/FlowStacks",
       "state" : {
-        "revision" : "a2b974b81612e1e8ee3ecd757d936a2919527356",
-        "version" : "0.4.1"
+        "revision" : "7b6438fef0d403c71aadf7ae41565bf4647e4af4",
+        "version" : "0.10.12"
       }
     },
     {
@@ -204,8 +204,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/swift-composable-architecture.git",
       "state" : {
-        "revision" : "76c4411e02cc7768a3f27ca058bd2143c342e5b2",
-        "version" : "1.18.0"
+        "revision" : "1eaa6fa2ee57ac42843283b9fd3457af408c858d",
+        "version" : "1.25.5"
       }
     },
     {
@@ -267,8 +267,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/swift-navigation",
       "state" : {
-        "revision" : "bf498690e1f6b4af790260f542e8428a4ba10d78",
-        "version" : "2.6.0"
+        "revision" : "32f35241b8be0719c4c7f00eb27713b1cadb6248",
+        "version" : "2.8.0"
       }
     },
     {
@@ -312,8 +312,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/johnpatrickmorgan/TCACoordinators",
       "state" : {
-        "revision" : "dbd41678b1d53849dca7582534671ccc19287a87",
-        "version" : "0.11.0"
+        "revision" : "fffb631e22cdea86aace22129f361d1a38bec7af",
+        "version" : "0.16.0"
       }
     },
     {

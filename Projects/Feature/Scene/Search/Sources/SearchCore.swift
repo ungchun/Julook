@@ -9,7 +9,7 @@ import Supabase
 @Reducer
 public struct SearchCore {
   @ObservableState
-  public struct State: Equatable {
+  public struct State: Equatable, Hashable {
     // 검색
     public var searchText: String = ""
     public var isSearchBarFocused: Bool = false
