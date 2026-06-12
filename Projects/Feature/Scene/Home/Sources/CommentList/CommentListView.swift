@@ -26,7 +26,9 @@ public struct CommentListView: View {
         .ignoresSafeArea()
       
       VStack(spacing: 0) {
-        if store.isLoading {
+        // fetch는 push 전환이 끝난 뒤 시작되므로(NavigationTransition 참고),
+        // isLoading 이전의 빈 화면 구간도 로딩으로 취급해야 인디케이터가 끊기지 않는다
+        if store.isLoading || (store.commentedMakgeollis.isEmpty && store.hasMoreData) {
           LoadingView()
         } else {
           CommentListContentView()
@@ -44,35 +46,13 @@ public struct CommentListView: View {
 private extension CommentListView {
   @ViewBuilder
   func LoadingView() -> some View {
-    VStack(spacing: 12) {
-      ForEach(0..<5, id: \.self) { _ in
-        HStack(spacing: 16) {
-          RoundedRectangle(cornerRadius: 12)
-            .fill(DesignSystemAsset.Colors.darkgray.swiftUIColor)
-            .frame(width: 80, height: 80)
-          
-          VStack(alignment: .leading, spacing: 8) {
-            RoundedRectangle(cornerRadius: 4)
-              .fill(DesignSystemAsset.Colors.darkgray.swiftUIColor)
-              .frame(height: 16)
-            
-            RoundedRectangle(cornerRadius: 4)
-              .fill(DesignSystemAsset.Colors.darkgray.swiftUIColor)
-              .frame(height: 12)
-            
-            RoundedRectangle(cornerRadius: 4)
-              .fill(DesignSystemAsset.Colors.darkgray.swiftUIColor)
-              .frame(width: 80, height: 12)
-          }
-          
-          Spacer()
-        }
-        .padding(.horizontal, 16)
-        
-        Divider()
-          .padding(.vertical, 12)
-      }
+    HStack {
+      Spacer()
+      ProgressView()
+        .progressViewStyle(CircularProgressViewStyle(tint: .w))
+      Spacer()
     }
+    .frame(height: 50)
     .frame(maxHeight: .infinity, alignment: .top)
   }
   
