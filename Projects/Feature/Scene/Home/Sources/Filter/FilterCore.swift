@@ -38,6 +38,9 @@ public struct FilterCore {
 
     public init(initSelectedFilters: FilterType? = nil) {
       self.initSelectedFilters = initSelectedFilters
+      if let initSelectedFilters {
+        self.selectedFilters = [initSelectedFilters]
+      }
       self.isTopicMode = false
       self.topicTitle = ""
       self.topicDisplayTitle = ""
@@ -87,20 +90,21 @@ public struct FilterCore {
   public init() { }
 
   @Dependency(\.supabaseClient) var supabaseClient
+  @Dependency(\.continuousClock) var clock
 
   public var body: some Reducer<State, Action> {
     Reduce { state, action in
       switch action {
       case .onAppear:
-        if let filter = state.initSelectedFilters {
-          state.selectedFilters.insert(filter)
-        }
         guard !state.isLoadingMakgeollis && state.makgeollis.isEmpty else {
           return .none
         }
-        return state.isTopicMode
-          ? .send(.fetchMakgeollisByTopic)
-          : .send(.fetchMakgeollis)
+        let clock = self.clock
+        let isTopicMode = state.isTopicMode
+        return .run { send in
+          try await clock.sleep(for: NavigationTransition.settleDuration)
+          await send(isTopicMode ? .fetchMakgeollisByTopic : .fetchMakgeollis)
+        }
 
       case .toggleSortInfoAlertTapped:
         state.showSortInfoAlert.toggle()
@@ -148,7 +152,11 @@ public struct FilterCore {
         )
 
       case .loadMoreMakgeollis:
-        if state.isLoadingMakgeollis || !state.hasMoreData { return .none }
+        // 초기 로드 전(빈 그리드)에는 load-more 금지 — 빈 그리드의 LoadMoreView가
+        // push 전환 중 onAppear로 발사해 첫 페이지를 건너뛴 fetch + 전환 중 상태 변이를 일으킴
+        if state.isLoadingMakgeollis || !state.hasMoreData || state.makgeollis.isEmpty {
+          return .none
+        }
         state.isLoadingMakgeollis = true
         let nextPage = state.currentPage + 1
         let offset = nextPage * state.pageSize

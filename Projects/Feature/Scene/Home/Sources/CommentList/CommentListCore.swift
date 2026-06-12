@@ -55,15 +55,20 @@ public struct CommentListCore {
   public init() { }
   
   @Dependency(\.supabaseClient) var supabaseClient
-  
+  @Dependency(\.continuousClock) var clock
+
   public var body: some Reducer<State, Action> {
     Reduce { state, action in
       switch action {
       case .onAppear:
-        if !state.isLoading && state.commentedMakgeollis.isEmpty {
-          return .send(.fetchCommentedMakgeollis)
+        guard !state.isLoading && state.commentedMakgeollis.isEmpty else {
+          return .none
         }
-        return .none
+        let clock = self.clock
+        return .run { send in
+          try await clock.sleep(for: NavigationTransition.settleDuration)
+          await send(.fetchCommentedMakgeollis)
+        }
         
       case .dismiss:
         return .none

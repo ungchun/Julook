@@ -11,13 +11,17 @@ final class CommentListCoreTests: XCTestCase {
   // MARK: - onAppear
 
   func test_onAppear_whenEmptyAndNotLoading_triggersFetchAndResolvesEmpty() async {
+    let clock = TestClock()
     let store = TestStore(initialState: CommentListCore.State()) {
       CommentListCore()
     } withDependencies: {
+      $0.continuousClock = clock
       $0.supabaseClient.getRecentCommentsPaginated = { _, _ in [] }
     }
 
     await store.send(.onAppear)
+    // push 전환이 끝나기 전(0.65초)에는 fetch를 시작하지 않는다 (NavigationTransition 참고)
+    await clock.advance(by: .milliseconds(650))
     await store.receive(\.fetchCommentedMakgeollis) {
       $0.isLoading = true
     }
