@@ -45,6 +45,21 @@ final class L10nInfraTests: XCTestCase {
     )
   }
 
+  func test_koLproj_Localizable_containsRequestPromptKey() throws {
+    let bundle = CoreBundle.bundle
+    let koPath = try XCTUnwrap(
+      bundle.path(forResource: "ko", ofType: "lproj"),
+      "Core.framework 번들에 ko.lproj가 복사되지 않았다"
+    )
+    let koBundle = try XCTUnwrap(Bundle(path: koPath))
+    let value = koBundle.localizedString(
+      forKey: "search.results.requestPrompt",
+      value: "__MISSING__",
+      table: "Localizable"
+    )
+    XCTAssertEqual(value, "찾는 막걸리가 없나요?")
+  }
+
   // MARK: - ko/en 키 집합 동기화
 
   func test_koAndEnLproj_haveIdenticalKeySets() throws {

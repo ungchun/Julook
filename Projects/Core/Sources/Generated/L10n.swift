@@ -337,6 +337,8 @@ public enum L10n {
     public enum Results {
       /// MARK: search.results — 검색 결과
       public static let empty = L10n.tr("Localizable", "search.results.empty", fallback: "검색 결과가 없어요.")
+      /// 찾는 막걸리가 없나요?
+      public static let requestPrompt = L10n.tr("Localizable", "search.results.requestPrompt", fallback: "찾는 막걸리가 없나요?")
       /// 등록 요청하기
       public static let requestRegister = L10n.tr("Localizable", "search.results.requestRegister", fallback: "등록 요청하기")
       public enum RequestComplete {

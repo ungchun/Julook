@@ -74,6 +74,7 @@
 
 /* MARK: search.results */
 "search.results.empty" = "No results found.";
+"search.results.requestPrompt" = "Can't find what you're looking for?";
 "search.results.requestRegister" = "Request addition";
 "search.results.requestComplete.title" = "Request received";
 "search.results.requestComplete.message" = "We'll add it as soon as possible!";

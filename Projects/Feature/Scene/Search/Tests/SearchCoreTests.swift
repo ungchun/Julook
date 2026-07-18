@@ -26,6 +26,19 @@ final class SearchCoreTests: XCTestCase {
     }
   }
 
+  func test_requestRegisterMakgeolli_showsRequestAlert() async {
+    let store = TestStore(initialState: SearchCore.State()) {
+      SearchCore()
+    } withDependencies: {
+      $0.supabaseClient.requestRegisterMakgeolli = { _ in }
+    }
+
+    await store.send(.requestRegisterMakgeolli("장수"))
+    await store.receive(\.showRequestAlert) {
+      $0.isShowingRequestAlert = true
+    }
+  }
+
   func test_showClearConfirmAlert_setsState() async {
     let store = TestStore(initialState: SearchCore.State()) { SearchCore() }
 

@@ -78,6 +78,7 @@
 
 /* MARK: search.results — 검색 결과 */
 "search.results.empty" = "검색 결과가 없어요.";
+"search.results.requestPrompt" = "찾는 막걸리가 없나요?";
 "search.results.requestRegister" = "등록 요청하기";
 "search.results.requestComplete.title" = "등록 요청 완료";
 "search.results.requestComplete.message" = "빠른 시일내에 추가할게요!";
